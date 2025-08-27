@@ -1,14 +1,15 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from fastapi.responses import StreamingResponse
 import qrcode
 import io
 from models import Pet, User
+from utils.auth import get_current_user
 
-router = APIRouter(tags=["QR Code"])
+router = APIRouter(prefix="/api", tags=["QR Code"])
 
 
 @router.get("/qrcode/{pet_id}")
-async def generate_qr_code(pet_id: int):
+async def generate_qr_code(pet_id: int, current_user: User = Depends(get_current_user)):
     """
     Generate a QR code for a pet by pet ID.
     Returns a PNG image.
@@ -22,7 +23,7 @@ async def generate_qr_code(pet_id: int):
 
 
 @router.post("/qrcode/scan/{scan_id}")
-async def scan_qr_code(scan_id: str):
+async def scan_qr_code(scan_id: str, current_user: User = Depends(get_current_user)):
     """
     Record a QR code scan for a pet and owner.
     Sample scan_id: "<owner_hash>|<pet_id>"

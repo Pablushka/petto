@@ -1,9 +1,61 @@
-from fastapi import APIRouter, HTTPException
+from datetime import timedelta
+from fastapi.security import OAuth2PasswordRequestForm
+from fastapi import APIRouter, HTTPException, Depends, status
 from typing import List
 from models import User
-from schemas.users import UserCreate, UserOut
+from utils.auth import get_password_hash, verify_password, create_access_token, get_current_user
+from schemas.users import UserCreate, UserOut, UserRegister, PasswordRecoveryRequest, PasswordResetRequest
 
-router = APIRouter(tags=["Users"])
+router = APIRouter(prefix="/api", tags=["Users"])
+
+# User registration endpoint
+
+
+@router.post("/register", response_model=UserOut)
+async def register(user: UserRegister):
+    existing_user = await User.get_or_none(email=user.email)
+    if existing_user:
+        raise HTTPException(status_code=400, detail="Email already registered")
+    hashed_password = get_password_hash(user.password)
+    user_data = user.dict()
+    user_data["password"] = hashed_password
+    user_obj = await User.create(**user_data)
+    return user_obj
+
+# Password recovery request endpoint
+
+
+@router.post("/password-recovery")
+async def password_recovery(request: PasswordRecoveryRequest):
+    user = await User.get_or_none(email=request.email)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    # Here you would send a recovery email with a token (stubbed)
+    token = create_access_token(
+        {"sub": str(user.id)}, expires_delta=timedelta(minutes=15))
+    # send_email(user.email, token)
+
+    return {"message": "Recovery email sent (stub)", "token": token}
+
+# Password reset endpoint
+
+
+@router.post("/password-reset")
+async def password_reset(request: PasswordResetRequest):
+    # Decode token and get user id (stubbed, should verify token)
+    try:
+        from jose import jwt
+        from utils.auth import SECRET_KEY, ALGORITHM
+        payload = jwt.decode(request.token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = int(payload.get("sub"))
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid or expired token")
+    user = await User.get_or_none(id=user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    user.password = get_password_hash(request.new_password)
+    await user.save(update_fields=["password"])
+    return {"message": "Password reset successful"}
 
 
 @router.post("/users/", response_model=UserOut)
@@ -18,15 +70,30 @@ async def create_user(user: UserCreate):
         "phone": "1234567890",
         "full_address": "123 Main St, City",
         "recovery_bounty": 50.0
+        "password": "yourpassword"
     }
     http POST :8000/users/ first_name=John last_name=Doe email=john@example.com phone=1234567890 full_address="123 Main St, City" recovery_bounty:=50.0
     """
-    user_obj = await User.create(**user.dict())
+    hashed_password = get_password_hash(user.password)
+    user_data = user.model_dump()
+    user_data["password"] = hashed_password
+    user_obj = await User.create(**user_data)
     return user_obj
+# Login route
+
+
+@router.post("/login")
+async def login(form_data: OAuth2PasswordRequestForm = Depends()):
+    user = await User.get_or_none(email=form_data.username)
+    if not user or not verify_password(form_data.password, user.password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect email or password")
+    access_token = create_access_token(data={"sub": str(user.id)})
+    return {"access_token": access_token, "token_type": "bearer"}
 
 
 @router.get("/users/", response_model=List[UserOut])
-async def get_users():
+async def get_users(current_user: User = Depends(get_current_user)):
     """
     Get a list of all users.
     http GET :8000/users/
@@ -35,7 +102,7 @@ async def get_users():
 
 
 @router.get("/users/{user_id}", response_model=UserOut)
-async def get_user(user_id: int):
+async def get_user(user_id: int, current_user: User = Depends(get_current_user)):
     """
     Get a user by ID.
     http GET :8000/users/1
@@ -47,7 +114,7 @@ async def get_user(user_id: int):
 
 
 @router.put("/users/{user_id}", response_model=UserOut)
-async def update_user(user_id: int, user: UserCreate):
+async def update_user(user_id: int, user: UserCreate, current_user: User = Depends(get_current_user)):
     """
     Update a user by ID.
     Sample JSON for httpie:
@@ -69,7 +136,7 @@ async def update_user(user_id: int, user: UserCreate):
 
 
 @router.delete("/users/{user_id}", response_model=dict)
-async def delete_user(user_id: int):
+async def delete_user(user_id: int, current_user: User = Depends(get_current_user)):
     """
     Delete a user by ID.
     http DELETE :8000/users/1

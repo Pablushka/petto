@@ -1,15 +1,16 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from fastapi.responses import StreamingResponse
 from PIL import Image, ImageDraw, ImageFont
 import io
 import requests
-from models import Pet
+from models import Pet, User
+from utils.auth import get_current_user
 
-router = APIRouter(tags=["Pets"])
+router = APIRouter(prefix="/api", tags=["Pets"])
 
 
 @router.get("/banners/{pet_id}")
-async def generate_banner(pet_id: int):
+async def generate_banner(pet_id: int, current_user: User = Depends(get_current_user)):
     pet = await Pet.get_or_none(id=pet_id).prefetch_related("owner")
     if not pet:
         raise HTTPException(status_code=404, detail="Pet not found")

@@ -28,6 +28,7 @@ class User(models.Model):
     full_address = fields.CharField(max_length=1024)
     recovery_bounty = fields.DecimalField(
         max_digits=10, decimal_places=2, null=True, default=None)
+    password = fields.CharField(max_length=128)
     hash = fields.CharField(max_length=64, unique=True,
                             null=False, index=True, default=default_hash)
 

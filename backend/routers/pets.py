@@ -1,13 +1,14 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from typing import List
 from models import Pet, User
+from utils.auth import get_current_user
 from schemas.pets import PetCreate, PetOut
 
-router = APIRouter(tags=["Pets"])
+router = APIRouter(prefix="/api", tags=["Pets"])
 
 
 @router.post("/pets/", response_model=PetOut)
-async def create_pet(pet: PetCreate):
+async def create_pet(pet: PetCreate, current_user: User = Depends(get_current_user)):
     """
     Create a new pet.
     Sample JSON for httpie:
@@ -28,7 +29,7 @@ async def create_pet(pet: PetCreate):
 
 
 @router.get("/pets/", response_model=List[PetOut])
-async def get_pets():
+async def get_pets(current_user: User = Depends(get_current_user)):
     """
     Get a list of all pets.
     http GET :8000/pets/
@@ -37,7 +38,7 @@ async def get_pets():
 
 
 @router.get("/pets/{pet_id}", response_model=PetOut)
-async def get_pet(pet_id: int):
+async def get_pet(pet_id: int, current_user: User = Depends(get_current_user)):
     """
     Get a pet by ID.
     http GET :8000/pets/1
@@ -49,7 +50,7 @@ async def get_pet(pet_id: int):
 
 
 @router.put("/pets/{pet_id}", response_model=PetOut)
-async def update_pet(pet_id: int, pet: PetCreate):
+async def update_pet(pet_id: int, pet: PetCreate, current_user: User = Depends(get_current_user)):
     """
     Update a pet by ID.
         Sample JSON for httpie:
@@ -73,7 +74,7 @@ async def update_pet(pet_id: int, pet: PetCreate):
 
 
 @router.delete("/pets/{pet_id}", response_model=dict)
-async def delete_pet(pet_id: int):
+async def delete_pet(pet_id: int, current_user: User = Depends(get_current_user)):
     """
     Delete a pet by ID.
     http DELETE :8000/pets/1

@@ -1,9 +1,11 @@
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request, Depends
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
-router = APIRouter(prefix="/pet-location", tags=["Pet Location & QR"])
+from models import User
+from utils.auth import get_current_user
+router = APIRouter(prefix="/api/pet-location", tags=["Pet Location & QR"])
 
 # Example in-memory store (replace with DB integration)
 pet_scan_events = []
@@ -13,12 +15,12 @@ class PetScanEvent(BaseModel):
     pet_id: int
     user_id: int
     scan_location: Optional[str] = None
-    scan_time: datetime = datetime.utcnow()
+    scan_time: datetime = datetime.now(timezone.utc)
     qr_link: str
 
 
 @router.post("/scan")
-def record_pet_scan(event: PetScanEvent, request: Request):
+def record_pet_scan(event: PetScanEvent, request: Request, current_user: User = Depends(get_current_user)):
     """
     Record a pet scan event.
     Sample JSON for httpie:
@@ -37,7 +39,7 @@ def record_pet_scan(event: PetScanEvent, request: Request):
 
 
 @router.get("/pet/{pet_id}/qr-link")
-async def get_qr_link(pet_id: int):
+async def get_qr_link(pet_id: int, current_user: User = Depends(get_current_user)):
     """
     Get the QR link for a pet by pet ID.
     http GET :8000/pet-location/pet/1/qr-link
@@ -55,6 +57,6 @@ async def get_qr_link(pet_id: int):
 
 
 @router.get("/pet/{pet_id}/scans")
-def get_pet_scans(pet_id: int):
+def get_pet_scans(pet_id: int, current_user: User = Depends(get_current_user)):
     scans = [e for e in pet_scan_events if e["pet_id"] == pet_id]
     return {"pet_id": pet_id, "scans": scans}

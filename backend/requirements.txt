@@ -1,3 +1,5 @@
+passlib==1.7.4
+python-jose==3.3.0
 aiodns==3.2.0
 aiohappyeyeballs==2.6.1
 aiohttp==3.10.11

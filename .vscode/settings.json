@@ -1,4 +1,5 @@
 {
     "sherlock.appRecommendations.ninja.enabled": true,
-    "sherlock.previewLanguageTag": "en"
+    "sherlock.previewLanguageTag": "es",
+    "sherlock.showWelcomePage": true
 }
