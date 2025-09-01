@@ -2,6 +2,17 @@
 
 Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
 
+## App Routes
+
+The following routes are available in this SvelteKit app:
+
+- `/` — Home page
+- `/auth-test` — Session/auth test page
+- `/login` — Login page
+- `/forgot-password` — Forgot password page
+- `/demo` — Demo index
+- `/demo/paraglide` — Paraglide i18n demo
+
 ## Creating a project
 
 If you're seeing this, you've probably already done this step. Congrats!

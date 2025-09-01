@@ -60,10 +60,10 @@ async def password_reset(request: PasswordResetRequest):
         from jose import jwt
         from utils.auth import SECRET_KEY, ALGORITHM
         payload = jwt.decode(request.token, SECRET_KEY, algorithms=[ALGORITHM])
-        user_id = int(payload.get("sub"))
+        user = UserOut(**(payload.get("sub")))
     except Exception:
         raise HTTPException(status_code=400, detail="Invalid or expired token")
-    user = await User.get_or_none(id=user_id)
+    user = await User.get_or_none(id=user.id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     user.password = get_password_hash(request.new_password)
@@ -111,7 +111,20 @@ async def loginJson(request: LoginRequest):
     if not user or not verify_password(request.password, user.password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect email or password")
-    access_token = create_access_token(data={"sub": str(user.id)})
+    user_data = {
+        "id": user.id,
+        "first_name": user.first_name,
+        "last_name": user.last_name,
+        "email": user.email,
+        # "phone": user.phone,
+        # "full_address": user.full_address,
+        # "recovery_bounty": float(user.recovery_bounty) if user.recovery_bounty is not None else None,
+        # "hash": user.hash
+    }
+    import json
+    user_json = json.dumps(user_data)
+    access_token = create_access_token(
+        data={"sub": user_json})
     return {"access_token": access_token, "token_type": "bearer"}
 
 
@@ -128,6 +141,14 @@ async def loginForm(form_data: OAuth2PasswordRequestForm = Depends()):
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect email or password")
     access_token = create_access_token(data={"sub": str(user.id)})
     return {"access_token": access_token, "token_type": "bearer"}
+
+
+@router.get("/users/me", response_model=UserOut)
+async def get_me(current_user: User = Depends(get_current_user)):
+    """
+    Get the current authenticated user (requires authentication).
+    """
+    return current_user
 
 
 @router.get("/users/", response_model=List[UserOut])

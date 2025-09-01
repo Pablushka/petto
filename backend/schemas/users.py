@@ -41,7 +41,7 @@ class UserOut(BaseModel):
     first_name: str
     last_name: str
     email: str
-    phone: str
-    full_address: str
+    phone: Optional[str] = None
+    full_address: Optional[str] = None
     recovery_bounty: Optional[float] = None
-    hash: str
+    hash: Optional[str] = None

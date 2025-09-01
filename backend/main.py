@@ -1,8 +1,20 @@
+
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from tortoise.contrib.fastapi import register_tortoise
 from routers import static, users, pets, qrcode, banners, pet_location
 
+
 app = FastAPI()
+
+# CORS configuration for frontend dev server
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
 
 app.include_router(static.router)
 app.include_router(users.router)

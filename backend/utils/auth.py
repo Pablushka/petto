@@ -1,4 +1,3 @@
-
 from pydantic import BaseModel
 from fastapi import Body
 from typing import Union, Annotated
@@ -7,7 +6,7 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from schemas.users import LoginRequest
+from schemas.users import LoginRequest, UserOut
 from typing_extensions import Annotated, Doc
 
 # Secret key for JWT
@@ -45,31 +44,39 @@ def create_refresh_token(data: dict, expires_delta: timedelta = None):
     if expires_delta:
         expire = datetime.now(timezone.utc) + expires_delta
     else:
-        expire = datetime.utcnow() + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
+        expire = datetime.now(timezone.utc) + \
+            timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
 
-def get_current_user(token: str = Depends(oauth2_scheme)):
+async def get_current_user(token: str = Depends(oauth2_scheme)):
     from models import User
-  # Import here to avoid circular import
+    import json
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        user_id: int = payload.get("sub")
-        if user_id is None:
+        user_data_raw = payload.get("sub")
+        try:
+            user_data = json.loads(user_data_raw)
+        except Exception as e:
+            print(f"Error decoding user_data from token: {e}")
+            user_data = {}
+        user_id = user_data.get("id")
+        if not user_id:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Could not validate credentials",
                 headers={"WWW-Authenticate": "Bearer"},
             )
-    except JWTError:
+    except JWTError as e:
+        print(f"JWTError in get_current_user: {e}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Could not validate credentials",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    user = User.get(id=user_id)
+    user = await User.get_or_none(id=user_id)
     if user is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -80,17 +87,25 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
 
 
 def verify_refresh_token(refresh_token: str):
+    import json
     try:
         payload = jwt.decode(refresh_token, SECRET_KEY, algorithms=[ALGORITHM])
-        user_id: int = payload.get("sub")
-        if user_id is None:
+        user_data_raw = payload.get("sub")
+        try:
+            user_data = json.loads(user_data_raw)
+        except Exception as e:
+            print(f"Error decoding user_data from refresh token: {e}")
+            user_data = {}
+        user_id = user_data.get("id")
+        if not user_id:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid refresh token",
                 headers={"WWW-Authenticate": "Bearer"},
             )
         return user_id
-    except JWTError:
+    except JWTError as e:
+        print(f"JWTError in verify_refresh_token: {e}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid refresh token",

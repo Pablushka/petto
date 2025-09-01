@@ -2,6 +2,10 @@
 
 Doko is a Progressive Web Application designed to help reunite lost pets with their owners.
 
+## App UI
+
+Doko is a responsive app with two UI templates to choose from: one pastel pink-based color palette and another pastel green-based color palette. The design is mobile-first, as it is a PWA intended primarily for use on mobile devices.
+
 ## Monorepo Structure
 
 Doko is organized as a monorepo using pnpm workspaces:
