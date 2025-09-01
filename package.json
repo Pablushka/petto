@@ -1,0 +1,26 @@
+{
+  "name": "doko",
+  "private": true,
+  "packageManager": "pnpm@9.12.3",
+  "type": "module",
+  "scripts": {
+    "dev": "pnpm --filter frontend dev",
+    "build": "pnpm --filter frontend build",
+    "preview": "pnpm --filter frontend preview",
+    "lint": "pnpm -r lint",
+    "test": "pnpm -r test",
+    "dev:frontend": "pnpm --filter frontend dev",
+    "dev:backend": "cd backend && python -m uvicorn main:app --reload",
+    "dev:all": "concurrently \"pnpm run dev:frontend\" \"pnpm run dev:backend\"",
+    "install:backend": "cd backend && uv add -r requirements.txt"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@tailwindcss/oxide",
+      "esbuild"
+    ],
+    "ignoredBuiltDependencies": [
+      "@tailwindcss/oxide"
+    ]
+  }
+}

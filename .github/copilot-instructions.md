@@ -71,3 +71,5 @@
 For unclear conventions or missing info, ask the user for clarification or examples from the codebase.
 
 For Sveltekit documentations, refer to the official SvelteKit documentation at https://svelte.dev/llms-small.txt
+
+For tailwind documentation, refer to the official Tailwind CSS documentation at tailwind-llm.txt in this project.

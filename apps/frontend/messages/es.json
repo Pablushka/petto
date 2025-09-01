@@ -1,0 +1,23 @@
+{
+	"$schema": "https://inlang.com/schema/inlang-message-format",
+	"hello_world": "Hola, {name} en español!!!",
+	"button_submit": "Enviar",
+	"button_cancel": "Cancelar",
+	"login_title": "Iniciar sesión",
+	"login_button": "Entrar",
+	"login_failed": "Credenciales incorrectas",
+	"email_label": "Correo electrónico",
+	"password_label": "Contraseña",
+	"forgot_password_link": "¿Olvidaste tu contraseña?",
+	"forgot_title": "Recuperar contraseña",
+	"forgot_button": "Enviar enlace",
+	"forgot_success": "¡Revisa tu correo para recuperar tu contraseña!",
+	"forgot_failed": "No se pudo enviar el correo",
+	"network_error": "Error de red",
+	"loading": "Cargando...",
+	"auth_test_title": "Prueba de autenticación",
+	"session_greeting": "Hola, {email}",
+	"session_invalid": "Sesión inválida o expirada",
+	"session_not_logged_in": "No has iniciado sesión",
+	"logout_button": "Cerrar sesión"
+}

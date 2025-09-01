@@ -1,6 +1,0 @@
-{
-	"$schema": "https://inlang.com/schema/inlang-message-format",
-	"hello_world": "Hola, {name} en español!!!",
-	"button_submit": "Enviar",
-	"button_cancel": "Cancelar"
-}

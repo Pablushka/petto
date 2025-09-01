@@ -1,0 +1,23 @@
+{
+	"$schema": "https://inlang.com/schema/inlang-message-format",
+	"hello_world": "こんにちは世界！",
+	"button_submit": "送信",
+	"button_cancel": "キャンセル",
+	"login_title": "ログイン",
+	"login_button": "ログイン",
+	"login_failed": "認証情報が正しくありません",
+	"email_label": "メールアドレス",
+	"password_label": "パスワード",
+	"forgot_password_link": "パスワードをお忘れですか？",
+	"forgot_title": "パスワードの回復",
+	"forgot_button": "リンクを送信",
+	"forgot_success": "パスワードを回復するためにメールを確認してください！",
+	"forgot_failed": "メールを送信できませんでした",
+	"network_error": "ネットワークエラー",
+	"loading": "読み込み中...",
+	"auth_test_title": "認証テスト",
+	"session_greeting": "こんにちは、{email}",
+	"session_invalid": "セッションが無効または期限切れです",
+	"session_not_logged_in": "ログインしていません",
+	"logout_button": "ログアウト"
+}

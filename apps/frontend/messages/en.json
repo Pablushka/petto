@@ -1,0 +1,23 @@
+{
+	"$schema": "https://inlang.com/schema/inlang-message-format",
+	"hello_world": "Hello, {name} from en!glish!!",
+	"button_submit": "Submit",
+	"button_cancel": "Cancel",
+	"login_title": "Sign in",
+	"login_button": "Sign in",
+	"login_failed": "Incorrect credentials",
+	"email_label": "Email",
+	"password_label": "Password",
+	"forgot_password_link": "Forgot your password?",
+	"forgot_title": "Password recovery",
+	"forgot_button": "Send link",
+	"forgot_success": "Check your email to recover your password!",
+	"forgot_failed": "Could not send email",
+	"network_error": "Network error",
+	"loading": "Loading...",
+	"auth_test_title": "Authentication test",
+	"session_greeting": "Hello, {email}",
+	"session_invalid": "Session invalid or expired",
+	"session_not_logged_in": "You are not signed in",
+	"logout_button": "Sign out"
+}
