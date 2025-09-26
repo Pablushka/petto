@@ -1,18 +1,10 @@
-from pydantic import BaseModel
+from tortoise.contrib.pydantic import pydantic_model_creator
+from models import Pet
 
 
-class PetCreate(BaseModel):
-    name: str
-    picture: str
-    notes: str
-    pet_type: str
-    owner_id: int
+# Pydantic model for reading/writing Pet instances.
+# PetIn excludes readonly fields (like id) so it can be used for create/update inputs.
+PetIn = pydantic_model_creator(Pet, name="PetIn", exclude_readonly=True)
 
-
-class PetOut(BaseModel):
-    id: int
-    name: str
-    picture: str
-    notes: str
-    pet_type: str
-    owner_id: int
+# PetOut is the response model used by FastAPI routes. It includes all fields.
+PetOut = pydantic_model_creator(Pet, name="PetOut")

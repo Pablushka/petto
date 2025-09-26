@@ -2,6 +2,9 @@
 	import { m } from '$lib/paraglide/messages';
 	import { goto } from '$app/navigation';
 	import { BACKEND_URL } from '$lib/config';
+	import { getMessage } from '$lib/utils/message-helper';
+	import { page } from '$app/stores';
+
 	let email = '';
 	let password = '';
 	let error = '';
@@ -17,34 +20,52 @@
 				body: JSON.stringify({ email, password })
 			});
 			if (!res.ok) {
-				error = m.login_failed();
+				error = getMessage('login_failed');
 				loading = false;
 				return;
 			}
-			const { access_token, refresh_token } = await res.json();
-			localStorage.setItem('access_token', access_token);
-			localStorage.setItem('refresh_token', refresh_token);
-			goto('/auth-test');
+			const tokens = await res.json();
+			if (tokens.access_token) {
+				localStorage.setItem('access_token', tokens.access_token);
+			}
+			if (tokens.refresh_token) {
+				localStorage.setItem('refresh_token', tokens.refresh_token);
+			}
+			const returnTo = $page.url.searchParams.get('returnUrl') || '/';
+			goto(returnTo);
 		} catch (e) {
-			error = m.network_error();
+			error = getMessage('network_error');
 		}
 		loading = false;
 	}
 </script>
 
 <div class="mx-auto mt-16 max-w-md rounded bg-white p-8 shadow">
-	<h1 class="mb-6 text-2xl font-bold">{m.login_title()}</h1>
+	<h1 class="mb-6 text-2xl font-bold">{getMessage('login_title')}</h1>
 	{#if error}
 		<div class="mb-4 text-red-600">{error}</div>
 	{/if}
-	<form on:submit|preventDefault={handleLogin} class="space-y-4">
+	<form
+		onsubmit={(e) => {
+			e.preventDefault();
+			handleLogin();
+		}}
+		class="space-y-4"
+	>
 		<div>
-			<label class="mb-1 block font-medium">{m.email_label()}</label>
-			<input type="email" bind:value={email} required class="w-full rounded border px-3 py-2" />
+			<label for="email" class="mb-1 block font-medium">{getMessage('email_label')}</label>
+			<input
+				id="email"
+				type="email"
+				bind:value={email}
+				required
+				class="w-full rounded border px-3 py-2"
+			/>
 		</div>
 		<div>
-			<label class="mb-1 block font-medium">{m.password_label()}</label>
+			<label for="password" class="mb-1 block font-medium">{getMessage('password_label')}</label>
 			<input
+				id="password"
 				type="password"
 				bind:value={password}
 				required
@@ -56,10 +77,12 @@
 			class="w-full rounded bg-blue-600 py-2 text-white hover:bg-blue-700"
 			disabled={loading}
 		>
-			{loading ? m.loading() : m.login_button()}
+			{loading ? getMessage('loading') : getMessage('login_button')}
 		</button>
 	</form>
 	<div class="mt-4 text-sm">
-		<a href="/forgot-password" class="text-blue-600 hover:underline">{m.forgot_password_link()}</a>
+		<a href="/forgot-password" class="text-blue-600 hover:underline"
+			>{getMessage('forgot_password_link')}</a
+		>
 	</div>
 </div>

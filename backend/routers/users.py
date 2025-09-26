@@ -1,12 +1,49 @@
-from datetime import timedelta
-from fastapi.security import OAuth2PasswordRequestForm
-from fastapi import APIRouter, HTTPException, Depends, status
-from typing import List
-from models import User
-from utils.auth import get_password_hash, verify_password, create_access_token, get_current_user
 from schemas.users import UserCreate, UserOut, UserRegister, PasswordRecoveryRequest, PasswordResetRequest, LoginRequest
+from utils.auth import get_password_hash, verify_password, create_access_token, get_current_user
+from models import User
+from typing import List
+from fastapi import APIRouter, HTTPException, Depends, status
+from fastapi.security import OAuth2PasswordRequestForm
+from datetime import timedelta
+from fastapi import Request
+# Refresh token endpoint
+
+from utils.auth import create_refresh_token, REFRESH_TOKEN_EXPIRE_DAYS
+
 
 router = APIRouter(prefix="/api", tags=["Users"])
+
+
+@router.post("/token/refresh")
+async def refresh_token(request: Request):
+    """
+    Exchange a valid refresh token for a new access token.
+    Request body: {"refresh_token": "..."}
+    Response: {"access_token": "...", "refresh_token": "..."}
+    """
+    data = await request.json()
+    refresh_token = data.get("refresh_token")
+    from utils.auth import SECRET_KEY, ALGORITHM
+    from jose import jwt, JWTError
+    try:
+        payload = jwt.decode(refresh_token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        if not user_id:
+            raise HTTPException(
+                status_code=401, detail="Invalid refresh token")
+    except JWTError:
+        raise HTTPException(
+            status_code=401, detail="Invalid or expired refresh token")
+    # Issue new access and refresh tokens
+    from models import User
+    user = await User.get_or_none(id=user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    access_token = create_access_token(
+        {"sub": str(user.id)}, expires_delta=timedelta(minutes=60))
+    new_refresh_token = create_refresh_token(
+        {"sub": str(user.id)}, expires_delta=timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS))
+    return {"access_token": access_token, "refresh_token": new_refresh_token}
 
 # User registration endpoint
 
@@ -125,7 +162,9 @@ async def loginJson(request: LoginRequest):
     user_json = json.dumps(user_data)
     access_token = create_access_token(
         data={"sub": user_json})
-    return {"access_token": access_token, "token_type": "bearer"}
+    # Also issue a refresh token (store user id in the refresh token 'sub')
+    new_refresh_token = create_refresh_token({"sub": str(user.id)})
+    return {"access_token": access_token, "refresh_token": new_refresh_token, "token_type": "bearer"}
 
 
 @router.post("/login/OAuth2")

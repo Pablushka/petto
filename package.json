@@ -1,7 +1,7 @@
 {
-  "name": "doko",
+  "name": "Petto",
   "private": true,
-  "packageManager": "pnpm@9.12.3",
+  "packageManager": "pnpm@10.15.1",
   "type": "module",
   "scripts": {
     "dev": "pnpm --filter frontend dev",
@@ -10,7 +10,7 @@
     "lint": "pnpm -r lint",
     "test": "pnpm -r test",
     "dev:frontend": "pnpm --filter frontend dev",
-    "dev:backend": "cd backend && python -m uvicorn main:app --reload",
+    "dev:backend": "cd ./backend && uv run uvicorn main:app --reload",
     "dev:all": "concurrently \"pnpm run dev:frontend\" \"pnpm run dev:backend\"",
     "install:backend": "cd backend && uv add -r requirements.txt"
   },
@@ -22,5 +22,8 @@
     "ignoredBuiltDependencies": [
       "@tailwindcss/oxide"
     ]
+  },
+  "dependencies": {
+    "concurrently": "^9.2.1"
   }
 }

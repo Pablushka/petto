@@ -1,10 +1,10 @@
 # Introduction
 
-Doko is a Progressive Web Application to contact lost pets with their owners.
+Petto is a Progressive Web Application to contact lost pets with their owners.
 
 # Technologies Involved
 
-Doko uses the following technologies:
+Petto uses the following technologies:
 
 ## Backend
 
@@ -29,7 +29,6 @@ Doko uses the following technologies:
 ## Features & Functions
 
 - **User Registration**: Form to input and store user data:
-
   - First Name
   - Last Name
   - Email
@@ -39,14 +38,12 @@ Doko uses the following technologies:
   - Recovery Bounty
 
 - **Pet Registration**: Form (linked to User Registration) to input and store pet data:
-
   - Owner (User)
   - Name
   - Picture
   - Notes (any relevant information about the pet)
 
 - **QR Code Functionality**:
-
   - QR Code generation: For each pet, the app generates a QR code linking to the owner's user profile.
   - User and pet data editing
   - QR Scan location: When the QR code is scanned, the owner is notified by email, and the scan location is saved and included in the notification.

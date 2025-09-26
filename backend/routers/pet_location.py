@@ -28,9 +28,9 @@ def record_pet_scan(event: PetScanEvent, request: Request, current_user: User = 
         "pet_id": 1,
         "user_id": 2,
         "scan_location": "Park Entrance",
-        "qr_link": "https://doko.app/user-profile?hash=abc123"
+        "qr_link": "https://Petto.app/user-profile?hash=abc123"
     }
-    http POST :8000/pet-location/scan pet_id:=1 user_id:=2 scan_location="Park Entrance" qr_link="https://doko.app/user-profile?hash=abc123"
+    http POST :8000/pet-location/scan pet_id:=1 user_id:=2 scan_location="Park Entrance" qr_link="https://Petto.app/user-profile?hash=abc123"
     """
     # Save scan event (replace with DB logic)
     pet_scan_events.append(event.model_dump())
@@ -52,7 +52,7 @@ async def get_qr_link(pet_id: int, current_user: User = Depends(get_current_user
     owner = await User.get_or_none(id=pet.owner_id)
     if not owner:
         raise HTTPException(status_code=404, detail="Owner not found")
-    qr_link = f"https://doko.app/user-profile?hash={owner.hash}"
+    qr_link = f"https://Petto.app/user-profile?hash={owner.hash}"
     return {"pet_id": pet_id, "qr_link": qr_link}
 
 

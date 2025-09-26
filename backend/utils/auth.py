@@ -12,9 +12,9 @@ from typing_extensions import Annotated, Doc
 # Secret key for JWT
 SECRET_KEY = "your-secret-key"
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60
+ACCESS_TOKEN_EXPIRE_MINUTES = 2
 
-REFRESH_TOKEN_EXPIRE_DAYS = 7
+REFRESH_TOKEN_EXPIRE_DAYS = 3
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/login/OAuth2")
@@ -57,12 +57,34 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         user_data_raw = payload.get("sub")
-        try:
-            user_data = json.loads(user_data_raw)
-        except Exception as e:
-            print(f"Error decoding user_data from token: {e}")
-            user_data = {}
-        user_id = user_data.get("id")
+        # 'sub' can be:
+        # - a JSON string containing a dict with 'id' (e.g. login path)
+        # - a string with a numeric id (e.g. create_access_token with user id)
+        # - an int (if token was created with a numeric sub)
+        # Be defensive when parsing.
+
+        def _extract_user_id(raw):
+            # raw may be dict, int, or string
+            if isinstance(raw, dict):
+                return raw.get("id")
+            if isinstance(raw, int):
+                return raw
+            if isinstance(raw, str):
+                # try JSON decode
+                try:
+                    parsed = json.loads(raw)
+                    if isinstance(parsed, dict):
+                        return parsed.get("id")
+                    if isinstance(parsed, (int, str)) and str(parsed).isdigit():
+                        return int(parsed)
+                    return parsed
+                except Exception:
+                    # not JSON, maybe numeric string
+                    if raw.isdigit():
+                        return int(raw)
+                    return raw
+
+        user_id = _extract_user_id(user_data_raw)
         if not user_id:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -91,12 +113,27 @@ def verify_refresh_token(refresh_token: str):
     try:
         payload = jwt.decode(refresh_token, SECRET_KEY, algorithms=[ALGORITHM])
         user_data_raw = payload.get("sub")
-        try:
-            user_data = json.loads(user_data_raw)
-        except Exception as e:
-            print(f"Error decoding user_data from refresh token: {e}")
-            user_data = {}
-        user_id = user_data.get("id")
+        # reuse same extraction logic as above
+
+        def _extract_user_id(raw):
+            if isinstance(raw, dict):
+                return raw.get("id")
+            if isinstance(raw, int):
+                return raw
+            if isinstance(raw, str):
+                try:
+                    parsed = json.loads(raw)
+                    if isinstance(parsed, dict):
+                        return parsed.get("id")
+                    if isinstance(parsed, (int, str)) and str(parsed).isdigit():
+                        return int(parsed)
+                    return parsed
+                except Exception:
+                    if raw.isdigit():
+                        return int(raw)
+                    return raw
+
+        user_id = _extract_user_id(user_data_raw)
         if not user_id:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,

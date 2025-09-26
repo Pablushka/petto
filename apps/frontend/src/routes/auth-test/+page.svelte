@@ -1,27 +1,21 @@
 <script lang="ts">
 	import { session } from '$lib/stores/session';
 	import { m } from '$lib/paraglide/messages';
-	import { BACKEND_URL } from '$lib/config';
-	import { onMount } from 'svelte';
+	import ProtectedRoute from '$lib/components/ProtectedRoute.svelte';
+	import { getMessage } from '$lib/utils/message-helper';
+	import { get } from '$lib/utils/api';
+	import type { UserOutput } from '$lib/types/api/user';
 
 	// ...existing code...
-	let error = '';
+	let error = $state('');
 
 	async function fetchSession() {
 		error = '';
 		try {
-			const accessToken = localStorage.getItem('access_token');
-			const res = await fetch(BACKEND_URL + 'api/users/me', {
-				headers: { Authorization: `Bearer ${accessToken}` }
-			});
-			if (res.ok) {
-				session.set({ user: await res.json() });
-			} else {
-				session.set(null);
-				error = m.session_invalid();
-			}
+			const user = await get<UserOutput>('api/users/me', { requireAuth: true });
+			session.set({ user });
 		} catch {
-			error = m.network_error();
+			error = getMessage('network_error');
 		}
 	}
 
@@ -31,24 +25,30 @@
 		session.set(null);
 	}
 
-	onMount(fetchSession);
+	$effect(() => {
+		fetchSession();
+	});
 </script>
 
-<div class="mx-auto mt-16 max-w-md rounded bg-white p-8 shadow">
-	<h1 class="mb-6 text-2xl font-bold">{m.auth_test_title()}</h1>
-	{#if error}
-		<div class="mb-4 text-red-600">{error}</div>
-	{/if}
-	{#if $session}
-		<div class="mb-4">{m.session_greeting({ email: $session.user?.email || '' })}</div>
-		<button
-			class="w-full rounded bg-red-600 py-2 text-white hover:bg-red-700"
-			on:click={handleLogout}
-		>
-			{m.logout_button()}
-		</button>
-	{:else}
-		<div>{m.session_not_logged_in()}</div>
-		<a href="/login" class="text-blue-600 hover:underline">{m.login_button()}</a>
-	{/if}
-</div>
+<ProtectedRoute>
+	<div class="mx-auto mt-16 max-w-md rounded bg-white p-8 shadow">
+		<h1 class="mb-6 text-2xl font-bold">{getMessage('auth_test_title')}</h1>
+		{#if error}
+			<div class="mb-4 text-red-600">{error}</div>
+		{/if}
+		{#if $session}
+			<div class="mb-4">
+				{getMessage('session_greeting', { email: $session.user?.email || '' })}
+			</div>
+			<button
+				class="w-full rounded bg-red-600 py-2 text-white hover:bg-red-700"
+				onclick={handleLogout}
+			>
+				{getMessage('logout_button')}
+			</button>
+		{:else}
+			<div>{getMessage('session_not_logged_in')}</div>
+			<a href="/login" class="text-blue-600 hover:underline">{getMessage('login_button')}</a>
+		{/if}
+	</div>
+</ProtectedRoute>
