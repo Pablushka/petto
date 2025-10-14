@@ -16,17 +16,14 @@
 
 		if ($session?.user) return;
 
-		const accessToken = localStorage.getItem('access_token');
-		if (!accessToken) {
-			redirectToLogin();
-			return;
-		}
-
 		try {
-			const userData = await get<UserOutput>('api/users/me', { requireAuth: true });
+			const userData = await get<UserOutput>('api/users/me', {
+				requireAuth: true
+			});
 			session.set({ user: userData });
 		} catch (error) {
 			console.error('Authentication check failed:', error);
+			session.set(null);
 			redirectToLogin();
 		}
 	}

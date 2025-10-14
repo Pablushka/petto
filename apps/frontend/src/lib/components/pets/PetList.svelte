@@ -7,8 +7,10 @@
 	import Pagination from '../Pagination.svelte';
 	import { getMessage } from '$lib/utils/message-helper';
 	import { get } from '$lib/utils/api';
+	import { session } from '$lib/stores/session';
 
 	import type { PetOut } from '$lib/types/api/pet';
+	import type { UserOutput } from '$lib/types/api/user';
 
 	// Backend /api/pets returns an array of PetOut (we page client-side for now)
 	type PetsResponse = PetOut[];
@@ -29,6 +31,14 @@
 	let startIndex = $state(0);
 	let endIndex = $state(0);
 	let pagedPets = $state<PetOut[]>([]);
+	let currentUser = $state<UserOutput | null>(null);
+
+	$effect(() => {
+		const unsubscribe = session.subscribe((value) => {
+			currentUser = value?.user ?? null;
+		});
+		return unsubscribe;
+	});
 
 	// Recompute derived values when inputs change
 	$effect(() => {
@@ -89,6 +99,11 @@
 
 	// Fetch pets initially and whenever dependencies change using Svelte 5 runes
 	$effect(() => {
+		if (!currentUser) {
+			loading = false;
+			pets = [];
+			return;
+		}
 		fetchPets();
 	});
 </script>

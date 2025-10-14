@@ -1,4 +1,5 @@
 
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from tortoise.contrib.fastapi import register_tortoise
@@ -7,10 +8,22 @@ from routers import static, users, pets, qrcode, banners, pet_location, upload
 
 app = FastAPI()
 
-# CORS configuration for frontend dev server
+DEFAULT_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173"
+]
+
+origins_env = os.getenv("CORS_ALLOWED_ORIGINS")
+if origins_env:
+    allowed_origins = [origin.strip()
+                       for origin in origins_env.split(",") if origin.strip()]
+else:
+    allowed_origins = DEFAULT_ORIGINS
+
+# CORS configuration for frontend dev server or production
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"]

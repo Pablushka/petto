@@ -8,7 +8,7 @@
 	import type { UserOutput } from '$lib/types/api/user';
 	import { getMessage } from '$lib/utils/message-helper';
 	import SelectLang from '$lib/components/SelectLang.svelte';
-	const { children } = $props();
+	const { children, data } = $props();
 
 	type Locale = 'en' | 'es' | 'jp';
 
@@ -21,6 +21,17 @@
 			user = s?.user ?? null;
 		});
 		return unsubscribe;
+	});
+
+	$effect(() => {
+		if (data === undefined) {
+			return;
+		}
+		if (data?.user) {
+			session.set({ user: data.user });
+		} else {
+			session.set(null);
+		}
 	});
 
 	function handleLocaleChanged(selected: Locale) {

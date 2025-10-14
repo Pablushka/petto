@@ -70,17 +70,11 @@ export async function requireAuth(redirectTo?: string): Promise<boolean> {
 		return true;
 	}
 
-	// No session in store, check if we have a token and try to fetch user data
-	const accessToken = localStorage.getItem('access_token');
-	if (!accessToken) {
-		// No token, redirect to login
-		redirectToLogin(redirectTo);
-		return false;
-	}
-
-	// We have a token, try to fetch user data
+	// No session in store, try to fetch user data via cookies-backed request
 	try {
-		const userData = await get<UserOutput>('api/users/me', { requireAuth: true });
+		const userData = await get<UserOutput>('api/users/me', {
+			requireAuth: true
+		});
 
 		// Valid user, set session and return true
 		session.set({ user: userData });
