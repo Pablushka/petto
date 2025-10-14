@@ -13,6 +13,7 @@ export const load: PageLoad = async ({ params, fetch }) => {
 		}
 		return { pet };
 	} catch (e) {
+		console.log('Error loading pet:', e);
 		mapToSvelteKitError(e, (k: string) => getMessage(k as never));
 	}
 };

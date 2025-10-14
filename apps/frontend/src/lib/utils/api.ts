@@ -86,14 +86,15 @@ export async function apiRequest<T>(endpoint: string, options: ApiRequestOptions
 		headers['Content-Type'] = 'text/plain';
 	}
 
-	// Add auth token if required
-	if (requestOptions.requireAuth) {
+	// Add auth token if required (only in browser - localStorage is not available on server)
+	const isBrowser = typeof window !== 'undefined' && typeof localStorage !== 'undefined';
+	if (requestOptions.requireAuth && isBrowser) {
 		console.log('Adding auth token to request');
 		const accessToken = localStorage.getItem('access_token');
 		if (accessToken) {
 			headers['Authorization'] = `Bearer ${accessToken}`;
 		}
-		// If unauthorized and requireAuth, try refresh token
+		// If unauthorized and requireAuth, try refresh token (browser only)
 	}
 	console.log('Request Headers:', headers);
 	console.log('Request Body:', requestOptions.body);
@@ -123,8 +124,13 @@ export async function apiRequest<T>(endpoint: string, options: ApiRequestOptions
 		body
 	});
 
-	// If unauthorized and requireAuth, try refresh token
+	// If unauthorized and requireAuth, try refresh token in browser; on server just throw ApiError so load/handlers can react
 	if (response.status === 401 && requestOptions.requireAuth) {
+		if (!isBrowser) {
+			// Server-side: cannot access localStorage or perform client redirects. Let caller handle the 401.
+			throw new ApiError(401, 'Unauthorized');
+		}
+
 		const refreshToken = localStorage.getItem('refresh_token');
 		if (refreshToken) {
 			// Attempt to refresh
