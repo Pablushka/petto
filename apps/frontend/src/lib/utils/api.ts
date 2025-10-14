@@ -48,6 +48,8 @@ export interface ApiRequestOptions {
 	headers?: Record<string, string>;
 	requireAuth?: boolean;
 	contentType?: 'json' | 'form-data' | 'text';
+	/** Optional explicit auth token to use for the request (preferred over localStorage) */
+	authToken?: string | null;
 	// Optional: use SvelteKit's load-provided fetch in load functions to avoid warnings
 	fetchFn?: typeof fetch;
 }
@@ -86,15 +88,21 @@ export async function apiRequest<T>(endpoint: string, options: ApiRequestOptions
 		headers['Content-Type'] = 'text/plain';
 	}
 
-	// Add auth token if required (only in browser - localStorage is not available on server)
+	// Add auth token if required. Prefer explicit authToken option; otherwise use browser localStorage.
 	const isBrowser = typeof window !== 'undefined' && typeof localStorage !== 'undefined';
-	if (requestOptions.requireAuth && isBrowser) {
-		console.log('Adding auth token to request');
-		const accessToken = localStorage.getItem('access_token');
-		if (accessToken) {
-			headers['Authorization'] = `Bearer ${accessToken}`;
+	if (requestOptions.requireAuth) {
+		// Prefer explicit token passed in options (useful for server-side requests)
+		const explicitToken = requestOptions.authToken ?? null;
+		if (explicitToken) {
+			headers['Authorization'] = `Bearer ${explicitToken}`;
+		} else if (isBrowser) {
+			console.log('Adding auth token to request');
+			const accessToken = localStorage.getItem('access_token');
+			if (accessToken) {
+				headers['Authorization'] = `Bearer ${accessToken}`;
+			}
 		}
-		// If unauthorized and requireAuth, try refresh token (browser only)
+		// If unauthorized and requireAuth, try refresh token in browser only
 	}
 	console.log('Request Headers:', headers);
 	console.log('Request Body:', requestOptions.body);

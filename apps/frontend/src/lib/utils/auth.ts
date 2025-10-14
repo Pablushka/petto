@@ -1,3 +1,20 @@
+import type { Cookies } from '@sveltejs/kit';
+
+/**
+ * Read auth token from cookies.
+ * Returns access token string or null if not present.
+ */
+export function getAuthTokenFromCookies(cookies: Cookies): string | null {
+	try {
+		const token = cookies.get('access_token');
+		return token ?? null;
+	} catch {
+		// In some contexts cookies may not be available; return null
+		return null;
+	}
+}
+
+export default getAuthTokenFromCookies;
 import { goto } from '$app/navigation';
 import { session } from '$lib/stores/session';
 import { get as getStore } from 'svelte/store';
