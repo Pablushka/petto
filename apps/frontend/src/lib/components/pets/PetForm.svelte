@@ -5,8 +5,15 @@
 	import Alert from '../Alert.svelte';
 	import { session } from '$lib/stores/session';
 	import { getMessage } from '$lib/utils/message-helper';
-	import { post } from '$lib/utils/api';
+	import { post, uploadImage } from '$lib/utils/api';
 	import type { PetType as PetTypeEnum, PetCreate } from '$lib/types/api/pet';
+	import { DEFAULT_PET_IMAGE } from '$lib/utils/pet';
+	import {
+		PET_MAX_IMAGES,
+		PET_MAX_IMAGE_BYTES,
+		PET_ALLOWED_IMAGE_MIME,
+		BACKEND_URL
+	} from '$lib/config';
 
 	// Optional fetch function passed from a load function (SvelteKit)
 	const { fetchFn } = $props<{ fetchFn?: typeof fetch }>();
@@ -15,7 +22,12 @@
 	let name = $state('');
 	let petType: PetTypeEnum | '' = $state(''); // maps to backend pet_type
 	let notes = $state('');
-	let image: FileList | null = $state(null);
+	// Multiple images (up to 5)
+	let images: File[] = $state([]);
+	let previews: string[] = $state([]);
+	const MAX_IMAGES = PET_MAX_IMAGES;
+	const MAX_IMAGE_BYTES = PET_MAX_IMAGE_BYTES;
+	const ALLOWED_MIME = PET_ALLOWED_IMAGE_MIME;
 
 	let loading = $state(false);
 	let error = $state('');
@@ -32,19 +44,53 @@
 	];
 
 	// Handle file input change
-	let imagePreview: string | null = $state(null);
-	function handleImageChange(event: Event) {
+	function handleImagesChange(event: Event) {
 		const input = event.target as HTMLInputElement;
-		if (input.files && input.files.length > 0) {
-			const file = input.files[0];
+		if (!input.files) return;
+		const selected = Array.from(input.files);
+		if (selected.length + images.length > MAX_IMAGES) {
+			error = `Maximum ${MAX_IMAGES} images allowed`;
+			return;
+		}
+		for (const file of selected) {
+			if (!ALLOWED_MIME.includes(file.type)) {
+				error = 'Invalid file type';
+				return;
+			}
+			if (file.size > MAX_IMAGE_BYTES) {
+				error = 'File too large (>5MB)';
+				return;
+			}
+		}
+		images = [...images, ...selected].slice(0, MAX_IMAGES);
+		generatePreviews();
+	}
+
+	function generatePreviews() {
+		previews = [];
+		images.forEach((f, idx) => {
 			const reader = new FileReader();
 			reader.onload = (e) => {
-				imagePreview = e.target?.result as string;
+				previews[idx] = e.target?.result as string;
+				// Force assignment to trigger update
+				previews = [...previews];
 			};
-			reader.readAsDataURL(file);
-		} else {
-			imagePreview = null;
-		}
+			reader.readAsDataURL(f);
+		});
+	}
+
+	function removeImage(index: number) {
+		images = images.filter((_, i) => i !== index);
+		generatePreviews();
+	}
+
+	function moveImage(from: number, to: number) {
+		if (to < 0 || to >= images.length) return;
+		const arr = [...images];
+		const [item] = arr.splice(from, 1);
+		arr.splice(to, 0, item);
+		images = arr;
+		generatePreviews();
 	}
 
 	// Handle form submission (JSON body via API helper)
@@ -60,21 +106,19 @@
 				return;
 			}
 
-			// Determine picture URL (optional upload)
-			let pictureUrl = 'default_pet.jpg';
-			if (image && image[0]) {
-				const imageFormData = new FormData();
-				imageFormData.append('image', image[0]);
+			// Upload images sequentially (could be parallel, but sequential simplifies ordering)
+			let uploaded: string[] = [];
+			for (const file of images) {
 				try {
-					const img = await post<{ url: string }>('api/upload', imageFormData, {
-						requireAuth: true,
-						contentType: 'form-data',
-						fetchFn
-					});
-					pictureUrl = img.url || pictureUrl;
-				} catch (e) {
-					// Ignore upload error; fallback to default
+					const { url } = await uploadImage(file);
+					uploaded.push(url);
+				} catch (err) {
+					// Log and continue on per-file upload errors so overall submission can continue
+					console.error('image upload failed', err);
 				}
+			}
+			if (uploaded.length === 0) {
+				uploaded = [DEFAULT_PET_IMAGE];
 			}
 
 			// Build JSON body expected by backend (see backend/models.py & routers/pets.py)
@@ -82,9 +126,10 @@
 				owner_id: Number($session.user.id),
 				name,
 				pet_type: (petType || 'Other') as PetTypeEnum,
-				picture: pictureUrl,
+				picture: uploaded[0],
+				pictures: uploaded,
 				notes,
-				status: 'at_home' // New pets default to 'at_home'
+				status: 'at_home'
 			};
 
 			// Submit JSON via API helper. If fetchFn was provided, use it.
@@ -99,6 +144,7 @@
 			resetForm();
 		} catch (err) {
 			// Network or API error
+			console.error('submit pet failed', err);
 			error = getMessage('network_error');
 		} finally {
 			loading = false;
@@ -110,13 +156,13 @@
 		name = '';
 		petType = '';
 		notes = '';
-		image = null;
-		imagePreview = null;
+		images = [];
+		previews = [];
 	}
 </script>
 
 <div class="rounded-lg bg-white p-6 shadow-md">
-	<h2 class="mb-6 text-2xl font-bold">{getMessage('add_new_pet')}</h2>
+	<h2 class="mb-6 text-2xl font-bold">{getMessage('edit_pet')}</h2>
 
 	{#if success}
 		<Alert type="success" message={getMessage('pet_report_success')} dismissible />
@@ -140,7 +186,7 @@
 			<Select
 				label={getMessage('pet_species')}
 				name="pet_type"
-				bind:selected={petType as any}
+				bind:selected={petType as string}
 				items={petTypeOptions}
 				required
 			/>
@@ -160,29 +206,64 @@
 			></textarea>
 		</div>
 
-		<!-- Image Upload -->
+		<!-- Images Upload (multiple) -->
 		<div>
-			<label for="pet-image-input" class="mb-1 block font-medium text-gray-700">
-				{getMessage('pet_image_label')}
+			<label for="pet-images-input" class="mb-1 block font-medium text-gray-700">
+				{getMessage('pet_image_label')} (max {MAX_IMAGES})
 			</label>
-
 			<input
-				id="pet-image-input"
+				id="pet-images-input"
 				type="file"
 				accept="image/*"
-				bind:files={image}
-				onchange={handleImageChange}
-				class="w-full text-sm text-gray-500
-          file:mr-4 file:rounded file:border-0
-          file:bg-blue-50 file:px-4
-          file:py-2 file:text-sm
-          file:font-semibold file:text-blue-700
-          hover:file:bg-blue-100"
+				multiple
+				onchange={handleImagesChange}
+				class="w-full text-sm text-gray-500 file:mr-4 file:rounded file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-blue-700 hover:file:bg-blue-100"
 			/>
-
-			{#if imagePreview}
-				<div class="mt-2">
-					<img src={imagePreview} alt="Preview" class="h-32 rounded object-cover" />
+			{#if previews.length > 0}
+				<div class="mt-3 grid grid-cols-3 gap-3 md:grid-cols-5">
+					{#each previews as p, i (p)}
+						<div class="group relative">
+							<img
+								src={`${BACKEND_URL}${p}`}
+								alt={`Preview ${i + 1}`}
+								class="h-24 w-full rounded object-cover ring-2 {i === 0
+									? 'ring-blue-500'
+									: 'ring-transparent'}"
+							/>
+							<div
+								class="absolute inset-0 flex items-start justify-end gap-1 p-1 opacity-0 group-hover:opacity-100"
+							>
+								<button
+									type="button"
+									class="rounded bg-black/50 px-1 text-xs text-white"
+									title="Remove"
+									onclick={() => removeImage(i)}>✕</button
+								>
+								{#if i > 0}
+									<button
+										type="button"
+										class="rounded bg-black/50 px-1 text-xs text-white"
+										title="⇡"
+										onclick={() => moveImage(i, i - 1)}>⇡</button
+									>
+								{/if}
+								{#if i < previews.length - 1}
+									<button
+										type="button"
+										class="rounded bg-black/50 px-1 text-xs text-white"
+										title="⇣"
+										onclick={() => moveImage(i, i + 1)}>⇣</button
+									>
+								{/if}
+							</div>
+							{#if i === 0}
+								<span
+									class="absolute bottom-1 left-1 rounded bg-blue-600/80 px-1 text-[10px] font-semibold tracking-wide text-white uppercase"
+									>Cover</span
+								>
+							{/if}
+						</div>
+					{/each}
 				</div>
 			{/if}
 		</div>

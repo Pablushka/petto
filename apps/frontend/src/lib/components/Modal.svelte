@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { m } from '$lib/paraglide/messages';
+	// 'm' not used here; import removed
 
 	let {
 		title = '',
@@ -11,8 +11,8 @@
 		title?: string;
 		isOpen?: boolean;
 		size?: 'sm' | 'md' | 'lg' | 'xl';
-		children?: (props?: any) => any;
-		footer?: (props?: any) => any;
+		children?: (props?: unknown) => unknown;
+		footer?: (props?: unknown) => unknown;
 	}>();
 
 	// Width classes based on size

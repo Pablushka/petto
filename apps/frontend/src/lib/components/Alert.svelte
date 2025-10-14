@@ -1,12 +1,11 @@
 <script lang="ts">
-	import { m } from '$lib/paraglide/messages';
-	import Button from './Button.svelte';
+	// 'm' not used here; import removed
 
 	const props = $props<{
 		message?: string;
 		type?: 'error' | 'success' | 'info' | 'warning';
 		dismissible?: boolean;
-		children?: (props?: any) => any;
+		children?: (props?: unknown) => unknown;
 	}>();
 	let { message = '', type = 'info', dismissible = false, children } = props;
 

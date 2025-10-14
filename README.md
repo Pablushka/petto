@@ -2,12 +2,18 @@
 
 Petto is a Progressive Web Application designed to help reunite lost pets with their owners.
 
+# Copilot Instructions
+
+ALWAYS MUST FOLLOW RULES FROM INSTRUCTIONS FILE to provide correct dependencies versions and avoid deprecations and errors.
+
 ## Features
 
 - **Login, Logout, Register and Password recovery**
 - **Create a Collection of Pets**
-  - Add, Edit, Read, Remove a Pet
-  - Generate Pet QR Code in square or circle canvas to print and glue in the pet medal
+   - Add, Edit, Read, Remove a Pet
+   - Upload up to 5 images per pet (first image is treated as the cover)
+   - Reorder images before submission; backend stores additional images in discrete fields (`picture2`..`picture5`) and exposes a unified `pictures[]` array
+   - Generate Pet QR Code in square or circle canvas to print and glue in the pet medal
 - **Generate Pet Flyers and A4 Posters**
   - The user could create print ready flyers of lost pet. It must include pet picture, description, indications and pet QR code.
 
@@ -151,6 +157,67 @@ sequenceDiagram
 - Las páginas protegidas pueden combinar: comprobación en `+layout.ts` (hidrata la sesión), `protect-route.ts` para SSR y `ProtectedRoute.svelte` en cliente.
 - En fallo de refresh, se limpian tokens y se redirige a `/login?returnUrl=...`.
 - Los mensajes de UI e i18n se gestionan con Paraglide; el almacén de sesión mantiene el usuario actual.
+
+## Pet API Data Models
+
+The Pet endpoints now use **explicit Pydantic schemas** instead of auto-generated ones. This gives us clearer versioning, validation control, and security guarantees.
+
+Schema overview:
+
+| Schema | Purpose | Fields |
+|--------|---------|--------|
+| `PetBase` | Shared core fields | `name`, `pet_type`, `picture`, `notes`, `status` (default `at_home`) |
+| `PetCreate` | Creation payload (client -> server) | Inherits `PetBase` + `owner_id` (currently accepted but ignored in favor of authenticated user) |
+| `PetUpdate` | Update payload (partial) | All fields optional (`name`, `pet_type`, `picture`, `notes`, `status`, `owner_id`) |
+| `PetOut` | Response model | `id`, `owner_id`, plus all `PetBase` fields + `pictures[]` (ordered list; element 0 is cover) |
+
+Important security rule: the backend **always overrides** `owner_id` with the authenticated user on create/update. A future cleanup will remove `owner_id` from the create payload entirely once the frontend is updated.
+
+### Multi-image Model Mapping
+
+Internally the database model maintains legacy `picture` plus optional `picture2` .. `picture5` columns for a maximum of 5 images. The API serializer normalizes these into:
+
+```
+PetOut.pictures = [picture, picture2, picture3, picture4, picture5].filter(Boolean)
+```
+
+When creating or updating a pet the client can send both:
+
+```
+{
+   "picture": "cover.jpg",            // must match pictures[0]
+   "pictures": ["cover.jpg", "side.jpg", ...]
+}
+```
+
+The backend maps array indices 1..4 into `picture2`..`picture5`. Extra elements beyond 5 are rejected at validation time. Missing or empty arrays fallback to a placeholder image on the frontend (`DEFAULT_PET_IMAGE`).
+
+Frontend components (`PetCard`, `PetDetail`) now use a shared helper `getPetCover(pet)` from `src/lib/utils/pet.ts` to consistently select and normalize the cover image URL.
+
+Enum values:
+
+```
+PetType   = Cat | Dog | Lizard | Hamster | Bird | Other
+PetStatus = at_home | lost | found
+```
+
+### Migration Note
+
+Previously the backend used `pydantic_model_creator(Pet, ...)` to auto-generate `PetIn`/`PetOut`. These were replaced by explicit classes (`PetCreate`, `PetUpdate`, `PetOut`) in order to:
+
+- Enforce ownership rules explicitly.
+- Support partial updates cleanly.
+- Avoid accidental field exposure if the ORM model gains internal attributes later.
+- Provide stable documentation for external consumers.
+
+If you still have clients posting `owner_id`, they will continue to work for now, but should be updated to omit it—treat it as deprecated.
+
+### Planned Follow-ups
+
+- Remove `owner_id` from create form submissions (derive entirely server-side).
+- Introduce a `PATCH /pets/{id}` endpoint using `PetUpdate` for semantic partial updates.
+- Add a serializer helper to reduce repetition when constructing `PetOut` (partially complete with current normalize logic).
+- Add tests covering ownership override, status transitions, and multi-image mapping (length >5 rejection, ordering persistence).
 
 ## Frontend Setup & Start Guide
 

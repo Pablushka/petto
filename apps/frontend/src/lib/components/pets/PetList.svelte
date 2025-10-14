@@ -1,7 +1,6 @@
 <script lang="ts">
-	import { m } from '$lib/paraglide/messages';
-	import { onMount } from 'svelte';
 	import LoadingState from '../LoadingState.svelte';
+	import Alert from '../Alert.svelte';
 	import PetCard from './PetCard.svelte';
 	import TextField from '../TextField.svelte';
 	import Button from '../Button.svelte';
@@ -11,19 +10,38 @@
 
 	import type { PetOut } from '$lib/types/api/pet';
 
-	// Simplified list typing: backend /api/pets returns an array of PetOut (we page client-side for now)
+	// Backend /api/pets returns an array of PetOut (we page client-side for now)
 	type PetsResponse = PetOut[];
 
 	// Pet list state
-	let pets: PetOut[] = [];
-	let loading = true;
-	let error = '';
+	let pets = $state<PetOut[]>([]);
+	let loading = $state(true);
+	let error = $state('');
 
 	// Filter and pagination state
-	let searchQuery = '';
-	let currentPage = 1;
-	let totalPages = 1;
-	let itemsPerPage = 9;
+	let searchQuery = $state('');
+	let currentPage = $state(1);
+	let itemsPerPage = $state(9);
+
+	// Derived pagination computations (explicit numbers)
+	let totalItems = $state(0);
+	let totalPages = $state(1);
+	let startIndex = $state(0);
+	let endIndex = $state(0);
+	let pagedPets = $state<PetOut[]>([]);
+
+	// Recompute derived values when inputs change
+	$effect(() => {
+		totalItems = pets.length;
+		totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage));
+		if (currentPage > totalPages) {
+			currentPage = totalPages;
+		}
+		if (currentPage < 1) currentPage = 1;
+		startIndex = (currentPage - 1) * itemsPerPage;
+		endIndex = startIndex + itemsPerPage;
+		pagedPets = pets.slice(startIndex, endIndex);
+	});
 
 	// Status filter options
 	// Placeholder: status filtering removed; backend model does not expose status currently
@@ -35,24 +53,22 @@
 
 		try {
 			// Construct query parameters
-			const params = new URLSearchParams();
-			params.append('page', currentPage.toString());
-			params.append('limit', itemsPerPage.toString());
-
-			if (searchQuery) {
-				params.append('search', searchQuery);
-			}
+			// Build query string manually to avoid mutable URLSearchParams lint rule
+			const paramsArr = [
+				`page=${encodeURIComponent(currentPage.toString())}`,
+				`limit=${encodeURIComponent(itemsPerPage.toString())}`
+			];
+			if (searchQuery) paramsArr.push(`search=${encodeURIComponent(searchQuery)}`);
+			const qs = paramsArr.join('&');
 
 			// Backend currently returns full list (no pagination metadata). Adjust when API adds paging.
-			const data = await get<PetsResponse>(`api/pets?${params.toString()}`, { requireAuth: true });
-			pets = data ?? [];
-			totalPages = Math.ceil(pets.length / itemsPerPage) || 1;
+			const data = await get<PetsResponse>(`api/pets?${qs}`, { requireAuth: true });
+			// Ensure array shape
+			pets = Array.isArray(data) ? data : [];
 		} catch (err) {
 			console.error('Error fetching pets:', err);
 			error = getMessage('network_error');
-			loading = false;
 		}
-
 		loading = false;
 	}
 
@@ -71,8 +87,10 @@
 		fetchPets();
 	}
 
-	// Fetch pets on component mount
-	onMount(fetchPets);
+	// Fetch pets initially and whenever dependencies change using Svelte 5 runes
+	$effect(() => {
+		fetchPets();
+	});
 </script>
 
 <div>
@@ -96,11 +114,17 @@
 		</div>
 	</div>
 
+	{#if error}
+		<div class="mb-4">
+			<Alert type="error" message={error} />
+		</div>
+	{/if}
+
 	<!-- Pets List -->
 	<LoadingState {loading} noResultsMessage={getMessage('pet_no_results')}>
-		{#if pets.length > 0}
+		{#if !loading && Array.isArray(pets) && pets.length > 0}
 			<div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-				{#each pets.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage) as pet (pet.id)}
+				{#each pagedPets as pet (pet.id)}
 					<PetCard {pet} />
 				{/each}
 			</div>

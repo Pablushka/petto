@@ -7,7 +7,7 @@ import { getMessage } from '$lib/utils/message-helper';
 
 export const load: PageLoad = async ({ params, fetch }) => {
 	try {
-		const pet = await get<PetOut>(`api/pets/${params.id}`, { requireAuth: false, fetchFn: fetch });
+		const pet = await get<PetOut>(`api/pets/${params.id}`, { requireAuth: true, fetchFn: fetch });
 		if (!pet) {
 			throw error(404, 'Pet not found');
 		}

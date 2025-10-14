@@ -44,6 +44,12 @@ class PetType(str, Enum):
     BIRD = "Bird"
     OTHER = "Other"
 
+class PetStatus(str, Enum):
+    AT_HOME = "at_home"
+    LOST = "lost"
+    FOUND = "found"
+    
+
 
 class Pet(models.Model):
     id = fields.IntField(pk=True)
@@ -51,7 +57,13 @@ class Pet(models.Model):
     name = fields.CharField(max_length=255)
     pet_type = fields.CharEnumField(PetType, max_length=16)
     picture = fields.CharField(max_length=1024)
+    # Optional extra pictures (up to 5 total including primary)
+    picture2 = fields.CharField(max_length=1024, null=True, default=None)
+    picture3 = fields.CharField(max_length=1024, null=True, default=None)
+    picture4 = fields.CharField(max_length=1024, null=True, default=None)
+    picture5 = fields.CharField(max_length=1024, null=True, default=None)
     notes = fields.TextField()
+    status = fields.CharEnumField(PetStatus, max_length=16, default=PetStatus.AT_HOME)
 
     def __str__(self):
         return self.name

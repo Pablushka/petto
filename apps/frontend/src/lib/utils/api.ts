@@ -247,3 +247,16 @@ export function patch<T>(
 ): Promise<T> {
 	return apiRequest<T>(endpoint, { ...options, method: 'PATCH', body });
 }
+
+/**
+ * Upload a single image file to the backend /api/upload endpoint.
+ * Returns the JSON containing the URL string.
+ */
+export async function uploadImage(file: File): Promise<{ url: string }> {
+	const formData = new FormData();
+	formData.append('image', file);
+	return post<{ url: string }>('api/upload', formData, {
+		requireAuth: true,
+		contentType: 'form-data'
+	});
+}

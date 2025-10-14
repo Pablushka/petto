@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { m } from '$lib/paraglide/messages';
+	// removed unused i18n import
 
 	const props = $props<{
 		currentPage?: number;
@@ -71,7 +71,7 @@
 			</button>
 
 			<!-- Page numbers -->
-			{#each pageNumbers as page}
+			{#each pageNumbers as page (page)}
 				{#if page === -1}
 					<!-- Ellipsis -->
 					<span

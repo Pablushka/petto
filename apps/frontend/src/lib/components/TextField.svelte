@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { m } from '$lib/paraglide/messages';
+	// 'm' not used here; import removed
 
 	let {
 		label,

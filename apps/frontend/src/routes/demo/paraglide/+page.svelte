@@ -1,14 +1,11 @@
 <script lang="ts">
 	import { setLocale } from '$lib/paraglide/runtime';
-	import { page } from '$app/state';
-	import { goto } from '$app/navigation';
-	import {m} from '$lib/paraglide/messages'
-
+	import { m } from '$lib/paraglide/messages';
 </script>
+
 <h1>{m.hello_world({ name: 'SvelteKit User' })}</h1>
 <h1>{m.button_submit()}</h1>
 <h1>{m.button_cancel()}</h1>
-
 
 <div>
 	<button class="btn" onclick={() => setLocale('en')}>en</button>

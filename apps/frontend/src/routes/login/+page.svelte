@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { m } from '$lib/paraglide/messages';
+	// 'm' not used here; import removed
 	import { goto } from '$app/navigation';
 	import { BACKEND_URL } from '$lib/config';
 	import { getMessage } from '$lib/utils/message-helper';
@@ -33,7 +33,8 @@
 			}
 			const returnTo = $page.url.searchParams.get('returnUrl') || '/';
 			goto(returnTo);
-		} catch (e) {
+		} catch (err) {
+			console.error('login failed', err);
 			error = getMessage('network_error');
 		}
 		loading = false;

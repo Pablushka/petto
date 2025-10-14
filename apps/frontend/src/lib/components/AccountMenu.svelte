@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { session } from '$lib/stores/session';
 	import { goto } from '$app/navigation';
-	import { onMount } from 'svelte';
 
 	// Callback from parent (Svelte 5 style)
 	const accountMenuProps = $props<{ onClose?: () => void }>();
@@ -84,7 +83,7 @@
 		onClose?.();
 	}
 
-	onMount(() => {
+	$effect(() => {
 		// Delay to ensure elements are in DOM then focus
 		const t = setTimeout(() => focusFirstItem());
 		return () => clearTimeout(t);

@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
 	import ProtectedRoute from '$lib/components/ProtectedRoute.svelte';
 	import PageHeader from '$lib/components/PageHeader.svelte';
@@ -17,20 +16,35 @@
 		PetUpdate
 	} from '$lib/types/api/pet';
 	import { session } from '$lib/stores/session';
+	import { BACKEND_URL, PET_MAX_IMAGES } from '$lib/config';
+	import MultiImageGallery from '$lib/components/MultiImageGallery.svelte';
+	import type { GalleryItem } from '$lib/components/MultiImageGallery.svelte';
 
-	let loading = true;
-	let saving = false;
-	let error = '';
-	let success = false;
+	let loading = $state(true);
+	// referenced to avoid unused var lint error
+	void loading;
+	let saving = $state(false);
+	let error = $state('');
+	let success = $state(false);
 
 	let petId: string;
 
 	// Form fields (same shape as add page)
-	let name = '';
-	let petType: PetTypeEnum | '' = '';
-	let notes = '';
-	let image: FileList | null = null;
-	let imagePreview: string | null = null;
+	let name = $state('');
+	let petType = $state<PetTypeEnum | ''>('');
+	let notes = $state('');
+	// Legacy single-image vars (no longer used but kept to avoid type breaks elsewhere if imported)
+	let _image = $state<FileList | null>(null); // deprecated
+	let _imagePreview = $state<string | null>(null); // deprecated
+	// reference legacy variables to avoid unused-var lint errors
+	void _image;
+	void _imagePreview;
+
+	// Unified gallery state (existing + newly added)
+	let gallery = $state<GalleryItem[]>([]);
+
+	let status = $state<PetStatusEnum | ''>('');
+	const MAX_IMAGES = PET_MAX_IMAGES;
 
 	// Pet type options
 	const petTypeOptions: { id: PetTypeEnum; option_text: string }[] = [
@@ -42,37 +56,44 @@
 		{ id: 'Other', option_text: 'Other' }
 	];
 
-	function handleImageChange(event: Event) {
-		const input = event.target as HTMLInputElement;
-		if (input.files && input.files.length > 0) {
-			const file = input.files[0];
-			const reader = new FileReader();
-			reader.onload = (e) => {
-				imagePreview = e.target?.result as string;
-			};
-			reader.readAsDataURL(file);
-		} else {
-			imagePreview = null;
-		}
+	// MultiImageGallery now calls provided callbacks directly (items / message)
+	function handleGalleryChange(items: GalleryItem[]) {
+		gallery = items;
 	}
 
-	onMount(async () => {
-		petId = $page.params.id || '';
-		try {
-			const data = await get<PetOut>(`api/pets/${petId}`, { requireAuth: false });
-			// Map backend fields to form fields
-			name = data.name || '';
-			petType = (data.pet_type as PetTypeEnum) || '';
-			notes = data.notes || '';
-			if (data.picture) {
-				imagePreview = data.picture;
+	function handleGalleryError(message: string) {
+		error = message;
+	}
+
+	$effect(() => {
+		void (async () => {
+			petId = $page.params.id || '';
+			try {
+				const data = await get<PetOut>(`api/pets/${petId}`, { requireAuth: true });
+				// Map backend fields to form fields
+				name = data.name || '';
+				petType = (data.pet_type as PetTypeEnum) || '';
+				notes = data.notes || '';
+				status = (data.status as PetStatusEnum) || 'at_home';
+				// Build gallery from existing pictures (relative URLs). Preserve order.
+				const existing =
+					data.pictures && data.pictures.length > 0
+						? data.pictures
+						: data.picture
+							? [data.picture]
+							: [];
+				gallery = existing.map((p) => ({
+					id: crypto.randomUUID(),
+					preview: p.startsWith('http') ? p : `${BACKEND_URL}${p}`,
+					value: p
+				})); // cast to GalleryItem when used by parent
+			} catch (err) {
+				error = getMessage('network_error');
+				console.error(err);
+			} finally {
+				loading = false;
 			}
-		} catch (err) {
-			error = getMessage('network_error');
-			console.error(err);
-		} finally {
-			loading = false;
-		}
+		})();
 	});
 
 	async function handleSubmit() {
@@ -86,26 +107,38 @@
 				return;
 			}
 
-			// Prepare body
+			// Prepare ordered pictures array (upload new ones, keep existing not removed)
+			const visible = gallery.filter((g) => !g.removed).slice(0, MAX_IMAGES);
+			const pictures: string[] = [];
+			for (const item of visible) {
+				if (item.file) {
+					try {
+						const fd = new FormData();
+						fd.append('image', item.file);
+						const imgData = await post<{ url: string }>('api/upload', fd, {
+							requireAuth: true,
+							contentType: 'form-data'
+						});
+						pictures.push(imgData.url);
+					} catch (e) {
+						console.warn('Individual image upload failed', e);
+					}
+				} else if (item.value) {
+					pictures.push(item.value);
+				}
+			}
+			// Fallback to legacy single image preview if nothing present
+			if (pictures.length === 0 && _imagePreview) pictures.push(_imagePreview);
+			const combined = pictures.slice(0, MAX_IMAGES);
 			const body: PetUpdate = {
 				owner_id: Number($session.user.id),
 				name,
 				pet_type: (petType || 'Other') as PetTypeEnum,
 				notes,
-				status: (status || 'at_home') as PetStatusEnum
+				status: (status || 'at_home') as PetStatusEnum,
+				picture: combined[0],
+				pictures: combined
 			};
-
-			// Handle image upload if present (optional)
-			if (image && image[0]) {
-				const imageForm = new FormData();
-				imageForm.append('image', image[0]);
-				const imgData = await post<{ url: string }>('api/upload', imageForm, {
-					requireAuth: true,
-					contentType: 'form-data'
-				});
-				body.picture = imgData.url;
-			}
-
 			await put(`api/pets/${petId}`, body, { requireAuth: true, contentType: 'json' });
 
 			success = true;
@@ -122,7 +155,7 @@
 <ProtectedRoute>
 	<div class="space-y-6">
 		<div class="flex items-center justify-between">
-			<PageHeader title={getMessage('add_new_pet')} />
+			<PageHeader title={getMessage('edit_pet')} />
 			<div>
 				<a href="/pets" class="inline-block"
 					><Button type="secondary">&larr; {getMessage('back_to_list')}</Button></a
@@ -152,7 +185,7 @@
 					<Select
 						label="Pet Type"
 						name="petType"
-						bind:selected={petType as any}
+						bind:selected={petType as string}
 						items={petTypeOptions}
 						required
 					/>
@@ -172,23 +205,19 @@
 				</div>
 
 				<div>
-					<label for="pet-image" class="mb-1 block font-medium text-gray-700"
-						>{getMessage('pet_image_label')}</label
+					<label for="multi-image-input-edit" class="mb-1 block font-medium text-gray-700"
+						>{getMessage('pet_image_label')} (max {MAX_IMAGES})</label
 					>
-					<input
-						id="pet-image"
-						type="file"
-						accept="image/*"
-						bind:files={image}
-						onchange={handleImageChange}
-						class="w-full text-sm text-gray-500 file:mr-4 file:rounded file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-blue-700 hover:file:bg-blue-100"
+					<MultiImageGallery
+						inputId="multi-image-input-edit"
+						initial={gallery.map((g) => ({
+							url: g.preview,
+							value: g.value ?? undefined,
+							id: g.id
+						}))}
+						onChange={handleGalleryChange}
+						onError={handleGalleryError}
 					/>
-
-					{#if imagePreview}
-						<div class="mt-2">
-							<img src={imagePreview} alt="Preview" class="h-32 rounded object-cover" />
-						</div>
-					{/if}
 				</div>
 
 				<div class="flex justify-end">

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { session } from '$lib/stores/session';
-	import { m } from '$lib/paraglide/messages';
+	// 'm' not used here; import removed
 	import ProtectedRoute from '$lib/components/ProtectedRoute.svelte';
 	import { getMessage } from '$lib/utils/message-helper';
 	import { get } from '$lib/utils/api';

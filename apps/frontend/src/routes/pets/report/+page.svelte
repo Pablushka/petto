@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { m } from '$lib/paraglide/messages';
 	import PageHeader from '$lib/components/PageHeader.svelte';
 	import PetForm from '$lib/components/pets/PetForm.svelte';
 	import Button from '$lib/components/Button.svelte';

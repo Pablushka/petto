@@ -1,5 +1,11 @@
 {
   "recommendations": [
-    "inlang.vs-code-extension"
+    "inlang.vs-code-extension",
+    "ms-python.python",
+    "ms-python.debugpy",
+    "ms-python.autopep8",
+    "ms-toolsai.jupyter",
+    "bradlc.vscode-tailwindcss",
+    "svelte.svelte-vscode"
   ]
 }

@@ -18,7 +18,8 @@
 				return;
 			}
 			sent = true;
-		} catch (e) {
+		} catch (err) {
+			console.error('forgot password failed', err);
 			error = m.network_error();
 		}
 	}

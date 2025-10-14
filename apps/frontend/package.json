@@ -12,6 +12,8 @@
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"format": "prettier --write .",
 		"lint": "prettier --check . && eslint .",
+		"lint:svelte-runes": "eslint . --rule \"no-svelte-lifecycle:2\" --plugin node --no-eslintrc --config ./eslint.config.js --resolve-plugins-relative-to .",
+		"lint-svelte-runes": "bash ./scripts/check-svelte-runes.sh",
 		"test:unit": "vitest",
 		"test": "npm run test:unit -- --run && npm run test:e2e",
 		"test:e2e": "playwright test",

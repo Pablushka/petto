@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { m } from '$lib/paraglide/messages';
+	// 'm' not used here; import removed
 
 	// Define props via $props and support event prop forwarding for click
 	type ButtonType = 'primary' | 'secondary' | 'danger' | 'success' | 'warning';
@@ -12,7 +12,7 @@
 		disabled?: boolean;
 		loading?: boolean;
 		onclick?: (e: MouseEvent) => void;
-		children?: any;
+		children?: unknown;
 	}>();
 	let type: ButtonType = props.type ?? 'primary';
 	let size: ButtonSize = props.size ?? 'md';

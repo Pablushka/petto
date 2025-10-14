@@ -75,5 +75,7 @@
 	"pet_update_error": "Error al actualizar la mascota",
 	"pet_updated_success": "¡Mascota actualizada exitosamente!",
 	"save": "Guardar",
-	"saving": "Guardando..."
+	"saving": "Guardando...",
+	"pet_status_at_home": "En Casa",
+	"edit_pet": "Modificar Mascota"
 }

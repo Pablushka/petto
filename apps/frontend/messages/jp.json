@@ -81,5 +81,7 @@
 	"error_rate_limited": "リクエストが多すぎます",
 	"error_server": "サーバーエラー",
 	"error_unexpected": "予期しないエラー",
-	"error_request_failed": "リクエストに失敗しました"
+	"error_request_failed": "リクエストに失敗しました",
+	"pet_status_at_home": "自宅",
+	"edit_pet": "ペットを編集"
 }

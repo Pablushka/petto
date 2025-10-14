@@ -5,10 +5,12 @@ export type PetType = 'Cat' | 'Dog' | 'Lizard' | 'Hamster' | 'Bird' | 'Other';
 export type PetStatus = 'at_home' | 'lost' | 'found';
 // Minimal create payload shape expected by backend routers/pets.py
 export interface PetCreate {
-	owner_id: number;
+	// owner_id now optional: server derives from auth token; still accepted if present during transition
+	owner_id?: number;
 	name: string;
 	pet_type: PetType;
-	picture: string;
+	picture: string; // kept for backward compatibility (cover image)
+	pictures?: string[]; // optional array (first element is cover)
 	notes: string;
 	status: PetStatus;
 }
@@ -20,16 +22,18 @@ export interface PetOut {
 	name: string;
 	pet_type: PetType;
 	picture: string;
+	pictures?: string[];
 	notes: string;
 	status: PetStatus;
 }
 
 // Update payload (backend expects the same fields as create for update validation)
 export interface PetUpdate {
-	owner_id: number;
+	owner_id?: number;
 	name: string;
 	pet_type: PetType;
 	picture?: string;
+	pictures?: string[];
 	notes: string;
 	status: PetStatus;
 }

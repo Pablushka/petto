@@ -1,8 +1,8 @@
 <script lang="ts">
 	import '../app.css';
-	import favicon from '$lib/assets/favicon.svg';
+	import favicon from '$lib/assets/petto.svg';
 	import PageHeader from '$lib/components/PageHeader.svelte';
-	import { m } from '$lib/paraglide/messages';
+	// 'm' not used here; import removed
 	import { getLocale } from '$lib/paraglide/runtime';
 	import { session } from '$lib/stores/session';
 	import type { UserOutput } from '$lib/types/api/user';

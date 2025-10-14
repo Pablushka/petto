@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { m } from '$lib/paraglide/messages';
+	// 'm' not used here; import removed
 	import { session } from '$lib/stores/session';
 	import { derived } from 'svelte/store';
 	import AccountMenu from './AccountMenu.svelte';
@@ -11,7 +11,7 @@
 	const initials = derived(session, ($session) => {
 		const user = $session?.user;
 		if (!user) return null;
-		const name = (user as any).name?.trim?.() || '';
+		const name = (user as unknown as { name?: string }).name?.trim?.() || '';
 		if (name) {
 			const parts = name.split(/\s+/);
 			const first = parts[0]?.[0] || '';
@@ -20,7 +20,7 @@
 			if (letters) return letters.toUpperCase();
 		}
 		// fallback to first letter of email
-		const email = (user as any).email || '';
+		const email = (user as unknown as { email?: string }).email || '';
 		return email ? email[0].toUpperCase() : null;
 	});
 

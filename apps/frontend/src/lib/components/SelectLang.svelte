@@ -82,7 +82,7 @@
 			<option value="" disabled selected>{placeholder}</option>
 		{/if}
 
-		{#each items as item}
+		{#each items as item (item.id)}
 			<option value={item.id}>{item.option_text}</option>
 		{/each}
 	</select>

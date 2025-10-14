@@ -7,7 +7,7 @@
 
 import { m } from '$lib/paraglide/messages';
 
-type MessageKey =
+export type MessageKey =
 	| 'pets_title'
 	| 'pet_report_lost'
 	| 'pet_report_found'
@@ -25,6 +25,7 @@ type MessageKey =
 	| 'pet_search_placeholder'
 	| 'pet_status_lost'
 	| 'pet_status_found'
+	| 'pet_status_at_home'
 	| 'pet_status_reunited'
 	| 'pet_species'
 	| 'pet_breed'
@@ -76,7 +77,8 @@ type MessageKey =
 	| 'pet_added_success'
 	| 'reunite_lost_pets'
 	| 'reunite_lost_pets_description'
-	| 'all_rights_reserved';
+	| 'all_rights_reserved'
+	| 'edit_pet';
 
 // Fallback texts in case the message is missing
 const fallbackMessages: Record<MessageKey, string> = {
@@ -100,6 +102,7 @@ const fallbackMessages: Record<MessageKey, string> = {
 	pet_search_placeholder: 'Search by location, species, or description',
 	pet_status_lost: 'Lost',
 	pet_status_found: 'Found',
+	pet_status_at_home: 'At home',
 	pet_status_reunited: 'Reunited',
 	pet_species: 'Species',
 	pet_breed: 'Breed',
@@ -153,7 +156,8 @@ const fallbackMessages: Record<MessageKey, string> = {
 	reunite_lost_pets: 'Reunite Lost Pets',
 	reunite_lost_pets_description:
 		'Help lost pets find their way home. Report lost pets, found pets, or browse listings to reunite pets with their owners.',
-	all_rights_reserved: 'All rights reserved'
+	all_rights_reserved: 'All rights reserved',
+	edit_pet: 'Edit Pet'
 };
 
 /**

@@ -81,5 +81,7 @@
 	"error_rate_limited": "Too many requests",
 	"error_server": "Server error",
 	"error_unexpected": "Unexpected error",
-	"error_request_failed": "Request failed"
+	"error_request_failed": "Request failed",
+	"pet_status_at_home": "At Home",
+	"edit_pet": "Edit Pet"
 }

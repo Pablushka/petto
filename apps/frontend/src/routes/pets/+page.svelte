@@ -1,13 +1,12 @@
 <script lang="ts">
-	import { m } from '$lib/paraglide/messages';
+	// 'm' not used here; import removed
 	import Button from '$lib/components/Button.svelte';
 	import PetList from '$lib/components/pets/PetList.svelte';
 	import PageHeader from '$lib/components/PageHeader.svelte';
 	import { session } from '$lib/stores/session';
 	import { getMessage } from '$lib/utils/message-helper';
-	import { checkAuth } from '$lib/utils/auth-guard';
+
 	import ProtectedRoute from '$lib/components/ProtectedRoute.svelte';
-	// checkAuth();
 </script>
 
 <ProtectedRoute>

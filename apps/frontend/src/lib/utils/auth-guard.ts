@@ -11,7 +11,6 @@
 
 import { goto } from '$app/navigation';
 import { browser } from '$app/environment';
-import { onMount } from 'svelte';
 
 /**
  * Checks if the user is authenticated and redirects to login if not
@@ -36,13 +35,13 @@ import { onMount } from 'svelte';
  * @returns {void}
  */
 export const checkAuth = () => {
-	if (browser) {
-		onMount(() => {
-			const token = localStorage.getItem('access_token');
-			if (!token) {
-				const currentPath = window.location.pathname;
-				goto(`/login?returnUrl=${encodeURIComponent(currentPath)}`);
-			}
-		});
+	// This utility is intentionally synchronous and side-effecting so callers can
+	// invoke it inside Svelte 5 runes (e.g. $effect) from components. It avoids
+	// using component lifecycle helpers directly so the rule enforcement can apply.
+	if (!browser) return;
+	const token = localStorage.getItem('access_token');
+	if (!token) {
+		const currentPath = window.location.pathname;
+		goto(`/login?returnUrl=${encodeURIComponent(currentPath)}`);
 	}
 };

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { m } from '$lib/paraglide/messages';
+	// 'm' not used here; import removed
 	import { session } from '$lib/stores/session';
 	import Button from '$lib/components/Button.svelte';
 	import { getMessage } from '$lib/utils/message-helper';
