@@ -4,7 +4,7 @@ from typing import Union, Annotated
 from datetime import datetime, timedelta, timezone
 from jose import JWTError, jwt
 from passlib.context import CryptContext
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Request, Response, status
 from fastapi.security import OAuth2PasswordBearer
 from schemas.users import LoginRequest, UserOut
 from typing_extensions import Annotated, Doc
@@ -16,8 +16,55 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 2
 
 REFRESH_TOKEN_EXPIRE_DAYS = 3
 
+# Cookie settings shared across login/refresh flows
+ACCESS_TOKEN_COOKIE_NAME = "access_token"
+REFRESH_TOKEN_COOKIE_NAME = "refresh_token"
+COOKIE_PATH = "/"
+COOKIE_SAMESITE = "lax"
+# Set to True in production when served over HTTPS
+COOKIE_SECURE = False
+
+
+def _access_cookie_max_age() -> int:
+    return ACCESS_TOKEN_EXPIRE_MINUTES * 60
+
+
+def _refresh_cookie_max_age() -> int:
+    return REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60
+
+
+def set_auth_cookies(response: Response, access_token: str, refresh_token: str) -> None:
+    """Persist access/refresh tokens on the response as HTTP-only cookies."""
+    response.set_cookie(
+        key=ACCESS_TOKEN_COOKIE_NAME,
+        value=access_token,
+        httponly=True,
+        secure=COOKIE_SECURE,
+        samesite=COOKIE_SAMESITE,
+        max_age=_access_cookie_max_age(),
+        path=COOKIE_PATH,
+    )
+    response.set_cookie(
+        key=REFRESH_TOKEN_COOKIE_NAME,
+        value=refresh_token,
+        httponly=True,
+        secure=COOKIE_SECURE,
+        samesite=COOKIE_SAMESITE,
+        max_age=_refresh_cookie_max_age(),
+        path=COOKIE_PATH,
+    )
+
+
+def clear_auth_cookies(response: Response) -> None:
+    """Remove auth cookies from the response."""
+    response.delete_cookie(ACCESS_TOKEN_COOKIE_NAME, path=COOKIE_PATH)
+    response.delete_cookie(REFRESH_TOKEN_COOKIE_NAME, path=COOKIE_PATH)
+
+
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/login/OAuth2")
+oauth2_scheme_optional = OAuth2PasswordBearer(
+    tokenUrl="/api/login/OAuth2", auto_error=False)
 
 
 def verify_password(plain_password, hashed_password):
@@ -51,10 +98,18 @@ def create_refresh_token(data: dict, expires_delta: timedelta = None):
     return encoded_jwt
 
 
-async def get_current_user(token: str = Depends(oauth2_scheme)):
+async def get_current_user(request: Request, token: str | None = Depends(oauth2_scheme_optional)):
     from models import User
     import json
     try:
+        if not token:
+            token = request.cookies.get(ACCESS_TOKEN_COOKIE_NAME)
+            if not token:
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Could not validate credentials",
+                    headers={"WWW-Authenticate": "Bearer"},
+                )
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         user_data_raw = payload.get("sub")
         # 'sub' can be:

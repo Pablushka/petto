@@ -1,41 +1,50 @@
 from schemas.users import UserCreate, UserOut, UserRegister, PasswordRecoveryRequest, PasswordResetRequest, LoginRequest
-from utils.auth import get_password_hash, verify_password, create_access_token, get_current_user
+from utils.auth import (
+    REFRESH_TOKEN_COOKIE_NAME,
+    get_password_hash,
+    verify_password,
+    create_access_token,
+    get_current_user,
+    create_refresh_token,
+    REFRESH_TOKEN_EXPIRE_DAYS,
+    set_auth_cookies,
+    clear_auth_cookies,
+    verify_refresh_token,
+)
 from models import User
 from typing import List
-from fastapi import APIRouter, HTTPException, Depends, status
+from fastapi import APIRouter, HTTPException, Depends, Request, Response, status
 from fastapi.security import OAuth2PasswordRequestForm
 from datetime import timedelta
-from fastapi import Request
+from json import JSONDecodeError
 # Refresh token endpoint
-
-from utils.auth import create_refresh_token, REFRESH_TOKEN_EXPIRE_DAYS
 
 
 router = APIRouter(prefix="/api", tags=["Users"])
 
 
 @router.post("/token/refresh")
-async def refresh_token(request: Request):
+async def refresh_token(request: Request, response: Response):
     """
     Exchange a valid refresh token for a new access token.
     Request body: {"refresh_token": "..."}
     Response: {"access_token": "...", "refresh_token": "..."}
     """
-    data = await request.json()
-    refresh_token = data.get("refresh_token")
-    from utils.auth import SECRET_KEY, ALGORITHM
-    from jose import jwt, JWTError
     try:
-        payload = jwt.decode(refresh_token, SECRET_KEY, algorithms=[ALGORITHM])
-        user_id = payload.get("sub")
-        if not user_id:
-            raise HTTPException(
-                status_code=401, detail="Invalid refresh token")
-    except JWTError:
-        raise HTTPException(
-            status_code=401, detail="Invalid or expired refresh token")
+        data = await request.json()
+    except JSONDecodeError:
+        data = {}
+    refresh_token_payload = data.get("refresh_token")
+    if not refresh_token_payload:
+        refresh_token_payload = request.cookies.get(REFRESH_TOKEN_COOKIE_NAME)
+    if not refresh_token_payload:
+        raise HTTPException(status_code=401, detail="Refresh token missing")
+    try:
+        user_id = verify_refresh_token(refresh_token_payload)
+    except HTTPException:
+        clear_auth_cookies(response)
+        raise
     # Issue new access and refresh tokens
-    from models import User
     user = await User.get_or_none(id=user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -43,6 +52,7 @@ async def refresh_token(request: Request):
         {"sub": str(user.id)}, expires_delta=timedelta(minutes=60))
     new_refresh_token = create_refresh_token(
         {"sub": str(user.id)}, expires_delta=timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS))
+    set_auth_cookies(response, access_token, new_refresh_token)
     return {"access_token": access_token, "refresh_token": new_refresh_token}
 
 # User registration endpoint
@@ -138,7 +148,7 @@ async def create_user(user: UserCreate):
 
 
 @router.post("/login")
-async def loginJson(request: LoginRequest):
+async def loginJson(request: LoginRequest, response: Response):
     """
     Authenticate user and return JWT token.
     Request body: {email, password}
@@ -164,7 +174,14 @@ async def loginJson(request: LoginRequest):
         data={"sub": user_json})
     # Also issue a refresh token (store user id in the refresh token 'sub')
     new_refresh_token = create_refresh_token({"sub": str(user.id)})
+    set_auth_cookies(response, access_token, new_refresh_token)
     return {"access_token": access_token, "refresh_token": new_refresh_token, "token_type": "bearer"}
+
+
+@router.post("/logout")
+async def logout(response: Response):
+    clear_auth_cookies(response)
+    return {"message": "Logged out"}
 
 
 @router.post("/login/OAuth2")

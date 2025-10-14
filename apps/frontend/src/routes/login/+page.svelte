@@ -2,7 +2,10 @@
 	// 'm' not used here; import removed
 	import { goto } from '$app/navigation';
 	import { BACKEND_URL } from '$lib/config';
+	import { get } from '$lib/utils/api';
 	import { getMessage } from '$lib/utils/message-helper';
+	import { session } from '$lib/stores/session';
+	import type { UserOutput } from '$lib/types/api/user';
 	import { page } from '$app/state';
 
 	let email = '';
@@ -17,7 +20,8 @@
 			const res = await fetch(BACKEND_URL + 'api/login', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ email, password })
+				body: JSON.stringify({ email, password }),
+				credentials: 'include'
 			});
 			if (!res.ok) {
 				error = getMessage('login_failed');
@@ -25,11 +29,16 @@
 				return;
 			}
 			const tokens = await res.json();
-			if (tokens.access_token) {
-				localStorage.setItem('access_token', tokens.access_token);
-			}
-			if (tokens.refresh_token) {
-				localStorage.setItem('refresh_token', tokens.refresh_token);
+			// Best-effort: populate session after successful login
+			try {
+				const user = await get<UserOutput>('api/users/me', {
+					requireAuth: true,
+					credentials: 'include'
+				});
+				session.set({ user });
+			} catch (fetchErr) {
+				console.warn('Unable to load user after login', fetchErr);
+				session.set(null);
 			}
 			const returnTo = page.url.searchParams.get('returnUrl') || '/';
 			goto(returnTo);

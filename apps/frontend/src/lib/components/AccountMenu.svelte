@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { session } from '$lib/stores/session';
 	import { goto } from '$app/navigation';
+	import { BACKEND_URL } from '$lib/config';
 
 	// Callback from parent (Svelte 5 style)
 	const accountMenuProps = $props<{ onClose?: () => void }>();
@@ -75,9 +76,15 @@
 		onClose?.();
 	}
 
-	function onLogout() {
-		localStorage.removeItem('access_token');
-		localStorage.removeItem('refresh_token');
+	async function onLogout() {
+		try {
+			await fetch(`${BACKEND_URL}api/logout`, {
+				method: 'POST',
+				credentials: 'include'
+			});
+		} catch (err) {
+			console.warn('Logout request failed', err);
+		}
 		session.set(null);
 		goto('/login');
 		onClose?.();

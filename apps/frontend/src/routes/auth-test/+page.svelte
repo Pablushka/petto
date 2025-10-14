@@ -4,6 +4,7 @@
 	import ProtectedRoute from '$lib/components/ProtectedRoute.svelte';
 	import { getMessage } from '$lib/utils/message-helper';
 	import { get } from '$lib/utils/api';
+	import { BACKEND_URL } from '$lib/config';
 	import type { UserOutput } from '$lib/types/api/user';
 
 	// ...existing code...
@@ -12,16 +13,26 @@
 	async function fetchSession() {
 		error = '';
 		try {
-			const user = await get<UserOutput>('api/users/me', { requireAuth: true });
+			const user = await get<UserOutput>('api/users/me', {
+				requireAuth: true,
+				credentials: 'include'
+			});
 			session.set({ user });
-		} catch {
+		} catch (err) {
+			session.set(null);
 			error = getMessage('network_error');
 		}
 	}
 
-	function handleLogout() {
-		localStorage.removeItem('access_token');
-		localStorage.removeItem('refresh_token');
+	async function handleLogout() {
+		try {
+			await fetch(`${BACKEND_URL}/api/logout`, {
+				method: 'POST',
+				credentials: 'include'
+			});
+		} catch (err) {
+			console.warn('Failed to logout', err);
+		}
 		session.set(null);
 	}
 

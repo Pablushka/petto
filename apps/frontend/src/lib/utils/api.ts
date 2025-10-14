@@ -50,8 +50,16 @@ export interface ApiRequestOptions {
 	contentType?: 'json' | 'form-data' | 'text';
 	/** Optional explicit auth token to use for the request (preferred over localStorage) */
 	authToken?: string | null;
+	/** Optional explicit refresh token (e.g., from HTTP-only cookies in SSR). */
+	refreshToken?: string | null;
+	/** Callback to persist refreshed tokens (e.g., updating cookies). */
+	onTokens?: (
+		tokens: { access_token: string; refresh_token?: string | null } | null
+	) => void | Promise<void>;
 	// Optional: use SvelteKit's load-provided fetch in load functions to avoid warnings
 	fetchFn?: typeof fetch;
+	/** Optional fetch credentials mode (defaults to 'include' to support cookies). */
+	credentials?: RequestCredentials;
 }
 
 /**
@@ -88,24 +96,16 @@ export async function apiRequest<T>(endpoint: string, options: ApiRequestOptions
 		headers['Content-Type'] = 'text/plain';
 	}
 
-	// Add auth token if required. Prefer explicit authToken option; otherwise use browser localStorage.
-	const isBrowser = typeof window !== 'undefined' && typeof localStorage !== 'undefined';
+	const isBrowser = typeof window !== 'undefined';
+	let bearerToken: string | null = null;
 	if (requestOptions.requireAuth) {
-		// Prefer explicit token passed in options (useful for server-side requests)
-		const explicitToken = requestOptions.authToken ?? null;
-		if (explicitToken) {
-			headers['Authorization'] = `Bearer ${explicitToken}`;
-		} else if (isBrowser) {
-			console.log('Adding auth token to request');
-			const accessToken = localStorage.getItem('access_token');
-			if (accessToken) {
-				headers['Authorization'] = `Bearer ${accessToken}`;
-			}
+		if (requestOptions.authToken) {
+			bearerToken = requestOptions.authToken;
 		}
-		// If unauthorized and requireAuth, try refresh token in browser only
+		if (bearerToken) {
+			headers['Authorization'] = `Bearer ${bearerToken}`;
+		}
 	}
-	console.log('Request Headers:', headers);
-	console.log('Request Body:', requestOptions.body);
 
 	// Prepare request body
 	let body: string | FormData | null = null;
@@ -125,58 +125,106 @@ export async function apiRequest<T>(endpoint: string, options: ApiRequestOptions
 	// Build full URL
 	const url = `${BACKEND_URL}${normalizedEndpoint}`;
 
-	// Make the request
-	let response = await doFetch(url, {
-		method: requestOptions.method,
-		headers,
-		body
-	});
+	const credentials = requestOptions.credentials ?? ('include' as RequestCredentials);
 
-	// If unauthorized and requireAuth, try refresh token in browser; on server just throw ApiError so load/handlers can react
-	if (response.status === 401 && requestOptions.requireAuth) {
-		if (!isBrowser) {
-			// Server-side: cannot access localStorage or perform client redirects. Let caller handle the 401.
-			throw new ApiError(401, 'Unauthorized');
+	const executeRequest = () =>
+		doFetch(url, {
+			method: requestOptions.method,
+			headers,
+			body,
+			credentials
+		});
+
+	const callOnTokens = async (
+		tokens: { access_token: string; refresh_token?: string | null } | null
+	) => {
+		if (requestOptions.onTokens) {
+			await requestOptions.onTokens(tokens);
 		}
+	};
 
-		const refreshToken = localStorage.getItem('refresh_token');
-		if (refreshToken) {
-			// Attempt to refresh
-			// Backend registers the refresh route under /api/token/refresh (APIRouter prefix '/api')
-			const refreshUrl = `${BACKEND_URL}${'api/token/refresh'}`;
-			const refreshResp = await doFetch(refreshUrl, {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ refresh_token: refreshToken })
-			});
-			if (refreshResp.ok) {
-				const tokens = await refreshResp.json();
-				if (tokens.access_token) {
-					localStorage.setItem('access_token', tokens.access_token);
-				}
-				if (tokens.refresh_token) {
-					localStorage.setItem('refresh_token', tokens.refresh_token);
-				}
-				// Retry original request with new access token
-				headers['Authorization'] = `Bearer ${tokens.access_token}`;
-				response = await doFetch(url, {
-					method: requestOptions.method,
-					headers,
-					body
-				});
-			} else {
-				// Failed refresh, clear tokens and redirect to login
-				localStorage.removeItem('access_token');
-				localStorage.removeItem('refresh_token');
-				goto('/login');
+	const attemptServerRefresh = async () => {
+		if (!requestOptions.refreshToken) {
+			await callOnTokens(null);
+			return null;
+		}
+		const refreshUrl = `${BACKEND_URL}${'api/token/refresh'}`;
+		const refreshResp = await doFetch(refreshUrl, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ refresh_token: requestOptions.refreshToken }),
+			credentials
+		});
+		if (!refreshResp.ok) {
+			await callOnTokens(null);
+			return null;
+		}
+		const tokens = (await refreshResp.json()) as {
+			access_token?: string;
+			refresh_token?: string | null;
+		};
+		if (!tokens.access_token) {
+			await callOnTokens(null);
+			return null;
+		}
+		const normalized = {
+			access_token: tokens.access_token,
+			refresh_token: tokens.refresh_token ?? null
+		};
+		await callOnTokens(normalized);
+		headers['Authorization'] = `Bearer ${normalized.access_token}`;
+		return normalized;
+	};
+
+	const attemptBrowserRefresh = async () => {
+		const refreshUrl = `${BACKEND_URL}${'api/token/refresh'}`;
+		const refreshResp = await doFetch(refreshUrl, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({}),
+			credentials
+		});
+		if (!refreshResp.ok) {
+			await callOnTokens(null);
+			goto('/login');
+			return null;
+		}
+		const tokens = (await refreshResp.json()) as {
+			access_token?: string;
+			refresh_token?: string | null;
+		};
+		if (!tokens.access_token) {
+			await callOnTokens(null);
+			goto('/login');
+			return null;
+		}
+		const normalized = {
+			access_token: tokens.access_token,
+			refresh_token: tokens.refresh_token ?? null
+		};
+		await callOnTokens(normalized);
+		return normalized;
+	};
+
+	// Make the request
+	let response = await executeRequest();
+
+	// If unauthorized, attempt to refresh tokens depending on environment
+	if (response.status === 401 && requestOptions.requireAuth) {
+		if (isBrowser) {
+			const refreshed = await attemptBrowserRefresh();
+			if (!refreshed) {
 				throw new Error('Unauthorized - Redirected to login');
 			}
+			headers['Authorization'] = `Bearer ${refreshed.access_token}`;
+			response = await executeRequest();
 		} else {
-			// No refresh token, clear tokens and redirect to login
-			localStorage.removeItem('access_token');
-			localStorage.removeItem('refresh_token');
-			goto('/login');
-			throw new Error('Unauthorized - Redirected to login');
+			const refreshed = await attemptServerRefresh();
+			if (!refreshed) {
+				throw new ApiError(401, 'Unauthorized');
+			}
+			headers['Authorization'] = `Bearer ${refreshed.access_token}`;
+			response = await executeRequest();
 		}
 	}
 
