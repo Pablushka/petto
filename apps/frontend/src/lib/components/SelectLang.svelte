@@ -7,18 +7,8 @@
 
 	// Items must have id (value) and option_text (label)
 	export type Item = { id: string; option_text: string };
-	interface Props {
-		items: Item[];
-		selected: string;
-		label?: string;
-		name?: string;
-		error?: string;
-		required?: boolean;
-		disabled?: boolean;
-		placeholder?: string;
-		onChange?(value: string): void;
-	}
 
+	// Strongly-typed props: selected is a string (callers can pass string unions)
 	let {
 		items,
 		selected = $bindable(),
@@ -29,7 +19,17 @@
 		disabled = false,
 		placeholder = '',
 		onChange
-	}: Props = $props();
+	} = $props<{
+		items: Item[];
+		selected: string;
+		label?: string;
+		name?: string;
+		error?: string;
+		required?: boolean;
+		disabled?: boolean;
+		placeholder?: string;
+		onChange?(value: string): void;
+	}>();
 
 	// Input id derived from name for linking label
 	const id = `select-${name}`;

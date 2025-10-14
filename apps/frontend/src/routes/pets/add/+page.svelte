@@ -146,7 +146,7 @@
 					<Select
 						label="Pet Type"
 						name="petType"
-						bind:selected={petType as string}
+						bind:selected={petType}
 						items={petTypeOptions}
 						required
 					/>

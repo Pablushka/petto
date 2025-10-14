@@ -3,7 +3,7 @@
 	import { goto } from '$app/navigation';
 	import { BACKEND_URL } from '$lib/config';
 	import { getMessage } from '$lib/utils/message-helper';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 
 	let email = '';
 	let password = '';
@@ -31,7 +31,7 @@
 			if (tokens.refresh_token) {
 				localStorage.setItem('refresh_token', tokens.refresh_token);
 			}
-			const returnTo = $page.url.searchParams.get('returnUrl') || '/';
+			const returnTo = page.url.searchParams.get('returnUrl') || '/';
 			goto(returnTo);
 		} catch (err) {
 			console.error('login failed', err);

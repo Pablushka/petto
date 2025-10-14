@@ -186,7 +186,7 @@
 			<Select
 				label={getMessage('pet_species')}
 				name="pet_type"
-				bind:selected={petType as string}
+				bind:selected={petType}
 				items={petTypeOptions}
 				required
 			/>

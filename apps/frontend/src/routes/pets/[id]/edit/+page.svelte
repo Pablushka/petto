@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import ProtectedRoute from '$lib/components/ProtectedRoute.svelte';
 	import PageHeader from '$lib/components/PageHeader.svelte';
 	import Button from '$lib/components/Button.svelte';
@@ -9,6 +9,7 @@
 	import { getMessage } from '$lib/utils/message-helper';
 	import { goto } from '$app/navigation';
 	import { get, post, put } from '$lib/utils/api';
+	import LoadingState from '$lib/components/LoadingState.svelte';
 	import type {
 		PetType as PetTypeEnum,
 		PetStatus as PetStatusEnum,
@@ -21,8 +22,6 @@
 	import type { GalleryItem } from '$lib/components/MultiImageGallery.svelte';
 
 	let loading = $state(true);
-	// referenced to avoid unused var lint error
-	void loading;
 	let saving = $state(false);
 	let error = $state('');
 	let success = $state(false);
@@ -33,12 +32,8 @@
 	let name = $state('');
 	let petType = $state<PetTypeEnum | ''>('');
 	let notes = $state('');
-	// Legacy single-image vars (no longer used but kept to avoid type breaks elsewhere if imported)
-	let _image = $state<FileList | null>(null); // deprecated
-	let _imagePreview = $state<string | null>(null); // deprecated
-	// reference legacy variables to avoid unused-var lint errors
-	void _image;
-	void _imagePreview;
+	// Legacy single-image vars (no longer used but kept to preserve existing behavior)
+	let _imagePreview = $state<string | null>(null); // deprecated (kept as fallback)
 
 	// Unified gallery state (existing + newly added)
 	let gallery = $state<GalleryItem[]>([]);
@@ -67,7 +62,7 @@
 
 	$effect(() => {
 		void (async () => {
-			petId = $page.params.id || '';
+			petId = page.params.id || '';
 			try {
 				const data = await get<PetOut>(`api/pets/${petId}`, { requireAuth: true });
 				// Map backend fields to form fields
@@ -171,61 +166,67 @@
 			{#if error}
 				<Alert type="error" message={error} dismissible />
 			{/if}
+			<LoadingState {loading} noResultsMessage="">
+				<form
+					onsubmit={(e) => {
+						e.preventDefault();
+						handleSubmit();
+					}}
+					class="space-y-6"
+				>
+					<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+						<TextField
+							label={getMessage('pet_name_label')}
+							name="name"
+							bind:value={name}
+							required
+						/>
 
-			<form
-				onsubmit={(e) => {
-					e.preventDefault();
-					handleSubmit();
-				}}
-				class="space-y-6"
-			>
-				<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-					<TextField label={getMessage('pet_name_label')} name="name" bind:value={name} required />
+						<Select
+							label="Pet Type"
+							name="petType"
+							bind:selected={petType}
+							items={petTypeOptions}
+							required
+						/>
+					</div>
 
-					<Select
-						label="Pet Type"
-						name="petType"
-						bind:selected={petType as string}
-						items={petTypeOptions}
-						required
-					/>
-				</div>
+					<div>
+						<label for="notes" class="mb-1 block font-medium text-gray-700"
+							>{getMessage('pet_description')}</label
+						>
+						<textarea
+							id="notes"
+							name="notes"
+							bind:value={notes}
+							rows="4"
+							class="w-full rounded border border-gray-300 px-3 py-2"
+						></textarea>
+					</div>
 
-				<div>
-					<label for="notes" class="mb-1 block font-medium text-gray-700"
-						>{getMessage('pet_description')}</label
-					>
-					<textarea
-						id="notes"
-						name="notes"
-						bind:value={notes}
-						rows="4"
-						class="w-full rounded border border-gray-300 px-3 py-2"
-					></textarea>
-				</div>
+					<div>
+						<label for="multi-image-input-edit" class="mb-1 block font-medium text-gray-700"
+							>{getMessage('pet_image_label')} (max {MAX_IMAGES})</label
+						>
+						<MultiImageGallery
+							inputId="multi-image-input-edit"
+							initial={gallery.map((g) => ({
+								url: g.preview,
+								value: g.value ?? undefined,
+								id: g.id
+							}))}
+							onChange={handleGalleryChange}
+							onError={handleGalleryError}
+						/>
+					</div>
 
-				<div>
-					<label for="multi-image-input-edit" class="mb-1 block font-medium text-gray-700"
-						>{getMessage('pet_image_label')} (max {MAX_IMAGES})</label
-					>
-					<MultiImageGallery
-						inputId="multi-image-input-edit"
-						initial={gallery.map((g) => ({
-							url: g.preview,
-							value: g.value ?? undefined,
-							id: g.id
-						}))}
-						onChange={handleGalleryChange}
-						onError={handleGalleryError}
-					/>
-				</div>
-
-				<div class="flex justify-end">
-					<button class="rounded bg-blue-600 px-4 py-2 text-white" disabled={saving} type="submit"
-						>{saving ? getMessage('loading') : getMessage('button_submit')}</button
-					>
-				</div>
-			</form>
+					<div class="flex justify-end">
+						<button class="rounded bg-blue-600 px-4 py-2 text-white" disabled={saving} type="submit"
+							>{saving ? getMessage('loading') : getMessage('button_submit')}</button
+						>
+					</div>
+				</form>
+			</LoadingState>
 		</div>
 	</div>
 </ProtectedRoute>
