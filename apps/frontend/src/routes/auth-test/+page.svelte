@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { session } from '$lib/stores/session';
+	import { session, buildSession } from '$lib/stores/session';
 	// 'm' not used here; import removed
 	import ProtectedRoute from '$lib/components/ProtectedRoute.svelte';
 	import { getMessage } from '$lib/utils/message-helper';
@@ -17,7 +17,7 @@
 				requireAuth: true,
 				credentials: 'include'
 			});
-			session.set({ user });
+			session.set(buildSession(user));
 		} catch (err) {
 			session.set(null);
 			error = getMessage('network_error');

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { browser } from '$app/environment';
-	import { session } from '$lib/stores/session';
+	import { session, buildSession } from '$lib/stores/session';
 	import type { UserOutput } from '$lib/types/api/user';
 	import { get } from '$lib/utils/api';
 
@@ -20,7 +20,7 @@
 			const userData = await get<UserOutput>('api/users/me', {
 				requireAuth: true
 			});
-			session.set({ user: userData });
+			session.set(buildSession(userData));
 		} catch (error) {
 			console.error('Authentication check failed:', error);
 			session.set(null);

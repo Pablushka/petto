@@ -12,9 +12,12 @@
 
 	// Subscribe to session
 	let currentUserId: number | null = null;
+	let isOwner = $derived(currentUserId !== null && currentUserId === pet.owner_id);
+
 	$effect(() => {
 		const unsub = session.subscribe((s) => {
-			currentUserId = s?.user ? Number(s.user.id) : null;
+			currentUserId = s?.currentUserId ?? null;
+			isOwner = currentUserId !== null && currentUserId === pet.owner_id;
 		});
 		return unsub;
 	});
@@ -33,16 +36,16 @@
 
 	let petImageUrl = $derived(resolveCover());
 
+	const petQrCodeUrl = $derived(() => `${BACKEND_URL}api/qrcode/${pet.id}`);
+
 	const statusMessageKey: Record<string, MessageKey> = {
 		lost: 'pet_status_lost',
 		found: 'pet_status_found',
 		at_home: 'pet_status_at_home'
 	};
-
-	let isOwner = $derived(currentUserId !== null && currentUserId === pet.owner_id);
 </script>
 
-<div class="overflow-hidden rounded-lg bg-white shadow-md">
+<div class="relative overflow-hidden rounded-lg bg-white shadow-md">
 	<div class="relative h-64 overflow-hidden">
 		<img
 			src={petImageUrl}
@@ -103,6 +106,22 @@
 		{#if isOwner}
 			<div class="mt-8">
 				<Button type="primary" onclick={onEdit}>Edit</Button>
+			</div>
+		{/if}
+		{#if isOwner}
+			<h1>Is Owner</h1>
+			<div
+				class="pointer-events-none absolute right-6 bottom-6 flex flex-col items-center text-sm text-gray-600"
+			>
+				<span class="mb-2 rounded bg-white/90 px-2 py-1 font-medium text-gray-800 shadow-sm"
+					>Share QR Code</span
+				>
+				<img
+					src={petQrCodeUrl()}
+					alt={`QR code for ${pet.name}`}
+					loading="lazy"
+					class="pointer-events-auto h-56 w-56 rounded border border-gray-200 bg-white p-2 shadow-lg"
+				/>
 			</div>
 		{/if}
 	</div>

@@ -4,7 +4,7 @@
 	import PageHeader from '$lib/components/PageHeader.svelte';
 	// 'm' not used here; import removed
 	import { getLocale } from '$lib/paraglide/runtime';
-	import { session } from '$lib/stores/session';
+	import { session, buildSession } from '$lib/stores/session';
 	import type { UserOutput } from '$lib/types/api/user';
 	import { getMessage } from '$lib/utils/message-helper';
 	import SelectLang from '$lib/components/SelectLang.svelte';
@@ -28,7 +28,7 @@
 			return;
 		}
 		if (data?.user) {
-			session.set({ user: data.user });
+			session.set(buildSession(data.user, data.currentUserId));
 		} else {
 			session.set(null);
 		}

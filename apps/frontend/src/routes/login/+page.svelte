@@ -4,7 +4,7 @@
 	import { BACKEND_URL } from '$lib/config';
 	import { get } from '$lib/utils/api';
 	import { getMessage } from '$lib/utils/message-helper';
-	import { session } from '$lib/stores/session';
+	import { session, buildSession } from '$lib/stores/session';
 	import type { UserOutput } from '$lib/types/api/user';
 	import { page } from '$app/state';
 
@@ -35,7 +35,7 @@
 					requireAuth: true,
 					credentials: 'include'
 				});
-				session.set({ user });
+				session.set(buildSession(user));
 			} catch (fetchErr) {
 				console.warn('Unable to load user after login', fetchErr);
 				session.set(null);

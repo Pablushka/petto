@@ -1,5 +1,5 @@
 import { goto } from '$app/navigation';
-import { session } from '$lib/stores/session';
+import { session, buildSession } from '$lib/stores/session';
 import { get as getStore } from 'svelte/store';
 import type { Cookies } from '@sveltejs/kit';
 import type { UserOutput } from '$lib/types/api/user';
@@ -77,7 +77,7 @@ export async function requireAuth(redirectTo?: string): Promise<boolean> {
 		});
 
 		// Valid user, set session and return true
-		session.set({ user: userData });
+		session.set(buildSession(userData));
 		return true;
 	} catch (error) {
 		// Network error or other exception
