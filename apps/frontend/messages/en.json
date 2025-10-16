@@ -83,5 +83,17 @@
 	"error_unexpected": "Unexpected error",
 	"error_request_failed": "Request failed",
 	"pet_status_at_home": "At Home",
-	"edit_pet": "Edit Pet"
+	"edit_pet": "Edit Pet",
+	"last_scan_location": "Last Scan Location",
+	"scan_location": "Location",
+	"scan_time": "Time",
+	"qr_link": "QR Link",
+	"unknown_location": "Unknown location",
+	"pet_location_title": "Pet Location",
+	"back_to_pet": "Back to Pet",
+	"no_scans_found": "No scans found for this pet",
+	"print_flyer": "Print Flyer",
+	"export_image": "Export as Image",
+	"edit_flyer": "Edit Flyer",
+	"finish_editing": "Finish Editing"
 }

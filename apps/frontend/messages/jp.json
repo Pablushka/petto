@@ -83,5 +83,17 @@
 	"error_unexpected": "予期しないエラー",
 	"error_request_failed": "リクエストに失敗しました",
 	"pet_status_at_home": "自宅",
-	"edit_pet": "ペットを編集"
+	"edit_pet": "ペットを編集",
+	"last_scan_location": "最後のスキャン場所",
+	"scan_location": "場所",
+	"scan_time": "時間",
+	"qr_link": "QRリンク",
+	"unknown_location": "不明な場所",
+	"pet_location_title": "ペットの場所",
+	"back_to_pet": "ペットに戻る",
+	"no_scans_found": "このペットのスキャンが見つかりません",
+	"print_flyer": "フライヤーを印刷",
+	"export_image": "画像としてエクスポート",
+	"edit_flyer": "フライヤーを編集",
+	"finish_editing": "編集を終了"
 }

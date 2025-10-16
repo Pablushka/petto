@@ -26,6 +26,10 @@
 		goto(`/pets/${pet.id}/edit`);
 	}
 
+	function onGenerateFlyer() {
+		goto(`/pets/${pet.id}/flyer`);
+	}
+
 	// Derive image URL using shared helper
 	function resolveCover(): string {
 		const cover = getPetCover(pet);
@@ -104,8 +108,9 @@
 		{/if}
 
 		{#if isOwner}
-			<div class="mt-8">
-				<Button type="primary" onclick={onEdit}>Edit</Button>
+			<div class="mt-8 flex gap-4">
+				<Button type="primary" onclick={onEdit}>{getMessage('edit_pet')}</Button>
+				<Button type="secondary" onclick={onGenerateFlyer}>{getMessage('print_flyer')}</Button>
 			</div>
 		{/if}
 		{#if isOwner}

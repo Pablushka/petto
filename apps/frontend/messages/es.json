@@ -77,5 +77,17 @@
 	"save": "Guardar",
 	"saving": "Guardando...",
 	"pet_status_at_home": "En Casa",
-	"edit_pet": "Modificar Mascota"
+	"edit_pet": "Modificar Mascota",
+	"last_scan_location": "Última Ubicación de Escaneo",
+	"scan_location": "Ubicación",
+	"scan_time": "Hora",
+	"qr_link": "Enlace QR",
+	"unknown_location": "Ubicación desconocida",
+	"pet_location_title": "Ubicación de la Mascota",
+	"back_to_pet": "Volver a la Mascota",
+	"no_scans_found": "No se encontraron escaneos para esta mascota",
+	"print_flyer": "Imprimir Flyer",
+	"export_image": "Exportar como Imagen",
+	"edit_flyer": "Editar Flyer",
+	"finish_editing": "Terminar Edición"
 }

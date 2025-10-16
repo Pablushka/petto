@@ -78,7 +78,19 @@ export type MessageKey =
 	| 'reunite_lost_pets'
 	| 'reunite_lost_pets_description'
 	| 'all_rights_reserved'
-	| 'edit_pet';
+	| 'edit_pet'
+	| 'last_scan_location'
+	| 'scan_location'
+	| 'scan_time'
+	| 'qr_link'
+	| 'unknown_location'
+	| 'pet_location_title'
+	| 'back_to_pet'
+	| 'no_scans_found'
+	| 'print_flyer'
+	| 'export_image'
+	| 'edit_flyer'
+	| 'finish_editing';
 
 // Fallback texts in case the message is missing
 const fallbackMessages: Record<MessageKey, string> = {
@@ -157,7 +169,19 @@ const fallbackMessages: Record<MessageKey, string> = {
 	reunite_lost_pets_description:
 		'Help lost pets find their way home. Report lost pets, found pets, or browse listings to reunite pets with their owners.',
 	all_rights_reserved: 'All rights reserved',
-	edit_pet: 'Edit Pet'
+	edit_pet: 'Edit Pet',
+	last_scan_location: 'Last Scan Location',
+	scan_location: 'Location',
+	scan_time: 'Time',
+	qr_link: 'QR Link',
+	unknown_location: 'Unknown location',
+	pet_location_title: 'Pet Location',
+	back_to_pet: 'Back to Pet',
+	no_scans_found: 'No scans found for this pet',
+	print_flyer: 'Print Flyer',
+	export_image: 'Export as Image',
+	edit_flyer: 'Edit Flyer',
+	finish_editing: 'Finish Editing'
 };
 
 /**

@@ -3,7 +3,7 @@ import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from tortoise.contrib.fastapi import register_tortoise
-from routers import static, users, pets, qrcode, banners, pet_location, upload
+from routers import static, users, pets, qrcode, banners, pet_location, upload, flyers
 
 
 app = FastAPI()
@@ -36,6 +36,7 @@ app.include_router(qrcode.router)
 app.include_router(banners.router)
 app.include_router(pet_location.router)
 app.include_router(upload.router)
+app.include_router(flyers.router)
 
 
 @app.get("/_health")
