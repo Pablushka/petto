@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { browser } from '$app/environment';
 	import { getMessage } from '$lib/utils/message-helper';
 	import { m } from '$lib/paraglide/messages';
 	import type { PetOut } from '$lib/types/api/pet';
@@ -19,6 +20,8 @@
 	let flyerContainer: HTMLElement;
 	let isEditing = true;
 	let printMode: 'color' | 'bw' = 'color'; // Modo de impresión: color o blanco y negro
+	let flyerHtml = '';
+	let mounted = false;
 
 	// Función para resolver URLs absolutas
 	function resolveImageUrl(url: string): string {
@@ -27,31 +30,74 @@
 		return `${BACKEND_URL}${cleaned}`.replace(/([^:]\/)\/+/, '$1/');
 	}
 
-	// Datos del flyer
-	let flyerData = {
-		pet_name: pet.name,
-		pet_type: pet.pet_type,
-		pet_age: '',
-		pet_breed: '',
-		pet_color: '',
-		pet_gender: '',
-		pet_last_seen: '',
-		pet_location: '',
-		pet_description: pet.notes || '',
-		pet_picture: resolveImageUrl(getPetCover(pet)),
-		pet_picture2: pet.pictures && pet.pictures.length > 1 ? resolveImageUrl(pet.pictures[1]) : '',
-		pet_picture3: pet.pictures && pet.pictures.length > 2 ? resolveImageUrl(pet.pictures[2]) : '',
-		pet_picture4: pet.pictures && pet.pictures.length > 3 ? resolveImageUrl(pet.pictures[3]) : '',
-		pet_picture5: pet.pictures && pet.pictures.length > 4 ? resolveImageUrl(pet.pictures[4]) : '',
-		qr_code_url: `${BACKEND_URL}api/qrcode/${pet.id}`,
-		owner_name: `${owner.first_name} ${owner.last_name}`,
-		owner_phone: owner.phone,
-		owner_email: owner.email,
-		owner_address: owner.full_address,
-		reward_amount: owner.recovery_bounty ? `$${owner.recovery_bounty}` : '',
-		show_reward: owner.recovery_bounty ? 'block' : 'none',
-		pet_id: pet.id
-	};
+	// Cargar la plantilla HTML
+	async function loadTemplate() {
+		if (!browser) {
+			console.warn('Cannot load template during SSR');
+			return null;
+		}
+		try {
+			const response = await fetch('/flyers_templates/lost_pet_flyer.html');
+			if (!response.ok) {
+				throw new Error(`HTTP error! status: ${response.status}`);
+			}
+			const template = await response.text();
+			return template;
+		} catch (error) {
+			console.error('Error loading flyer template:', error);
+			return null;
+		}
+	}
+
+	// Función para renderizar el flyer con los datos
+	async function renderFlyer() {
+		const template = await loadTemplate();
+		if (!template) return;
+
+		// Datos del flyer
+		const data = {
+			pet_name: pet.name,
+			pet_type: pet.pet_type,
+			pet_age: '',
+			pet_breed: '',
+			pet_color: '',
+			pet_gender: '',
+			pet_last_seen: '',
+			pet_location: '',
+			pet_description: pet.notes || '',
+			pet_picture: resolveImageUrl(getPetCover(pet)),
+			pet_picture2: pet.pictures && pet.pictures.length > 1 ? resolveImageUrl(pet.pictures[1]) : '',
+			pet_picture3: pet.pictures && pet.pictures.length > 2 ? resolveImageUrl(pet.pictures[2]) : '',
+			pet_picture4: pet.pictures && pet.pictures.length > 3 ? resolveImageUrl(pet.pictures[3]) : '',
+			pet_picture5: pet.pictures && pet.pictures.length > 4 ? resolveImageUrl(pet.pictures[4]) : '',
+			qr_code_url: `${BACKEND_URL}api/qrcode/${pet.id}`,
+			owner_name: `${owner.first_name} ${owner.last_name}`,
+			owner_phone: owner.phone,
+			owner_email: owner.email,
+			owner_address: owner.full_address,
+			reward_amount: owner.recovery_bounty ? `$${owner.recovery_bounty}` : '',
+			show_reward: !!owner.recovery_bounty,
+			print_mode: printMode,
+			pet_id: pet.id
+		};
+
+		// Reemplazar variables en la plantilla
+		let html = template;
+		Object.entries(data).forEach(([key, value]) => {
+			const regex = new RegExp(`{{ ${key} }}`, 'g');
+			html = html.replace(regex, String(value));
+		});
+
+		// Manejar condicionales simples
+		html = html.replace(/{% if (\w+) %}/g, (match, varName) => {
+			return (data as any)[varName] ? '' : '<!-- ';
+		});
+		html = html.replace(/{% endif %}/g, (match) => {
+			return ' -->';
+		});
+
+		flyerHtml = html;
+	}
 
 	function printFlyer() {
 		// Open the flyer in a new window using the backend endpoint
@@ -79,11 +125,17 @@
 
 	function togglePrintMode() {
 		printMode = printMode === 'color' ? 'bw' : 'color';
+		if (mounted) {
+			renderFlyer();
+		}
 	}
 
 	onMount(() => {
+		mounted = true;
 		// Inicializar el estado de edición
 		toggleEdit();
+		// Renderizar el flyer inicial
+		renderFlyer();
 	});
 </script>
 
@@ -119,224 +171,7 @@
 			bind:this={flyerContainer}
 			class="flyer-content {printMode === 'bw' ? 'print-mode-bw' : 'print-mode-color'}"
 		>
-			<!-- Header -->
-			<div class="header-section">¡MASCOTA PERDIDA!</div>
-
-			<!-- Foto principal -->
-			<div class="mb-6 flex justify-center">
-				<div class="photo-frame h-28 w-48">
-					{#if flyerData.pet_picture}
-						<img
-							src={flyerData.pet_picture}
-							alt="Foto principal de {flyerData.pet_name}"
-							class="max-h-full max-w-full object-cover"
-						/>
-					{:else}
-						<div class="text-center text-sm text-gray-500" contenteditable="true">
-							Foto principal
-						</div>
-					{/if}
-				</div>
-			</div>
-
-			<!-- Información de la mascota -->
-			<div class="mb-6 grid grid-cols-2 gap-6">
-				<!-- Detalles de la mascota -->
-				<div class="flex flex-col gap-1">
-					<div class="mb-1 flex">
-						<span class="min-w-40 font-bold text-gray-700">Nombre:</span>
-						<span class="flex-1 border-b border-dotted border-gray-300 pb-1" contenteditable="true"
-							>{flyerData.pet_name}</span
-						>
-					</div>
-
-					<div class="mb-1 flex">
-						<span class="min-w-40 font-bold text-gray-700">Tipo:</span>
-						<span class="flex-1 border-b border-dotted border-gray-300 pb-1" contenteditable="true"
-							>{flyerData.pet_type}</span
-						>
-					</div>
-
-					<div class="mb-1 flex">
-						<span class="min-w-40 font-bold text-gray-700">Edad:</span>
-						<span class="flex-1 border-b border-dotted border-gray-300 pb-1" contenteditable="true"
-							>{flyerData.pet_age}</span
-						>
-					</div>
-
-					<div class="mb-1 flex">
-						<span class="min-w-40 font-bold text-gray-700">Raza:</span>
-						<span class="flex-1 border-b border-dotted border-gray-300 pb-1" contenteditable="true"
-							>{flyerData.pet_breed}</span
-						>
-					</div>
-
-					<div class="mb-1 flex">
-						<span class="min-w-40 font-bold text-gray-700">Color:</span>
-						<span class="flex-1 border-b border-dotted border-gray-300 pb-1" contenteditable="true"
-							>{flyerData.pet_color}</span
-						>
-					</div>
-
-					<div class="mb-1 flex">
-						<span class="min-w-40 font-bold text-gray-700">Sexo:</span>
-						<span class="flex-1 border-b border-dotted border-gray-300 pb-1" contenteditable="true"
-							>{flyerData.pet_gender}</span
-						>
-					</div>
-
-					<div class="mb-1 flex">
-						<span class="min-w-40 font-bold text-gray-700">Última vez visto:</span>
-						<span class="flex-1 border-b border-dotted border-gray-300 pb-1" contenteditable="true"
-							>{flyerData.pet_last_seen}</span
-						>
-					</div>
-
-					<div class="mb-1 flex">
-						<span class="min-w-40 font-bold text-gray-700">Lugar:</span>
-						<span class="flex-1 border-b border-dotted border-gray-300 pb-1" contenteditable="true"
-							>{flyerData.pet_location}</span
-						>
-					</div>
-
-					<div class="mt-3">
-						<strong>Descripción:</strong><br />
-						<div class="mt-2 min-h-16 rounded border border-gray-300 p-2" contenteditable="true">
-							{flyerData.pet_description}
-						</div>
-					</div>
-				</div>
-
-				<!-- Galería de fotos adicionales -->
-				<div class="flex flex-col">
-					<div class="mb-3 font-bold text-gray-700">Más fotos:</div>
-					<div class="grid grid-cols-2 gap-2">
-						<div class="photo-gallery-item aspect-square">
-							{#if flyerData.pet_picture2}
-								<img
-									src={flyerData.pet_picture2}
-									alt="Foto adicional 1"
-									class="max-h-full max-w-full object-cover"
-								/>
-							{:else}
-								<div class="text-center text-xs text-gray-400" contenteditable="true">Foto 2</div>
-							{/if}
-						</div>
-						<div class="photo-gallery-item aspect-square">
-							{#if flyerData.pet_picture3}
-								<img
-									src={flyerData.pet_picture3}
-									alt="Foto adicional 2"
-									class="max-h-full max-w-full object-cover"
-								/>
-							{:else}
-								<div class="text-center text-xs text-gray-400" contenteditable="true">Foto 3</div>
-							{/if}
-						</div>
-						<div class="photo-gallery-item aspect-square">
-							{#if flyerData.pet_picture4}
-								<img
-									src={flyerData.pet_picture4}
-									alt="Foto adicional 3"
-									class="max-h-full max-w-full object-cover"
-								/>
-							{:else}
-								<div class="text-center text-xs text-gray-400" contenteditable="true">Foto 4</div>
-							{/if}
-						</div>
-						<div class="photo-gallery-item aspect-square">
-							{#if flyerData.pet_picture5}
-								<img
-									src={flyerData.pet_picture5}
-									alt="Foto adicional 4"
-									class="max-h-full max-w-full object-cover"
-								/>
-							{:else}
-								<div class="text-center text-xs text-gray-400" contenteditable="true">Foto 5</div>
-							{/if}
-						</div>
-					</div>
-				</div>
-			</div>
-
-			<!-- Código QR -->
-			<div class="qr-section">
-				<div class="flex h-14 w-14 items-center justify-center border-2 border-gray-800 bg-gray-50">
-					<img
-						src={flyerData.qr_code_url}
-						alt="QR Code"
-						class="max-h-full max-w-full"
-						on:error={() => {}}
-					/>
-				</div>
-				<div class="flex-1 text-center">
-					<strong>¡Escanea para más info!</strong><br />
-					<small>www.petto.com/qr/{flyerData.pet_id}</small>
-				</div>
-			</div>
-
-			<!-- Información de contacto -->
-			<div class="contact-section">
-				<div class="mb-2 text-sm font-bold text-blue-800">
-					¡Si encuentras a mi mascota, por favor contacta!
-				</div>
-				<div class="flex gap-4">
-					<div class="flex-1">
-						<strong>Dueño:</strong> <span contenteditable="true">{flyerData.owner_name}</span><br />
-						<strong>Teléfono:</strong>
-						<span contenteditable="true">{flyerData.owner_phone}</span><br />
-						<strong>Email:</strong> <span contenteditable="true">{flyerData.owner_email}</span>
-					</div>
-					<div class="flex-1">
-						<strong>Dirección:</strong><br />
-						<span contenteditable="true">{flyerData.owner_address}</span>
-					</div>
-				</div>
-			</div>
-			<!-- Sección de recompensa (opcional) -->
-			<div class="reward-section" data-show={flyerData.show_reward}>
-				<div class="mb-1 font-bold text-yellow-800">¡RECOMPENSA!</div>
-				<div contenteditable="true">{flyerData.reward_amount}</div>
-			</div>
-
-			<!-- Footer -->
-			<div class="footer mt-auto text-center text-xs text-gray-500">
-				<div contenteditable="true">Creado con ❤️ por Petto - Reunamos mascotas perdidas</div>
-			</div>
-
-			<!-- Tabs para cortar (solo en vista previa) -->
-			<div class="cut-tabs relative mt-4 h-6 border-t border-dashed border-gray-300 bg-white">
-				<div
-					class="tab absolute bottom-0 left-4 flex h-5 w-10 -rotate-90 transform items-center justify-center rounded-t bg-red-500 text-xs font-bold text-white"
-					contenteditable="true"
-				>
-					{flyerData.owner_phone}
-				</div>
-				<div
-					class="tab right-4 bottom-0 flex h-5 w-10 -rotate-90 transform items-center justify-center rounded-t bg-red-500 text-xs font-bold text-white"
-					contenteditable="true"
-				>
-					{flyerData.owner_email}
-				</div>
-				<div
-					class="tab right-4 bottom-0 flex h-5 w-10 -rotate-90 transform items-center justify-center rounded-t bg-red-500 text-xs font-bold text-white"
-					contenteditable="true"
-				>
-					{flyerData.owner_email}
-				</div>
-				<div
-					class="tab right-4 bottom-0 flex h-5 w-10 -rotate-90 transform items-center justify-center rounded-t bg-red-500 text-xs font-bold text-white"
-					contenteditable="true"
-				>
-					{flyerData.owner_email}
-				</div>
-				<div
-					class="tab right-4 bottom-0 flex h-5 w-10 -rotate-90 transform items-center justify-center rounded-t bg-red-500 text-xs font-bold text-white"
-					contenteditable="true"
-				>
-					{flyerData.owner_email}
-				</div>
-			</div>
+			{@html flyerHtml}
 		</div>
 	</div>
 </div>
@@ -600,6 +435,111 @@
 	}
 
 	/* Responsive adjustments */
+	@media (max-width: 1024px) and (min-width: 769px) {
+		/* Medium screens (tablets) */
+		.flyer-content {
+			width: 90%;
+			max-width: 600px;
+			padding: 12mm;
+		}
+
+		.header-section {
+			font-size: 18px;
+			padding: 14px;
+		}
+
+		.photo-frame {
+			height: 160px !important;
+			width: 240px !important;
+		}
+
+		/* Adjust grid layout for medium screens */
+		.grid.grid-cols-2 {
+			grid-template-columns: 1fr;
+			gap: 1rem;
+		}
+
+		/* Make labels more responsive */
+		.min-w-40 {
+			min-width: 120px;
+		}
+
+		/* Adjust text sizes for better readability */
+		.font-bold {
+			font-size: 13px;
+		}
+
+		/* Adjust photo gallery for medium screens */
+		.grid.grid-cols-2.gap-2 {
+			grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+		}
+
+		/* Make QR section more compact */
+		.qr-section {
+			padding: 8px;
+		}
+
+		.qr-section .flex.h-14.w-14 {
+			height: 48px !important;
+			width: 48px !important;
+		}
+	}
+
+	/* Large screens (desktops and larger) */
+	@media (min-width: 1025px) {
+		.flyer-content {
+			width: 240mm;
+			max-width: 100%;
+			padding: 20mm;
+			font-size: 16px;
+		}
+
+		.header-section {
+			font-size: 20px;
+			padding: 18px;
+		}
+
+		.photo-frame {
+			height: 160px !important;
+			width: 280px !important;
+		}
+
+		/* Adjust label widths for better spacing */
+		.min-w-40 {
+			min-width: 140px;
+		}
+
+		/* Make grid more spacious on large screens */
+		.grid.grid-cols-2 {
+			gap: 2rem;
+		}
+
+		/* Increase photo gallery spacing */
+		.grid.grid-cols-2.gap-2 {
+			gap: 1rem;
+		}
+
+		/* Make QR section larger */
+		.qr-section {
+			padding: 20px;
+		}
+
+		.qr-section .flex.h-14.w-14 {
+			height: 56px !important;
+			width: 56px !important;
+		}
+
+		/* Adjust contact section spacing */
+		.contact-section {
+			padding: 20px;
+		}
+
+		/* Make reward section more prominent */
+		.reward-section {
+			padding: 16px 20px;
+		}
+	}
+
 	@media (max-width: 768px) {
 		.flyer-content {
 			width: 100%;

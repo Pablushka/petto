@@ -10,7 +10,7 @@ router = APIRouter(prefix="/api", tags=["Flyers"])
 # Get the directory where this file is located
 current_dir = os.path.dirname(os.path.abspath(__file__))
 templates_dir = os.path.join(
-    current_dir, "..", "..", "apps", "frontend", "src", "lib", "flyers_templates")
+    current_dir, "..", "..", "apps", "frontend", "static", "flyers_templates")
 
 # Initialize templates
 templates = Jinja2Templates(directory=templates_dir)
@@ -20,6 +20,7 @@ templates = Jinja2Templates(directory=templates_dir)
 async def generate_flyer_html(
     request: Request,
     pet_id: int,
+    print_mode: str = "color",
     current_user: User = Depends(get_current_user)
 ):
     """
@@ -69,7 +70,8 @@ async def generate_flyer_html(
         "owner_email": pet.owner.email,
         "owner_address": pet.owner.full_address,
         "reward_amount": f"${pet.owner.recovery_bounty}" if pet.owner.recovery_bounty else "",
-        "show_reward": "block" if pet.owner.recovery_bounty else "none",
+        "show_reward": bool(pet.owner.recovery_bounty),
+        "print_mode": print_mode,
         "pet_id": pet.id
     }
 
