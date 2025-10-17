@@ -89,5 +89,7 @@
 	"print_flyer": "Imprimir Flyer",
 	"export_image": "Exportar como Imagen",
 	"edit_flyer": "Editar Flyer",
-	"finish_editing": "Terminar Edición"
+	"finish_editing": "Terminar Edición",
+	"color_mode": "Modo Color",
+	"bw_mode": "Modo B&N"
 }

@@ -95,5 +95,7 @@
 	"print_flyer": "Print Flyer",
 	"export_image": "Export as Image",
 	"edit_flyer": "Edit Flyer",
-	"finish_editing": "Finish Editing"
+	"finish_editing": "Finish Editing",
+	"color_mode": "Color Mode",
+	"bw_mode": "B&W Mode"
 }

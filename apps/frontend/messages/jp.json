@@ -95,5 +95,7 @@
 	"print_flyer": "フライヤーを印刷",
 	"export_image": "画像としてエクスポート",
 	"edit_flyer": "フライヤーを編集",
-	"finish_editing": "編集を終了"
+	"finish_editing": "編集を終了",
+	"color_mode": "カラーモード",
+	"bw_mode": "白黒モード"
 }

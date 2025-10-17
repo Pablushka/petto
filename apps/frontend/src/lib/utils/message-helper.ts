@@ -90,7 +90,9 @@ export type MessageKey =
 	| 'print_flyer'
 	| 'export_image'
 	| 'edit_flyer'
-	| 'finish_editing';
+	| 'finish_editing'
+	| 'color_mode'
+	| 'bw_mode';
 
 // Fallback texts in case the message is missing
 const fallbackMessages: Record<MessageKey, string> = {
@@ -181,7 +183,9 @@ const fallbackMessages: Record<MessageKey, string> = {
 	print_flyer: 'Print Flyer',
 	export_image: 'Export as Image',
 	edit_flyer: 'Edit Flyer',
-	finish_editing: 'Finish Editing'
+	finish_editing: 'Finish Editing',
+	color_mode: 'Color Mode',
+	bw_mode: 'B&W Mode'
 };
 
 /**
