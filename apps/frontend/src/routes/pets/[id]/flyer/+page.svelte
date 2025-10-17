@@ -26,7 +26,7 @@
 		</div>
 
 		<div class="rounded-lg bg-white p-6 shadow">
-			<FlyerGenerator {pet} owner={data.owner} />
+			<FlyerGenerator {pet} />
 		</div>
 	</div>
 </div>
