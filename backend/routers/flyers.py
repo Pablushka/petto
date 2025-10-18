@@ -3,6 +3,8 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from models import Pet, User
 from utils.auth import get_current_user
+from jinja2 import Environment, FileSystemLoader
+from weasyprint import HTML, CSS
 import os
 
 router = APIRouter(prefix="/api", tags=["Flyers"])
@@ -74,6 +76,23 @@ async def generate_flyer_html(
         "print_mode": print_mode,
         "pet_id": pet.id
     }
+
+    # # 1. Datos de la mascota (pueden venir de una BD, formulario, etc.)
+
+    # # 2. Cargar template Jinja2
+    # env = Environment(loader=FileSystemLoader("templates"))
+    # template = env.get_template("lost_pet_flyer.html")
+
+    # # 3. Renderizar HTML con los datos
+    # html_content = template.render(**template_data)
+
+    # # 4. Generar PDF con WeasyPrint
+    # HTML(string=html_content, base_url=".").write_pdf(
+    #     "lost_pet_flyer.pdf",
+    #     stylesheets=[CSS("style.css")]
+    # )
+
+    # print("✅ PDF generado: lost_pet_flyer.pdf")
 
     return templates.TemplateResponse("lost_pet_flyer.html", {
         "request": request,
