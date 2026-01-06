@@ -1,96 +1,190 @@
-# Petto
+# Petto 🐾
 
-Petto is a Progressive Web Application designed to help reunite lost pets with their owners.
+**Petto** is a Progressive Web Application (PWA) designed to help reunite lost pets with their owners. It provides a comprehensive platform for pet management, QR code generation, and location tracking to ensure the safety and quick recovery of your beloved companions.
 
-# Copilot Instructions
+## ✨ Features
 
-ALWAYS MUST FOLLOW RULES FROM INSTRUCTIONS FILE to provide correct dependencies versions and avoid deprecations and errors.
+### 👤 User Authentication
+- **Login, Logout, Register** - Secure user account management
+- **Password Recovery** - Easy password reset functionality
+- **JWT-based Authentication** - Access tokens (short-lived) and refresh tokens (long-lived)
+- **OAuth2 Support** - Third-party authentication options
 
-## Features
+### 🐕 Pet Management
+- **Create a Collection of Pets** - Manage all your pets in one place
+- **CRUD Operations** - Add, Edit, Read, and Remove pets
+- **Multi-Image Upload** - Upload up to 5 images per pet (first image is the cover)
+- **Image Reordering** - Reorder images before submission
+- **Pet Status Tracking** - Track pet status: `at_home`, `lost`, or `found`
+- **Pet Types** - Support for Cat, Dog, Lizard, Hamster, Bird, and Other
 
-- **Login, Logout, Register and Password recovery**
-- **Create a Collection of Pets**
-   - Add, Edit, Read, Remove a Pet
-   - Upload up to 5 images per pet (first image is treated as the cover)
-   - Reorder images before submission; backend stores additional images in discrete fields (`picture2`..`picture5`) and exposes a unified `pictures[]` array
-   - Generate Pet QR Code in square or circle canvas to print and glue in the pet medal
-- **Generate Pet Flyers and A4 Posters**
-  - The user could create print ready flyers of lost pet. It must include pet picture, description, indications and pet QR code.
+### 📱 QR Code Generation
+- **Generate Pet QR Codes** - Create unique QR codes for each pet
+- **Multiple Formats** - Square or circle canvas options
+- **Print-Ready** - Perfect for pet medals and tags
+- **Scannable Links** - Generate shareable QR links for pet profiles
 
-## Monorepo Structure
+### 📄 Lost Pet Materials
+- **Generate Pet Flyers** - Create print-ready flyers for lost pets
+- **A4 Posters** - Generate full-size posters with pet information
+- **Custom Content** - Include pet picture, description, contact info, and QR code
 
-Petto is organized as a monorepo using pnpm workspaces:
+### 📍 Location Tracking
+- **QR Scan Recording** - Track when and where pet QR codes are scanned
+- **Scan History** - View all scans for each pet
+- **Location Data** - Help locate lost pets through scan information
 
-- `backend/`: FastAPI backend (Python)
-- `apps/frontend/`: SvelteKit frontend (TypeScript)
-- `packages/`: (optional) Shared libraries or modules (e.g., `packages/shared/`)
+## 🏗️ Architecture
+
+Petto is organized as a **monorepo** using pnpm workspaces:
+
+```
+petto/
+├── backend/          # FastAPI backend (Python)
+├── apps/
+│   └── frontend/     # SvelteKit frontend (TypeScript)
+└── packages/         # (Optional) Shared libraries
+```
 
 Workspace configuration: see `pnpm-workspace.yaml`
 
-## Technologies
+## 🛠️ Technology Stack
 
-- **Backend:** Python 3, FastAPI, SQLite (scalable to MySQL/PostgreSQL)
-- **Frontend:** SvelteKit 5, Prisma ORM, Tailwind CSS, Paraglide i18n
+### Backend
+- **Runtime:** Python 3.8+
+- **Framework:** FastAPI
+- **Database:** SQLite (development) - scalable to MySQL/PostgreSQL
+- **Authentication:** JWT tokens with refresh mechanism
+- **API Documentation:** Auto-generated with Swagger/OpenAPI
+- **Image Upload:** Multi-format support (JPEG, PNG, WebP, GIF) - max 5MB
 
-## Backend Setup & Start Guide
+### Frontend
+- **Framework:** SvelteKit 5
+- **Language:** TypeScript
+- **Styling:** Tailwind CSS
+- **ORM:** Prisma
+- **i18n:** Paraglide (multi-language support)
+- **State Management:** Svelte stores
+- **Testing:** Vitest (unit) + Playwright (E2E)
+
+## 🚀 Quick Start
 
 ### Prerequisites
+- **Python 3.8+** (for backend)
+- **Node.js 16+** (for frontend)
+- **pnpm** (recommended) or npm/yarn
 
-- Python 3.8+
-- (Recommended) Virtual environment tool: `venv` or `virtualenv`
+### Backend Setup
 
-### Installation
-
-1. Navigate to the backend app directory:
+1. Navigate to the backend directory:
    ```bash
    cd backend
    ```
-2. Create and activate a virtual environment (optional but recommended):
+
+2. Create and activate a virtual environment:
    ```bash
    python3 -m venv venv
-   source venv/bin/activate
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
+
 3. Install dependencies:
    ```bash
    pip install -r requirements.txt
    ```
 
-### Running the Backend
+4. Start the FastAPI server:
+   ```bash
+   uvicorn main:app --reload
+   ```
 
-Start the FastAPI server using Uvicorn:
+   - API available at: `http://127.0.0.1:8000`
+   - API docs: `http://127.0.0.1:8000/docs`
+   - Health check: `GET /_health`
+
+### Frontend Setup
+
+1. Navigate to the frontend directory:
+   ```bash
+   cd apps/frontend
+   ```
+
+2. Install dependencies:
+   ```bash
+   pnpm install
+   # or npm install / yarn install
+   ```
+
+3. Start the development server:
+   ```bash
+   pnpm run dev
+   ```
+
+   - App available at: `http://localhost:5173`
+
+### Monorepo Commands
+
+From the root directory:
 
 ```bash
-uvicorn main:app --reload
+# Install all dependencies
+pnpm install
+
+# Run backend
+cd backend && uvicorn main:app --reload
+
+# Run frontend (in another terminal)
+cd apps/frontend && pnpm run dev
 ```
 
-- The API will be available at `http://127.0.0.1:8000`
-- Health check endpoint: `GET /_health`
+## 📁 Project Structure
 
-## Project Structure
+### Backend Structure
+```
+backend/
+├── main.py           # FastAPI application entry point
+├── routers/          # API route modules
+│   ├── users.py
+│   ├── pets.py
+│   ├── qrcode.py
+│   ├── banners.py
+│   └── pet_location.py
+├── models.py         # Database models
+├── database.py       # Database configuration
+└── requirements.txt  # Python dependencies
+```
 
-- `backend/main.py`: FastAPI application entry point
-- `backend/routers/`: API route modules (users, pets, qrcode, banners, pet_location)
-- `backend/models.py`: Database models
-- `backend/database.py`: Database configuration
-- `apps/frontend/`: SvelteKit frontend app
+### Frontend Structure
+```
+apps/frontend/
+├── src/
+│   ├── routes/                      # SvelteKit routes
+│   ├── lib/
+│   │   ├── components/              # Reusable components
+│   │   ├── stores/                  # Svelte stores (session, etc.)
+│   │   ├── utils/                   # Helper functions (api.ts, pet.ts)
+│   │   └── paraglide/messages/      # i18n message files
+│   └── app.css                      # Tailwind CSS entry
+├── package.json
+└── svelte.config.js
+```
 
-## Autenticación y autorización (end-to-end)
+## 🔐 Authentication & Authorization
 
-Este proyecto implementa autenticación basada en JWT con tokens de acceso (corto plazo) y tokens de refresco (largo plazo), más autorización en rutas del frontend. El flujo cubre inicio de sesión, acceso a páginas protegidas, refresco automático del token y cierre de sesión.
+This project implements JWT-based authentication with access tokens (short-lived) and refresh tokens (long-lived), plus route protection in the frontend.
 
-- Backend (FastAPI):
-   - `POST /api/login`: emite `access_token` y `refresh_token`.
-   - `GET /api/users/me`: devuelve el usuario autenticado (requiere `Authorization: Bearer <access_token>`).
-   - `POST /api/token/refresh`: intercambia un `refresh_token` válido por un nuevo `access_token` (y opcionalmente nuevo `refresh_token`).
+### Backend (FastAPI)
+- `POST /api/login` - Issues `access_token` and `refresh_token`
+- `GET /api/users/me` - Returns authenticated user (requires `Authorization: Bearer <access_token>`)
+- `POST /api/token/refresh` - Exchanges valid `refresh_token` for new `access_token`
 
-- Frontend (SvelteKit 5):
-   - Helper centralizado `src/lib/utils/api.ts`: añade `Authorization` cuando `requireAuth: true`, usa el `fetch` de `load` si se le pasa, y refresca automáticamente al recibir 401.
-   - Layout `routes/+layout.ts`: durante `load`, consulta `api/users/me` mediante el helper; si no hay sesión/tokens válidos, las páginas protegidas redirigen a `/login` con `returnUrl`.
-   - Guardia SSR opcional `src/lib/utils/protect-route.ts`: para +page.ts protegidas, valida la sesión del layout y redirige si no existe.
-   - Guardia de cliente `src/lib/components/ProtectedRoute.svelte`: asegura que el usuario esté autenticado al renderizar contenido protegido en el cliente.
-   - Almacén de sesión `src/lib/stores/session.ts`: guarda el usuario actual; los tokens se almacenan en `localStorage`.
+### Frontend (SvelteKit 5)
+- **API Helper** (`src/lib/utils/api.ts`) - Adds `Authorization` header when `requireAuth: true`, automatically refreshes on 401
+- **Layout** (`routes/+layout.ts`) - Queries `api/users/me` during load; protected pages redirect to `/login` with `returnUrl`
+- **SSR Guard** (`src/lib/utils/protect-route.ts`) - Validates session in `+page.ts` and redirects if missing
+- **Client Guard** (`src/lib/components/ProtectedRoute.svelte`) - Ensures user authentication when rendering protected content
+- **Session Store** (`src/lib/stores/session.ts`) - Stores current user; tokens stored in `localStorage`
 
-### Secuencia completa (Mermaid)
+### Authentication Flow (Mermaid)
 
 ```mermaid
 sequenceDiagram
@@ -150,171 +244,150 @@ sequenceDiagram
    FE-->>U: Redirige a /login
 ```
 
-### Detalles y mejores prácticas
+### Best Practices
+- Use `fetchFn` from SvelteKit `load` when available for SSR consistency
+- All authenticated calls should use the helper (`requireAuth: true`) for automatic token refresh
+- Protected pages combine: `+layout.ts` (session hydration), `protect-route.ts` (SSR), and `ProtectedRoute.svelte` (client)
+- On refresh failure, tokens are cleared and user is redirected to `/login?returnUrl=...`
 
-- En `api.ts`, usa siempre `fetchFn` del `load` de SvelteKit cuando esté disponible para evitar warnings y mantener SSR consistente.
-- Todas las llamadas autenticadas deberían pasar por el helper (`requireAuth: true`) para beneficiarse del refresco automático.
-- Las páginas protegidas pueden combinar: comprobación en `+layout.ts` (hidrata la sesión), `protect-route.ts` para SSR y `ProtectedRoute.svelte` en cliente.
-- En fallo de refresh, se limpian tokens y se redirige a `/login?returnUrl=...`.
-- Los mensajes de UI e i18n se gestionan con Paraglide; el almacén de sesión mantiene el usuario actual.
+## 🗄️ Pet API Data Models
 
-## Pet API Data Models
+The Pet endpoints use **explicit Pydantic schemas** for clearer versioning, validation control, and security.
 
-The Pet endpoints now use **explicit Pydantic schemas** instead of auto-generated ones. This gives us clearer versioning, validation control, and security guarantees.
-
-Schema overview:
+### Schema Overview
 
 | Schema | Purpose | Fields |
 |--------|---------|--------|
 | `PetBase` | Shared core fields | `name`, `pet_type`, `picture`, `notes`, `status` (default `at_home`) |
-| `PetCreate` | Creation payload (client -> server) | Inherits `PetBase` + `owner_id` (currently accepted but ignored in favor of authenticated user) |
+| `PetCreate` | Creation payload (client → server) | Inherits `PetBase` + `owner_id` (accepted but ignored in favor of authenticated user) |
 | `PetUpdate` | Update payload (partial) | All fields optional (`name`, `pet_type`, `picture`, `notes`, `status`, `owner_id`) |
 | `PetOut` | Response model | `id`, `owner_id`, plus all `PetBase` fields + `pictures[]` (ordered list; element 0 is cover) |
 
-Important security rule: the backend **always overrides** `owner_id` with the authenticated user on create/update. A future cleanup will remove `owner_id` from the create payload entirely once the frontend is updated.
+**Security Rule:** The backend **always overrides** `owner_id` with the authenticated user on create/update.
 
-### Multi-image Model Mapping
+### Multi-Image Model Mapping
 
-Internally the database model maintains legacy `picture` plus optional `picture2` .. `picture5` columns for a maximum of 5 images. The API serializer normalizes these into:
+Database maintains legacy `picture` plus optional `picture2`..`picture5` columns for a maximum of 5 images.
 
-```
+API serializes these as:
+```javascript
 PetOut.pictures = [picture, picture2, picture3, picture4, picture5].filter(Boolean)
 ```
 
-When creating or updating a pet the client can send both:
+Frontend uses `getPetCover(pet)` helper from `src/lib/utils/pet.ts` for consistent cover image handling.
 
-```
-{
-   "picture": "cover.jpg",            // must match pictures[0]
-   "pictures": ["cover.jpg", "side.jpg", ...]
-}
-```
-
-The backend maps array indices 1..4 into `picture2`..`picture5`. Extra elements beyond 5 are rejected at validation time. Missing or empty arrays fallback to a placeholder image on the frontend (`DEFAULT_PET_IMAGE`).
-
-Frontend components (`PetCard`, `PetDetail`) now use a shared helper `getPetCover(pet)` from `src/lib/utils/pet.ts` to consistently select and normalize the cover image URL.
-
-Enum values:
-
-```
+### Enum Values
+```typescript
 PetType   = Cat | Dog | Lizard | Hamster | Bird | Other
 PetStatus = at_home | lost | found
 ```
 
 ### Migration Note
 
-Previously the backend used `pydantic_model_creator(Pet, ...)` to auto-generate `PetIn`/`PetOut`. These were replaced by explicit classes (`PetCreate`, `PetUpdate`, `PetOut`) in order to:
+Previously used `pydantic_model_creator(Pet, ...)` for auto-generation. Replaced with explicit classes to:
+- Enforce ownership rules explicitly
+- Support partial updates cleanly
+- Avoid accidental field exposure
+- Provide stable documentation for external consumers
 
-- Enforce ownership rules explicitly.
-- Support partial updates cleanly.
-- Avoid accidental field exposure if the ORM model gains internal attributes later.
-- Provide stable documentation for external consumers.
+## 🧪 Development Workflows
 
-If you still have clients posting `owner_id`, they will continue to work for now, but should be updated to omit it—treat it as deprecated.
-
-### Planned Follow-ups
-
-- Remove `owner_id` from create form submissions (derive entirely server-side).
-- Introduce a `PATCH /pets/{id}` endpoint using `PetUpdate` for semantic partial updates.
-- Add a serializer helper to reduce repetition when constructing `PetOut` (partially complete with current normalize logic).
-- Add tests covering ownership override, status transitions, and multi-image mapping (length >5 rejection, ordering persistence).
-
-## Frontend Setup & Start Guide
-
-### Technologies
-
-- **Framework:** SvelteKit 5
-- **Styling:** Tailwind CSS
-- **ORM:** Prisma (for data modeling)
-- **i18n:** Paraglide
-
-### Installation
-
-1. Navigate to the frontend app directory:
-   ```bash
-   cd apps/frontend
-   ```
-2. Install dependencies:
-   ```bash
-   pnpm install
-   # or
-   npm install
-   # or
-   yarn install
-   ```
-
-### Running the Frontend
-
-Start the SvelteKit dev server:
-
+### Frontend Testing
 ```bash
-pnpm run dev
-# or
-npm run dev
-# or
-yarn dev
+# Unit tests (Vitest)
+pnpm run test:unit
+
+# E2E tests (Playwright)
+pnpm run test:e2e
+
+# Linting
+pnpm run lint
+
+# Formatting
+pnpm run format
 ```
 
-- The app will be available at `http://localhost:5173` (default)
+### Building for Production
 
-### Building & Preview
-
-To build for production:
-
+**Frontend:**
 ```bash
+cd apps/frontend
 pnpm run build
+pnpm run preview  # Preview production build
 ```
 
-To preview the production build:
+**Backend:**
+- Configure production database (MySQL/PostgreSQL recommended)
+- Set environment variables for security
+- Use a production ASGI server (e.g., Gunicorn with Uvicorn workers)
 
-```bash
-pnpm run preview
-```
+## 🌐 i18n (Paraglide)
 
-### Project Structure
+- Messages are imported as named exports and called as functions: `m.button_cancel()`
+- Locale switching: `setLocale('en')` - messages update reactively
+- Message files: `apps/frontend/src/lib/paraglide/messages/`
 
-- `apps/frontend/src/routes/`: Main SvelteKit routes
-- `apps/frontend/src/lib/paraglide/messages/`: i18n message files (auto-generated JS exports)
-- `apps/frontend/app.css`: Tailwind CSS entry
-- `apps/frontend/package.json`: Project dependencies and scripts
+## 📝 API Endpoints
 
-### Developer Workflows
+### Pets
+- `POST /pets/` - Create a pet
+- `GET /pets/` - List pets
+- `GET /pets/{pet_id}` - Get pet by ID
+- `PUT /pets/{pet_id}` - Update pet
+- `DELETE /pets/{pet_id}` - Delete pet
 
-- Unit tests: `pnpm run test:unit` (Vitest)
-- E2E tests: `pnpm run test:e2e` (Playwright)
-- Lint/format: `pnpm run lint`, `pnpm run format`
+### Users
+- `POST /register` - Register user
+- `POST /login` - Login
+- `GET /users/me` - Get current user
+- `POST /password-recovery` - Request password recovery
+- `POST /password-reset` - Reset password
 
-### i18n (Paraglide)
+### QR Code
+- `GET /qrcode/{pet_id}` - Get QR code for pet
+- `POST /qrcode/scan/{scan_id}` - Scan QR code
 
-- Messages are imported as named exports and called as functions (e.g., `m.button_cancel()`).
-- Locale switching: `setLocale('en')`, etc. Messages update reactively if used via Svelte stores.
+### Pet Location
+- `POST /scan` - Record scan
+- `GET /pet/{pet_id}/qr-link` - Get QR link for pet
+- `GET /pet/{pet_id}/scans` - Get scans for pet
 
-## Additional Notes
+### Banners
+- `GET /banners/{pet_id}` - Get banners for pet
 
-- The backend uses SQLite by default. For production, consider switching to MySQL or PostgreSQL.
-- API documentation is available at `/docs` when the server is running.
+### Upload
+- `POST /upload` - Authenticated image upload (JPEG/PNG/WebP/GIF, max 5MB)
 
-## Monorepo Commands
+Full API documentation available at `/docs` when server is running.
 
-- Install all dependencies for all apps/packages:
-  ```bash
-  pnpm install
-  ```
-- Run backend:
-  ```bash
-   cd backend
-  uvicorn main:app --reload
-  ```
-- Run frontend:
-  ```bash
-  cd apps/frontend
-  pnpm run dev
-  ```
+## 🤝 Contributing
 
-## Contributing
+Pull requests and suggestions are welcome! Please feel free to:
+- Report bugs
+- Suggest new features
+- Improve documentation
+- Submit code improvements
 
-Pull requests and suggestions are welcome!
+## 📄 License
 
-## License
+MIT License
 
-Specify your license here.
+Copyright (c) 2026 Pablushka
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
