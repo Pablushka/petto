@@ -1,0 +1,26 @@
+2026-01-18 20:27:14,872 - SECURITY - WARNING - JWT validation failed
+Traceback (most recent call last):
+  File "/home/pablushka/projects/petto/backend/.venv/lib/python3.13/site-packages/jose/jws.py", line 264, in _verify_signature
+    raise JWSSignatureError()
+jose.exceptions.JWSSignatureError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/pablushka/projects/petto/backend/.venv/lib/python3.13/site-packages/jose/jwt.py", line 159, in decode
+    payload = jws.verify(token, key, algorithms, verify=verify_signature)
+  File "/home/pablushka/projects/petto/backend/.venv/lib/python3.13/site-packages/jose/jws.py", line 77, in verify
+    _verify_signature(signing_input, header, signature, key, algorithms)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/pablushka/projects/petto/backend/.venv/lib/python3.13/site-packages/jose/jws.py", line 266, in _verify_signature
+    raise JWSError("Signature verification failed.")
+jose.exceptions.JWSError: Signature verification failed.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/pablushka/projects/petto/backend/utils/auth.py", line 116, in get_current_user
+    payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+  File "/home/pablushka/projects/petto/backend/.venv/lib/python3.13/site-packages/jose/jwt.py", line 161, in decode
+    raise JWTError(e)
+jose.exceptions.JWTError: Signature verification failed.

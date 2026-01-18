@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ titulo }}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 2cm;
+            
+            @top-left {
+                content: "{{ empresa }}";
+                font-size: 10px;
+                color: #666;
+            }
+            
+            @top-right {
+                content: "Página " counter(page) " de " counter(pages);
+                font-size: 10px;
+                color: #666;
+            }
+        }
+        
+        body {
+            font-family: 'DejaVu Sans', Arial, sans-serif;
+            font-size: 12px;
+            line-height: 1.4;
+            color: #333;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #333;
+            padding-bottom: 20px;
+        }
+        
+        .titulo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .subtitulo {
+            font-size: 16px;
+            color: #7f8c8d;
+        }
+        
+        .info-cliente {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .tabla-productos {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        .tabla-productos th {
+            background-color: #34495e;
+            color: white;
+            padding: 10px;
+            text-align: left;
+        }
+        
+        .tabla-productos td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .tabla-productos tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        
+        .totales {
+            margin-top: 30px;
+            text-align: right;
+        }
+        
+        .fila-total {
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            font-size: 10px;
+            color: #7f8c8d;
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+        }
+        
+        .notas {
+            margin-top: 30px;
+            padding: 15px;
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="titulo">{{ titulo }}</div>
+        <div class="subtitulo">{{ subtitulo }}</div>
+    </div>
+    
+    <div class="info-cliente">
+        <table width="100%">
+            <tr>
+                <td width="50%">
+                    <strong>De:</strong><br>
+                    {{ empresa }}<br>
+                    {{ direccion_empresa }}<br>
+                    {{ telefono_empresa }}<br>
+                    {{ email_empresa }}
+                </td>
+                <td width="50%">
+                    <strong>Para:</strong><br>
+                    {{ cliente.nombre }}<br>
+                    {{ cliente.direccion }}<br>
+                    {{ cliente.telefono }}<br>
+                    {{ cliente.email }}
+                </td>
+            </tr>
+        </table>
+    </div>
+    
+    <table class="tabla-productos">
+        <thead>
+            <tr>
+                <th width="10%">Código</th>
+                <th width="50%">Descripción</th>
+                <th width="10%">Cantidad</th>
+                <th width="15%">Precio Unit.</th>
+                <th width="15%">Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for producto in productos %}
+            <tr>
+                <td>{{ producto.codigo }}</td>
+                <td>{{ producto.descripcion }}</td>
+                <td>{{ producto.cantidad }}</td>
+                <td>${{ "%.2f"|format(producto.precio_unitario) }}</td>
+                <td>${{ "%.2f"|format(producto.total) }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <div class="totales">
+        <table style="width: 300px; margin-left: auto;">
+            <tr>
+                <td align="right">Subtotal:</td>
+                <td align="right" width="100">${{ "%.2f"|format(subtotal) }}</td>
+            </tr>
+            <tr>
+                <td align="right">IVA ({{ iva_porcentaje }}%):</td>
+                <td align="right">${{ "%.2f"|format(iva) }}</td>
+            </tr>
+            <tr class="fila-total">
+                <td align="right">Total:</td>
+                <td align="right">${{ "%.2f"|format(total) }}</td>
+            </tr>
+        </table>
+    </div>
+    
+    {% if notas %}
+    <div class="notas">
+        <strong>Notas:</strong><br>
+        {{ notas }}
+    </div>
+    {% endif %}
+    
+    <div class="footer">
+        {{ empresa }} - {{ direccion_empresa }} - {{ telefono_empresa }}<br>
+        Documento generado el {{ fecha_emision }}
+    </div>
+</body>
+</html>

@@ -94,6 +94,10 @@ async def generate_flyer_html(
 
     # print("✅ PDF generado: lost_pet_flyer.pdf")
 
+    # print template data as JSON for debugging
+    import json
+    print("Template Data:", json.dumps(template_data, indent=2))
+
     return templates.TemplateResponse("lost_pet_flyer.html", {
         "request": request,
         **template_data

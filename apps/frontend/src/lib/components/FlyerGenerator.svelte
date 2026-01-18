@@ -6,8 +6,32 @@
 	import { BACKEND_URL } from '$lib/config';
 
 	export let pet: PetOut;
+	export let flyerHtml: string;
 
 	let mounted = false;
+
+	// Extract the body content and styles from the HTML
+	$: flyerContent = (() => {
+		if (!flyerHtml) return '';
+		
+		// Extract content between <body> tags
+		const bodyMatch = flyerHtml.match(/<body[^>]*>([\s\S]*)<\/body>/i);
+		return bodyMatch ? bodyMatch[1] : flyerHtml;
+	})();
+
+	$: flyerStyles = (() => {
+		if (!flyerHtml) return '';
+		
+		// Extract all <style> tags
+		const styleMatches = flyerHtml.match(/<style[^>]*>([\s\S]*?)<\/style>/gi);
+		if (!styleMatches) return '';
+		
+		// Combine all styles
+		return styleMatches.map(style => {
+			const content = style.match(/<style[^>]*>([\s\S]*?)<\/style>/i);
+			return content ? content[1] : '';
+		}).join('\n');
+	})();
 
 	function printFlyer() {
 		// Open the flyer in a new window using the backend endpoint
@@ -30,6 +54,12 @@
 	});
 </script>
 
+<svelte:head>
+	{#if flyerStyles}
+		{@html `<style>${flyerStyles}</style>`}
+	{/if}
+</svelte:head>
+
 <div class="flyer-generator">
 	<div class="toolbar mb-4 flex gap-4">
 		<button class="btn btn-primary" on:click={printFlyer}>
@@ -41,34 +71,73 @@
 		</button>
 	</div>
 
-	<div class="flyer-preview overflow-hidden rounded-lg border bg-white">
-		<iframe
-			src={`${BACKEND_URL}api/flyers/${pet.id}`}
-			class="h-full w-full border-0"
-			title="Flyer Preview"
-		></iframe>
+	<div class="flyer-preview-wrapper">
+		<div class="flyer-preview">
+			{@html flyerContent}
+		</div>
 	</div>
 </div>
 
 <style>
-	/* Flyer preview container with A4 aspect ratio */
-	.flyer-preview {
-		width: 100%;
-		max-width: 600px;
-		margin: 0 auto;
-		aspect-ratio: 210 / 297; /* A4 aspect ratio */
-		position: relative;
-		overflow: hidden;
-		border-radius: 8px;
-		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-		background: #f8f9fa;
+	.flyer-preview-wrapper {
+		display: flex;
+		justify-content: center;
+		padding: 2rem 0;
+		background: #f3f4f6;
 	}
 
-	/* The iframe fills the preview container */
-	.flyer-preview iframe {
-		width: 100%;
-		height: 100%;
-		border: none;
+	/* Flyer preview container - simulates A4 paper */
+	.flyer-preview {
+		width: 210mm; /* A4 width */
+		height: 297mm; /* A4 height */
+		position: relative;
+		overflow: hidden;
+		border-radius: 4px;
+		box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.15);
 		background: white;
+		/* Scale down to fit on screen while maintaining aspect ratio */
+		transform: scale(0.85);
+		transform-origin: top center;
+	}
+
+	/* Ensure buttons have proper styling */
+	.btn {
+		padding: 0.5rem 1rem;
+		border-radius: 0.375rem;
+		font-weight: 500;
+		cursor: pointer;
+		transition: all 0.2s;
+		border: none;
+	}
+
+	.btn-primary {
+		background-color: #3b82f6;
+		color: white;
+	}
+
+	.btn-primary:hover {
+		background-color: #2563eb;
+	}
+
+	.btn-secondary {
+		background-color: #6b7280;
+		color: white;
+	}
+
+	.btn-secondary:hover {
+		background-color: #4b5563;
+	}
+
+	/* Responsive scaling for smaller screens */
+	@media (max-width: 900px) {
+		.flyer-preview {
+			transform: scale(0.6);
+		}
+	}
+
+	@media (max-width: 600px) {
+		.flyer-preview {
+			transform: scale(0.4);
+		}
 	}
 </style>

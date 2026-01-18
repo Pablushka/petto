@@ -9,6 +9,7 @@
 	export let data: {
 		pet: any;
 		owner: any;
+		flyerHtml: string;
 	};
 
 	$: pet = data.pet;
@@ -26,7 +27,7 @@
 		</div>
 
 		<div class="rounded-lg bg-white p-6 shadow">
-			<FlyerGenerator {pet} />
+			<FlyerGenerator {pet} flyerHtml={data.flyerHtml} />
 		</div>
 	</div>
 </div>

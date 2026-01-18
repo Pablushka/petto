@@ -8,21 +8,25 @@ from fastapi import Depends, HTTPException, Request, Response, status
 from fastapi.security import OAuth2PasswordBearer
 from schemas.users import LoginRequest, UserOut
 from typing_extensions import Annotated, Doc
+from config import settings
+import logging
 
-# Secret key for JWT
-SECRET_KEY = "your-secret-key"
+# Get security logger for authentication events
+security_logger = logging.getLogger("security")
+
+# JWT Configuration from environment
+SECRET_KEY = settings.jwt_secret_key
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 2
-
-REFRESH_TOKEN_EXPIRE_DAYS = 3
+ACCESS_TOKEN_EXPIRE_MINUTES = settings.access_token_expire_minutes
+REFRESH_TOKEN_EXPIRE_DAYS = settings.refresh_token_expire_days
 
 # Cookie settings shared across login/refresh flows
 ACCESS_TOKEN_COOKIE_NAME = "access_token"
 REFRESH_TOKEN_COOKIE_NAME = "refresh_token"
 COOKIE_PATH = "/"
-COOKIE_SAMESITE = "lax"
-# Set to True in production when served over HTTPS
-COOKIE_SECURE = False
+COOKIE_SAMESITE = "strict" if settings.environment == "production" else "lax"
+# Dynamic security based on environment
+COOKIE_SECURE = settings.environment == "production"
 
 
 def _access_cookie_max_age() -> int:
@@ -86,13 +90,12 @@ def create_access_token(data: dict, expires_delta: timedelta = timedelta(minutes
     return encoded_jwt
 
 
-def create_refresh_token(data: dict, expires_delta: timedelta = None):
+def create_refresh_token(data: dict, expires_delta: timedelta | None = None):
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.now(timezone.utc) + expires_delta
     else:
-        expire = datetime.now(timezone.utc) + \
-            timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
+        expire = datetime.now(timezone.utc) + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
@@ -147,7 +150,7 @@ async def get_current_user(request: Request, token: str | None = Depends(oauth2_
                 headers={"WWW-Authenticate": "Bearer"},
             )
     except JWTError as e:
-        print(f"JWTError in get_current_user: {e}")
+        security_logger.warning("JWT validation failed", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Could not validate credentials",
@@ -197,7 +200,7 @@ def verify_refresh_token(refresh_token: str):
             )
         return user_id
     except JWTError as e:
-        print(f"JWTError in verify_refresh_token: {e}")
+        security_logger.warning("Refresh token validation failed", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid refresh token",

@@ -28,6 +28,20 @@
             }
         },
         {
+            "name": "Debug SvelteKit Frontend",
+            "type": "node",
+            "request": "launch",
+            "cwd": "${workspaceFolder}/apps/frontend",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": ["run", "dev"],
+            "env": {
+                "NODE_ENV": "development"
+            },
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "skipFiles": ["<node_internals>/**"]
+        },
+        {
             "name": "Debug FastAPI (Production Mode)",
             "type": "debugpy", 
             "request": "launch",
@@ -45,6 +59,21 @@
             "jinja": true,
             "justMyCode": false,
             "console": "integratedTerminal"
+        }
+    ],
+    "compounds": [
+        {
+            "name": "Debug Full Stack (Frontend + Backend)",
+            "configurations": [
+                "Debug FastAPI Backend",
+                "Debug SvelteKit Frontend"
+            ],
+            "stopAll": true,
+            "presentation": {
+                "hidden": false,
+                "group": "fullstack",
+                "order": 1
+            }
         }
     ]
 }

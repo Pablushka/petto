@@ -30,6 +30,20 @@ export const load = async (event: any) => {
 			}
 		});
 
+		// Fetch the flyer HTML content from the backend
+		const flyerResponse = await fetch(`http://localhost:8000/api/flyers/${params.id}`, {
+			headers: {
+				Cookie: `access_token=${authToken}`
+			}
+		});
+
+		let flyerHtml = '';
+		if (flyerResponse.ok) {
+			flyerHtml = await flyerResponse.text();
+		} else {
+			console.error('Failed to fetch flyer HTML:', flyerResponse.status);
+		}
+
 		// For now, we'll create a mock owner object since the API doesn't return full owner details
 		// In a real implementation, you'd need an endpoint to get owner details or modify the pet endpoint
 		const owner = {
@@ -43,12 +57,14 @@ export const load = async (event: any) => {
 
 		return {
 			pet,
-			owner
+			owner,
+			flyerHtml
 		};
 	} catch (err) {
 		if (isUnauthorized(err)) {
-			error(401, 'Unauthorized');
+			throw error(401, 'Unauthorized');
 		}
-		error(500, 'Error loading pet data');
+		console.error('Error in flyer page load:', err);
+		throw error(500, 'Error loading pet data');
 	}
 };

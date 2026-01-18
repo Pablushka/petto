@@ -17,6 +17,8 @@ from fastapi import APIRouter, HTTPException, Depends, Request, Response, status
 from fastapi.security import OAuth2PasswordRequestForm
 from datetime import timedelta
 from json import JSONDecodeError
+from slowapi import Limiter
+from middleware.rate_limit import limiter, get_rate_limit
 # Refresh token endpoint
 
 
@@ -59,7 +61,8 @@ async def refresh_token(request: Request, response: Response):
 
 
 @router.post("/register", response_model=UserOut)
-async def register(user: UserRegister):
+@limiter.limit(get_rate_limit("auth", "register"))
+async def register(request: Request, user: UserRegister):
     """
     Register a new user.
     Request body: {first_name, last_name, email, phone, full_address, recovery_bounty, password}
@@ -148,14 +151,15 @@ async def create_user(user: UserCreate):
 
 
 @router.post("/login")
-async def loginJson(request: LoginRequest, response: Response):
+@limiter.limit(get_rate_limit("auth", "login"))
+async def loginJson(request: Request, login_request: LoginRequest, response: Response):
     """
     Authenticate user and return JWT token.
     Request body: {email, password}
     Response: {access_token, token_type}
     """
-    user = await User.get_or_none(email=request.email)
-    if not user or not verify_password(request.password, user.password):
+    user = await User.get_or_none(email=login_request.email)
+    if not user or not verify_password(login_request.password, user.password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect email or password")
     user_data = {

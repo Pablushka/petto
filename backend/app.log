@@ -1,0 +1,281 @@
+2026-01-18 20:19:55,856 - tortoise - DEBUG - __init__.py:505 - Tortoise-ORM startup
+    connections: {'default': {'engine': 'tortoise.backends.sqlite', 'credentials': {'journal_mode': 'WAL', 'journal_size_limit': 16384, 'file_path': 'db.sqlite3'}}}
+    apps: {'models': {'models': ['models'], 'default_connection': 'default'}}
+2026-01-18 20:19:55,865 - tortoise - INFO - __init__.py:163 - Tortoise-ORM started, {'default': <tortoise.backends.sqlite.client.SqliteClient object at 0x74d8c2f31400>}, {'models': {'Location': <class 'models.Location'>, 'Pet': <class 'models.Pet'>, 'User': <class 'models.User'>}}
+2026-01-18 20:19:55,865 - tortoise - INFO - __init__.py:165 - Tortoise-ORM generating schema
+2026-01-18 20:19:55,866 - tortoise - DEBUG - utils.py:44 - Creating schema: CREATE TABLE IF NOT EXISTS "user" (
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    "first_name" VARCHAR(255) NOT NULL,
+    "last_name" VARCHAR(255) NOT NULL,
+    "email" VARCHAR(255) NOT NULL UNIQUE,
+    "phone" VARCHAR(255) NOT NULL,
+    "full_address" VARCHAR(1024) NOT NULL,
+    "recovery_bounty" VARCHAR(40),
+    "password" VARCHAR(128) NOT NULL,
+    "hash" VARCHAR(64) NOT NULL UNIQUE
+);
+CREATE INDEX IF NOT EXISTS "idx_user_hash_559886" ON "user" ("hash");
+CREATE TABLE IF NOT EXISTS "pet" (
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    "name" VARCHAR(255) NOT NULL,
+    "pet_type" VARCHAR(16) NOT NULL /* CAT: Cat\nDOG: Dog\nLIZARD: Lizard\nHAMSTER: Hamster\nBIRD: Bird\nOTHER: Other */,
+    "picture" VARCHAR(1024) NOT NULL,
+    "picture2" VARCHAR(1024),
+    "picture3" VARCHAR(1024),
+    "picture4" VARCHAR(1024),
+    "picture5" VARCHAR(1024),
+    "notes" TEXT NOT NULL,
+    "status" VARCHAR(16) NOT NULL DEFAULT 'at_home' /* AT_HOME: at_home\nLOST: lost\nFOUND: found */,
+    "owner_id" INT NOT NULL REFERENCES "user" ("id") ON DELETE CASCADE
+);
+CREATE TABLE IF NOT EXISTS "location" (
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    "latitude" REAL NOT NULL,
+    "longitude" REAL NOT NULL,
+    "timestamp" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "pet_id" INT NOT NULL REFERENCES "pet" ("id") ON DELETE CASCADE
+);
+2026-01-18 20:19:55,867 - aiosqlite - DEBUG - core.py:104 - executing <function connect.<locals>.connector at 0x74d8c2f5cae0>
+2026-01-18 20:19:55,868 - aiosqlite - DEBUG - core.py:106 - operation <function connect.<locals>.connector at 0x74d8c2f5cae0> completed
+2026-01-18 20:19:55,869 - aiosqlite - DEBUG - core.py:104 - executing functools.partial(<built-in method execute of sqlite3.Connection object at 0x74d8c2f548b0>, 'PRAGMA journal_mode=WAL', [])
+2026-01-18 20:19:55,870 - aiosqlite - DEBUG - core.py:106 - operation functools.partial(<built-in method execute of sqlite3.Connection object at 0x74d8c2f548b0>, 'PRAGMA journal_mode=WAL', []) completed
+2026-01-18 20:19:55,870 - aiosqlite - DEBUG - core.py:104 - executing functools.partial(<built-in method close of sqlite3.Cursor object at 0x74d8c2f6a840>)
+2026-01-18 20:19:55,870 - aiosqlite - DEBUG - core.py:106 - operation functools.partial(<built-in method close of sqlite3.Cursor object at 0x74d8c2f6a840>) completed
+2026-01-18 20:19:55,871 - aiosqlite - DEBUG - core.py:104 - executing functools.partial(<built-in method execute of sqlite3.Connection object at 0x74d8c2f548b0>, 'PRAGMA journal_size_limit=16384', [])
+2026-01-18 20:19:55,871 - aiosqlite - DEBUG - core.py:106 - operation functools.partial(<built-in method execute of sqlite3.Connection object at 0x74d8c2f548b0>, 'PRAGMA journal_size_limit=16384', []) completed
+2026-01-18 20:19:55,871 - aiosqlite - DEBUG - core.py:104 - executing functools.partial(<built-in method close of sqlite3.Cursor object at 0x74d8c2f6a740>)
+2026-01-18 20:19:55,871 - aiosqlite - DEBUG - core.py:106 - operation functools.partial(<built-in method close of sqlite3.Cursor object at 0x74d8c2f6a740>) completed
+2026-01-18 20:19:55,871 - aiosqlite - DEBUG - core.py:104 - executing functools.partial(<built-in method execute of sqlite3.Connection object at 0x74d8c2f548b0>, 'PRAGMA foreign_keys=ON', [])
+2026-01-18 20:19:55,871 - aiosqlite - DEBUG - core.py:106 - operation functools.partial(<built-in method execute of sqlite3.Connection object at 0x74d8c2f548b0>, 'PRAGMA foreign_keys=ON', []) completed
+2026-01-18 20:19:55,872 - aiosqlite - DEBUG - core.py:104 - executing functools.partial(<built-in method close of sqlite3.Cursor object at 0x74d8c2f6a840>)
+2026-01-18 20:19:55,872 - aiosqlite - DEBUG - core.py:106 - operation functools.partial(<built-in method close of sqlite3.Cursor object at 0x74d8c2f6a840>) completed
+2026-01-18 20:19:55,872 - tortoise.db_client - DEBUG - client.py:88 - Created connection <Connection(Thread-1, started 128474330568384)> with params: filename=db.sqlite3 journal_mode=WAL journal_size_limit=16384 foreign_keys=ON
+2026-01-18 20:19:55,872 - tortoise.db_client - DEBUG - client.py:168 - CREATE TABLE IF NOT EXISTS "user" (
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    "first_name" VARCHAR(255) NOT NULL,
+    "last_name" VARCHAR(255) NOT NULL,
+    "email" VARCHAR(255) NOT NULL UNIQUE,
+    "phone" VARCHAR(255) NOT NULL,
+    "full_address" VARCHAR(1024) NOT NULL,
+    "recovery_bounty" VARCHAR(40),
+    "password" VARCHAR(128) NOT NULL,
+    "hash" VARCHAR(64) NOT NULL UNIQUE
+);
+CREATE INDEX IF NOT EXISTS "idx_user_hash_559886" ON "user" ("hash");
+CREATE TABLE IF NOT EXISTS "pet" (
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    "name" VARCHAR(255) NOT NULL,
+    "pet_type" VARCHAR(16) NOT NULL /* CAT: Cat\nDOG: Dog\nLIZARD: Lizard\nHAMSTER: Hamster\nBIRD: Bird\nOTHER: Other */,
+    "picture" VARCHAR(1024) NOT NULL,
+    "picture2" VARCHAR(1024),
+    "picture3" VARCHAR(1024),
+    "picture4" VARCHAR(1024),
+    "picture5" VARCHAR(1024),
+    "notes" TEXT NOT NULL,
+    "status" VARCHAR(16) NOT NULL DEFAULT 'at_home' /* AT_HOME: at_home\nLOST: lost\nFOUND: found */,
+    "owner_id" INT NOT NULL REFERENCES "user" ("id") ON DELETE CASCADE
+);
+CREATE TABLE IF NOT EXISTS "location" (
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    "latitude" REAL NOT NULL,
+    "longitude" REAL NOT NULL,
+    "timestamp" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "pet_id" INT NOT NULL REFERENCES "pet" ("id") ON DELETE CASCADE
+);
+2026-01-18 20:19:55,872 - aiosqlite - DEBUG - core.py:104 - executing functools.partial(<built-in method executescript of sqlite3.Connection object at 0x74d8c2f548b0>, 'CREATE TABLE IF NOT EXISTS "user" (\n    "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,\n    "first_name" VARCHAR(255) NOT NULL,\n    "last_name" VARCHAR(255) NOT NULL,\n    "email" VARCHAR(255) NOT NULL UNIQUE,\n    "phone" VARCHAR(255) NOT NULL,\n    "full_address" VARCHAR(1024) NOT NULL,\n    "recovery_bounty" VARCHAR(40),\n    "password" VARCHAR(128) NOT NULL,\n    "hash" VARCHAR(64) NOT NULL UNIQUE\n);\nCREATE INDEX IF NOT EXISTS "idx_user_hash_559886" ON "user" ("hash");\nCREATE TABLE IF NOT EXISTS "pet" (\n    "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,\n    "name" VARCHAR(255) NOT NULL,\n    "pet_type" VARCHAR(16) NOT NULL /* CAT: Cat\\nDOG: Dog\\nLIZARD: Lizard\\nHAMSTER: Hamster\\nBIRD: Bird\\nOTHER: Other */,\n    "picture" VARCHAR(1024) NOT NULL,\n    "picture2" VARCHAR(1024),\n    "picture3" VARCHAR(1024),\n    "picture4" VARCHAR(1024),\n    "picture5" VARCHAR(1024),\n    "notes" TEXT NOT NULL,\n    "status" VARCHAR(16) NOT NULL DEFAULT \'at_home\' /* AT_HOME: at_home\\nLOST: lost\\nFOUND: found */,\n    "owner_id" INT NOT NULL REFERENCES "user" ("id") ON DELETE CASCADE\n);\nCREATE TABLE IF NOT EXISTS "location" (\n    "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,\n    "latitude" REAL NOT NULL,\n    "longitude" REAL NOT NULL,\n    "timestamp" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n    "pet_id" INT NOT NULL REFERENCES "pet" ("id") ON DELETE CASCADE\n);')
+2026-01-18 20:19:55,872 - aiosqlite - DEBUG - core.py:106 - operation functools.partial(<built-in method executescript of sqlite3.Connection object at 0x74d8c2f548b0>, 'CREATE TABLE IF NOT EXISTS "user" (\n    "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,\n    "first_name" VARCHAR(255) NOT NULL,\n    "last_name" VARCHAR(255) NOT NULL,\n    "email" VARCHAR(255) NOT NULL UNIQUE,\n    "phone" VARCHAR(255) NOT NULL,\n    "full_address" VARCHAR(1024) NOT NULL,\n    "recovery_bounty" VARCHAR(40),\n    "password" VARCHAR(128) NOT NULL,\n    "hash" VARCHAR(64) NOT NULL UNIQUE\n);\nCREATE INDEX IF NOT EXISTS "idx_user_hash_559886" ON "user" ("hash");\nCREATE TABLE IF NOT EXISTS "pet" (\n    "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,\n    "name" VARCHAR(255) NOT NULL,\n    "pet_type" VARCHAR(16) NOT NULL /* CAT: Cat\\nDOG: Dog\\nLIZARD: Lizard\\nHAMSTER: Hamster\\nBIRD: Bird\\nOTHER: Other */,\n    "picture" VARCHAR(1024) NOT NULL,\n    "picture2" VARCHAR(1024),\n    "picture3" VARCHAR(1024),\n    "picture4" VARCHAR(1024),\n    "picture5" VARCHAR(1024),\n    "notes" TEXT NOT NULL,\n    "status" VARCHAR(16) NOT NULL DEFAULT \'at_home\' /* AT_HOME: at_home\\nLOST: lost\\nFOUND: found */,\n    "owner_id" INT NOT NULL REFERENCES "user" ("id") ON DELETE CASCADE\n);\nCREATE TABLE IF NOT EXISTS "location" (\n    "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,\n    "latitude" REAL NOT NULL,\n    "longitude" REAL NOT NULL,\n    "timestamp" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n    "pet_id" INT NOT NULL REFERENCES "pet" ("id") ON DELETE CASCADE\n);') completed
+2026-01-18 20:20:04,204 - aiosqlite - DEBUG - core.py:104 - executing functools.partial(<built-in method close of sqlite3.Connection object at 0x74d8c2f548b0>)
+2026-01-18 20:20:04,205 - aiosqlite - DEBUG - core.py:106 - operation functools.partial(<built-in method close of sqlite3.Connection object at 0x74d8c2f548b0>) completed
+2026-01-18 20:20:04,205 - tortoise.db_client - DEBUG - client.py:98 - Closed connection <Connection(Thread-1, started 128474330568384)> with params: filename=db.sqlite3 journal_mode=WAL journal_size_limit=16384 foreign_keys=ON
+2026-01-18 20:20:04,206 - tortoise - INFO - __init__.py:171 - Tortoise-ORM shutdown
+2026-01-18 20:20:24,311 - tortoise - DEBUG - __init__.py:505 - Tortoise-ORM startup
+    connections: {'default': {'engine': 'tortoise.backends.sqlite', 'credentials': {'journal_mode': 'WAL', 'journal_size_limit': 16384, 'file_path': 'db.sqlite3'}}}
+    apps: {'models': {'models': ['models'], 'default_connection': 'default'}}
+2026-01-18 20:20:24,318 - tortoise - INFO - __init__.py:163 - Tortoise-ORM started, {'default': <tortoise.backends.sqlite.client.SqliteClient object at 0x7d92344d0050>}, {'models': {'Location': <class 'models.Location'>, 'Pet': <class 'models.Pet'>, 'User': <class 'models.User'>}}
+2026-01-18 20:20:24,318 - tortoise - INFO - __init__.py:165 - Tortoise-ORM generating schema
+2026-01-18 20:20:24,319 - tortoise - DEBUG - utils.py:44 - Creating schema: CREATE TABLE IF NOT EXISTS "user" (
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    "first_name" VARCHAR(255) NOT NULL,
+    "last_name" VARCHAR(255) NOT NULL,
+    "email" VARCHAR(255) NOT NULL UNIQUE,
+    "phone" VARCHAR(255) NOT NULL,
+    "full_address" VARCHAR(1024) NOT NULL,
+    "recovery_bounty" VARCHAR(40),
+    "password" VARCHAR(128) NOT NULL,
+    "hash" VARCHAR(64) NOT NULL UNIQUE
+);
+CREATE INDEX IF NOT EXISTS "idx_user_hash_559886" ON "user" ("hash");
+CREATE TABLE IF NOT EXISTS "pet" (
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    "name" VARCHAR(255) NOT NULL,
+    "pet_type" VARCHAR(16) NOT NULL /* CAT: Cat\nDOG: Dog\nLIZARD: Lizard\nHAMSTER: Hamster\nBIRD: Bird\nOTHER: Other */,
+    "picture" VARCHAR(1024) NOT NULL,
+    "picture2" VARCHAR(1024),
+    "picture3" VARCHAR(1024),
+    "picture4" VARCHAR(1024),
+    "picture5" VARCHAR(1024),
+    "notes" TEXT NOT NULL,
+    "status" VARCHAR(16) NOT NULL DEFAULT 'at_home' /* AT_HOME: at_home\nLOST: lost\nFOUND: found */,
+    "owner_id" INT NOT NULL REFERENCES "user" ("id") ON DELETE CASCADE
+);
+CREATE TABLE IF NOT EXISTS "location" (
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    "latitude" REAL NOT NULL,
+    "longitude" REAL NOT NULL,
+    "timestamp" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "pet_id" INT NOT NULL REFERENCES "pet" ("id") ON DELETE CASCADE
+);
+2026-01-18 20:20:24,320 - aiosqlite - DEBUG - core.py:104 - executing <function connect.<locals>.connector at 0x7d92344da3e0>
+2026-01-18 20:20:24,320 - aiosqlite - DEBUG - core.py:106 - operation <function connect.<locals>.connector at 0x7d92344da3e0> completed
+2026-01-18 20:20:24,321 - aiosqlite - DEBUG - core.py:104 - executing functools.partial(<built-in method execute of sqlite3.Connection object at 0x7d923448ed40>, 'PRAGMA journal_mode=WAL', [])
+2026-01-18 20:20:24,322 - aiosqlite - DEBUG - core.py:106 - operation functools.partial(<built-in method execute of sqlite3.Connection object at 0x7d923448ed40>, 'PRAGMA journal_mode=WAL', []) completed
+2026-01-18 20:20:24,322 - aiosqlite - DEBUG - core.py:104 - executing functools.partial(<built-in method close of sqlite3.Cursor object at 0x7d92341519c0>)
+2026-01-18 20:20:24,322 - aiosqlite - DEBUG - core.py:106 - operation functools.partial(<built-in method close of sqlite3.Cursor object at 0x7d92341519c0>) completed
+2026-01-18 20:20:24,323 - aiosqlite - DEBUG - core.py:104 - executing functools.partial(<built-in method execute of sqlite3.Connection object at 0x7d923448ed40>, 'PRAGMA journal_size_limit=16384', [])
+2026-01-18 20:20:24,323 - aiosqlite - DEBUG - core.py:106 - operation functools.partial(<built-in method execute of sqlite3.Connection object at 0x7d923448ed40>, 'PRAGMA journal_size_limit=16384', []) completed
+2026-01-18 20:20:24,323 - aiosqlite - DEBUG - core.py:104 - executing functools.partial(<built-in method close of sqlite3.Cursor object at 0x7d92341518c0>)
+2026-01-18 20:20:24,323 - aiosqlite - DEBUG - core.py:106 - operation functools.partial(<built-in method close of sqlite3.Cursor object at 0x7d92341518c0>) completed
+2026-01-18 20:20:24,324 - aiosqlite - DEBUG - core.py:104 - executing functools.partial(<built-in method execute of sqlite3.Connection object at 0x7d923448ed40>, 'PRAGMA foreign_keys=ON', [])
+2026-01-18 20:20:24,324 - aiosqlite - DEBUG - core.py:106 - operation functools.partial(<built-in method execute of sqlite3.Connection object at 0x7d923448ed40>, 'PRAGMA foreign_keys=ON', []) completed
+2026-01-18 20:20:24,324 - aiosqlite - DEBUG - core.py:104 - executing functools.partial(<built-in method close of sqlite3.Cursor object at 0x7d92341519c0>)
+2026-01-18 20:20:24,324 - aiosqlite - DEBUG - core.py:106 - operation functools.partial(<built-in method close of sqlite3.Cursor object at 0x7d92341519c0>) completed
+2026-01-18 20:20:24,324 - tortoise.db_client - DEBUG - client.py:88 - Created connection <Connection(Thread-1, started 138066892482240)> with params: filename=db.sqlite3 journal_mode=WAL journal_size_limit=16384 foreign_keys=ON
+2026-01-18 20:20:24,325 - tortoise.db_client - DEBUG - client.py:168 - CREATE TABLE IF NOT EXISTS "user" (
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    "first_name" VARCHAR(255) NOT NULL,
+    "last_name" VARCHAR(255) NOT NULL,
+    "email" VARCHAR(255) NOT NULL UNIQUE,
+    "phone" VARCHAR(255) NOT NULL,
+    "full_address" VARCHAR(1024) NOT NULL,
+    "recovery_bounty" VARCHAR(40),
+    "password" VARCHAR(128) NOT NULL,
+    "hash" VARCHAR(64) NOT NULL UNIQUE
+);
+CREATE INDEX IF NOT EXISTS "idx_user_hash_559886" ON "user" ("hash");
+CREATE TABLE IF NOT EXISTS "pet" (
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    "name" VARCHAR(255) NOT NULL,
+    "pet_type" VARCHAR(16) NOT NULL /* CAT: Cat\nDOG: Dog\nLIZARD: Lizard\nHAMSTER: Hamster\nBIRD: Bird\nOTHER: Other */,
+    "picture" VARCHAR(1024) NOT NULL,
+    "picture2" VARCHAR(1024),
+    "picture3" VARCHAR(1024),
+    "picture4" VARCHAR(1024),
+    "picture5" VARCHAR(1024),
+    "notes" TEXT NOT NULL,
+    "status" VARCHAR(16) NOT NULL DEFAULT 'at_home' /* AT_HOME: at_home\nLOST: lost\nFOUND: found */,
+    "owner_id" INT NOT NULL REFERENCES "user" ("id") ON DELETE CASCADE
+);
+CREATE TABLE IF NOT EXISTS "location" (
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    "latitude" REAL NOT NULL,
+    "longitude" REAL NOT NULL,
+    "timestamp" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "pet_id" INT NOT NULL REFERENCES "pet" ("id") ON DELETE CASCADE
+);
+2026-01-18 20:20:24,325 - aiosqlite - DEBUG - core.py:104 - executing functools.partial(<built-in method executescript of sqlite3.Connection object at 0x7d923448ed40>, 'CREATE TABLE IF NOT EXISTS "user" (\n    "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,\n    "first_name" VARCHAR(255) NOT NULL,\n    "last_name" VARCHAR(255) NOT NULL,\n    "email" VARCHAR(255) NOT NULL UNIQUE,\n    "phone" VARCHAR(255) NOT NULL,\n    "full_address" VARCHAR(1024) NOT NULL,\n    "recovery_bounty" VARCHAR(40),\n    "password" VARCHAR(128) NOT NULL,\n    "hash" VARCHAR(64) NOT NULL UNIQUE\n);\nCREATE INDEX IF NOT EXISTS "idx_user_hash_559886" ON "user" ("hash");\nCREATE TABLE IF NOT EXISTS "pet" (\n    "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,\n    "name" VARCHAR(255) NOT NULL,\n    "pet_type" VARCHAR(16) NOT NULL /* CAT: Cat\\nDOG: Dog\\nLIZARD: Lizard\\nHAMSTER: Hamster\\nBIRD: Bird\\nOTHER: Other */,\n    "picture" VARCHAR(1024) NOT NULL,\n    "picture2" VARCHAR(1024),\n    "picture3" VARCHAR(1024),\n    "picture4" VARCHAR(1024),\n    "picture5" VARCHAR(1024),\n    "notes" TEXT NOT NULL,\n    "status" VARCHAR(16) NOT NULL DEFAULT \'at_home\' /* AT_HOME: at_home\\nLOST: lost\\nFOUND: found */,\n    "owner_id" INT NOT NULL REFERENCES "user" ("id") ON DELETE CASCADE\n);\nCREATE TABLE IF NOT EXISTS "location" (\n    "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,\n    "latitude" REAL NOT NULL,\n    "longitude" REAL NOT NULL,\n    "timestamp" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n    "pet_id" INT NOT NULL REFERENCES "pet" ("id") ON DELETE CASCADE\n);')
+2026-01-18 20:20:24,325 - aiosqlite - DEBUG - core.py:106 - operation functools.partial(<built-in method executescript of sqlite3.Connection object at 0x7d923448ed40>, 'CREATE TABLE IF NOT EXISTS "user" (\n    "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,\n    "first_name" VARCHAR(255) NOT NULL,\n    "last_name" VARCHAR(255) NOT NULL,\n    "email" VARCHAR(255) NOT NULL UNIQUE,\n    "phone" VARCHAR(255) NOT NULL,\n    "full_address" VARCHAR(1024) NOT NULL,\n    "recovery_bounty" VARCHAR(40),\n    "password" VARCHAR(128) NOT NULL,\n    "hash" VARCHAR(64) NOT NULL UNIQUE\n);\nCREATE INDEX IF NOT EXISTS "idx_user_hash_559886" ON "user" ("hash");\nCREATE TABLE IF NOT EXISTS "pet" (\n    "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,\n    "name" VARCHAR(255) NOT NULL,\n    "pet_type" VARCHAR(16) NOT NULL /* CAT: Cat\\nDOG: Dog\\nLIZARD: Lizard\\nHAMSTER: Hamster\\nBIRD: Bird\\nOTHER: Other */,\n    "picture" VARCHAR(1024) NOT NULL,\n    "picture2" VARCHAR(1024),\n    "picture3" VARCHAR(1024),\n    "picture4" VARCHAR(1024),\n    "picture5" VARCHAR(1024),\n    "notes" TEXT NOT NULL,\n    "status" VARCHAR(16) NOT NULL DEFAULT \'at_home\' /* AT_HOME: at_home\\nLOST: lost\\nFOUND: found */,\n    "owner_id" INT NOT NULL REFERENCES "user" ("id") ON DELETE CASCADE\n);\nCREATE TABLE IF NOT EXISTS "location" (\n    "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,\n    "latitude" REAL NOT NULL,\n    "longitude" REAL NOT NULL,\n    "timestamp" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n    "pet_id" INT NOT NULL REFERENCES "pet" ("id") ON DELETE CASCADE\n);') completed
+2026-01-18 20:20:49,926 - aiosqlite - DEBUG - core.py:104 - executing functools.partial(<built-in method close of sqlite3.Connection object at 0x7d923448ed40>)
+2026-01-18 20:20:49,927 - aiosqlite - DEBUG - core.py:106 - operation functools.partial(<built-in method close of sqlite3.Connection object at 0x7d923448ed40>) completed
+2026-01-18 20:20:49,927 - tortoise.db_client - DEBUG - client.py:98 - Closed connection <Connection(Thread-1, started 138066892482240)> with params: filename=db.sqlite3 journal_mode=WAL journal_size_limit=16384 foreign_keys=ON
+2026-01-18 20:20:49,927 - tortoise - INFO - __init__.py:171 - Tortoise-ORM shutdown
+2026-01-18 20:26:37,476 - tortoise - DEBUG - __init__.py:505 - Tortoise-ORM startup
+    connections: {'default': {'engine': 'tortoise.backends.sqlite', 'credentials': {'journal_mode': 'WAL', 'journal_size_limit': 16384, 'file_path': 'db.sqlite3'}}}
+    apps: {'models': {'models': ['models'], 'default_connection': 'default'}}
+2026-01-18 20:26:37,483 - tortoise - INFO - __init__.py:163 - Tortoise-ORM started, {'default': <tortoise.backends.sqlite.client.SqliteClient object at 0x74b4e4ec4050>}, {'models': {'Location': <class 'models.Location'>, 'Pet': <class 'models.Pet'>, 'User': <class 'models.User'>}}
+2026-01-18 20:26:37,483 - tortoise - INFO - __init__.py:165 - Tortoise-ORM generating schema
+2026-01-18 20:26:37,484 - tortoise - DEBUG - utils.py:44 - Creating schema: CREATE TABLE IF NOT EXISTS "user" (
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    "first_name" VARCHAR(255) NOT NULL,
+    "last_name" VARCHAR(255) NOT NULL,
+    "email" VARCHAR(255) NOT NULL UNIQUE,
+    "phone" VARCHAR(255) NOT NULL,
+    "full_address" VARCHAR(1024) NOT NULL,
+    "recovery_bounty" VARCHAR(40),
+    "password" VARCHAR(128) NOT NULL,
+    "hash" VARCHAR(64) NOT NULL UNIQUE
+);
+CREATE INDEX IF NOT EXISTS "idx_user_hash_559886" ON "user" ("hash");
+CREATE TABLE IF NOT EXISTS "pet" (
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    "name" VARCHAR(255) NOT NULL,
+    "pet_type" VARCHAR(16) NOT NULL /* CAT: Cat\nDOG: Dog\nLIZARD: Lizard\nHAMSTER: Hamster\nBIRD: Bird\nOTHER: Other */,
+    "picture" VARCHAR(1024) NOT NULL,
+    "picture2" VARCHAR(1024),
+    "picture3" VARCHAR(1024),
+    "picture4" VARCHAR(1024),
+    "picture5" VARCHAR(1024),
+    "notes" TEXT NOT NULL,
+    "status" VARCHAR(16) NOT NULL DEFAULT 'at_home' /* AT_HOME: at_home\nLOST: lost\nFOUND: found */,
+    "owner_id" INT NOT NULL REFERENCES "user" ("id") ON DELETE CASCADE
+);
+CREATE TABLE IF NOT EXISTS "location" (
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    "latitude" REAL NOT NULL,
+    "longitude" REAL NOT NULL,
+    "timestamp" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "pet_id" INT NOT NULL REFERENCES "pet" ("id") ON DELETE CASCADE
+);
+2026-01-18 20:26:37,487 - aiosqlite - DEBUG - core.py:104 - executing <function connect.<locals>.connector at 0x74b4e4b363e0>
+2026-01-18 20:26:37,487 - aiosqlite - DEBUG - core.py:106 - operation <function connect.<locals>.connector at 0x74b4e4b363e0> completed
+2026-01-18 20:26:37,489 - aiosqlite - DEBUG - core.py:104 - executing functools.partial(<built-in method execute of sqlite3.Connection object at 0x74b4e4e863e0>, 'PRAGMA journal_mode=WAL', [])
+2026-01-18 20:26:37,491 - aiosqlite - DEBUG - core.py:106 - operation functools.partial(<built-in method execute of sqlite3.Connection object at 0x74b4e4e863e0>, 'PRAGMA journal_mode=WAL', []) completed
+2026-01-18 20:26:37,492 - aiosqlite - DEBUG - core.py:104 - executing functools.partial(<built-in method close of sqlite3.Cursor object at 0x74b4e4b41ac0>)
+2026-01-18 20:26:37,493 - aiosqlite - DEBUG - core.py:106 - operation functools.partial(<built-in method close of sqlite3.Cursor object at 0x74b4e4b41ac0>) completed
+2026-01-18 20:26:37,493 - aiosqlite - DEBUG - core.py:104 - executing functools.partial(<built-in method execute of sqlite3.Connection object at 0x74b4e4e863e0>, 'PRAGMA journal_size_limit=16384', [])
+2026-01-18 20:26:37,493 - aiosqlite - DEBUG - core.py:106 - operation functools.partial(<built-in method execute of sqlite3.Connection object at 0x74b4e4e863e0>, 'PRAGMA journal_size_limit=16384', []) completed
+2026-01-18 20:26:37,493 - aiosqlite - DEBUG - core.py:104 - executing functools.partial(<built-in method close of sqlite3.Cursor object at 0x74b4e4b419c0>)
+2026-01-18 20:26:37,493 - aiosqlite - DEBUG - core.py:106 - operation functools.partial(<built-in method close of sqlite3.Cursor object at 0x74b4e4b419c0>) completed
+2026-01-18 20:26:37,494 - aiosqlite - DEBUG - core.py:104 - executing functools.partial(<built-in method execute of sqlite3.Connection object at 0x74b4e4e863e0>, 'PRAGMA foreign_keys=ON', [])
+2026-01-18 20:26:37,494 - aiosqlite - DEBUG - core.py:106 - operation functools.partial(<built-in method execute of sqlite3.Connection object at 0x74b4e4e863e0>, 'PRAGMA foreign_keys=ON', []) completed
+2026-01-18 20:26:37,494 - aiosqlite - DEBUG - core.py:104 - executing functools.partial(<built-in method close of sqlite3.Cursor object at 0x74b4e4b41ac0>)
+2026-01-18 20:26:37,494 - aiosqlite - DEBUG - core.py:106 - operation functools.partial(<built-in method close of sqlite3.Cursor object at 0x74b4e4b41ac0>) completed
+2026-01-18 20:26:37,494 - tortoise.db_client - DEBUG - client.py:88 - Created connection <Connection(Thread-1, started 128320279873216)> with params: filename=db.sqlite3 journal_mode=WAL journal_size_limit=16384 foreign_keys=ON
+2026-01-18 20:26:37,494 - tortoise.db_client - DEBUG - client.py:168 - CREATE TABLE IF NOT EXISTS "user" (
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    "first_name" VARCHAR(255) NOT NULL,
+    "last_name" VARCHAR(255) NOT NULL,
+    "email" VARCHAR(255) NOT NULL UNIQUE,
+    "phone" VARCHAR(255) NOT NULL,
+    "full_address" VARCHAR(1024) NOT NULL,
+    "recovery_bounty" VARCHAR(40),
+    "password" VARCHAR(128) NOT NULL,
+    "hash" VARCHAR(64) NOT NULL UNIQUE
+);
+CREATE INDEX IF NOT EXISTS "idx_user_hash_559886" ON "user" ("hash");
+CREATE TABLE IF NOT EXISTS "pet" (
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    "name" VARCHAR(255) NOT NULL,
+    "pet_type" VARCHAR(16) NOT NULL /* CAT: Cat\nDOG: Dog\nLIZARD: Lizard\nHAMSTER: Hamster\nBIRD: Bird\nOTHER: Other */,
+    "picture" VARCHAR(1024) NOT NULL,
+    "picture2" VARCHAR(1024),
+    "picture3" VARCHAR(1024),
+    "picture4" VARCHAR(1024),
+    "picture5" VARCHAR(1024),
+    "notes" TEXT NOT NULL,
+    "status" VARCHAR(16) NOT NULL DEFAULT 'at_home' /* AT_HOME: at_home\nLOST: lost\nFOUND: found */,
+    "owner_id" INT NOT NULL REFERENCES "user" ("id") ON DELETE CASCADE
+);
+CREATE TABLE IF NOT EXISTS "location" (
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    "latitude" REAL NOT NULL,
+    "longitude" REAL NOT NULL,
+    "timestamp" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "pet_id" INT NOT NULL REFERENCES "pet" ("id") ON DELETE CASCADE
+);
+2026-01-18 20:26:37,495 - aiosqlite - DEBUG - core.py:104 - executing functools.partial(<built-in method executescript of sqlite3.Connection object at 0x74b4e4e863e0>, 'CREATE TABLE IF NOT EXISTS "user" (\n    "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,\n    "first_name" VARCHAR(255) NOT NULL,\n    "last_name" VARCHAR(255) NOT NULL,\n    "email" VARCHAR(255) NOT NULL UNIQUE,\n    "phone" VARCHAR(255) NOT NULL,\n    "full_address" VARCHAR(1024) NOT NULL,\n    "recovery_bounty" VARCHAR(40),\n    "password" VARCHAR(128) NOT NULL,\n    "hash" VARCHAR(64) NOT NULL UNIQUE\n);\nCREATE INDEX IF NOT EXISTS "idx_user_hash_559886" ON "user" ("hash");\nCREATE TABLE IF NOT EXISTS "pet" (\n    "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,\n    "name" VARCHAR(255) NOT NULL,\n    "pet_type" VARCHAR(16) NOT NULL /* CAT: Cat\\nDOG: Dog\\nLIZARD: Lizard\\nHAMSTER: Hamster\\nBIRD: Bird\\nOTHER: Other */,\n    "picture" VARCHAR(1024) NOT NULL,\n    "picture2" VARCHAR(1024),\n    "picture3" VARCHAR(1024),\n    "picture4" VARCHAR(1024),\n    "picture5" VARCHAR(1024),\n    "notes" TEXT NOT NULL,\n    "status" VARCHAR(16) NOT NULL DEFAULT \'at_home\' /* AT_HOME: at_home\\nLOST: lost\\nFOUND: found */,\n    "owner_id" INT NOT NULL REFERENCES "user" ("id") ON DELETE CASCADE\n);\nCREATE TABLE IF NOT EXISTS "location" (\n    "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,\n    "latitude" REAL NOT NULL,\n    "longitude" REAL NOT NULL,\n    "timestamp" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n    "pet_id" INT NOT NULL REFERENCES "pet" ("id") ON DELETE CASCADE\n);')
+2026-01-18 20:26:37,495 - aiosqlite - DEBUG - core.py:106 - operation functools.partial(<built-in method executescript of sqlite3.Connection object at 0x74b4e4e863e0>, 'CREATE TABLE IF NOT EXISTS "user" (\n    "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,\n    "first_name" VARCHAR(255) NOT NULL,\n    "last_name" VARCHAR(255) NOT NULL,\n    "email" VARCHAR(255) NOT NULL UNIQUE,\n    "phone" VARCHAR(255) NOT NULL,\n    "full_address" VARCHAR(1024) NOT NULL,\n    "recovery_bounty" VARCHAR(40),\n    "password" VARCHAR(128) NOT NULL,\n    "hash" VARCHAR(64) NOT NULL UNIQUE\n);\nCREATE INDEX IF NOT EXISTS "idx_user_hash_559886" ON "user" ("hash");\nCREATE TABLE IF NOT EXISTS "pet" (\n    "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,\n    "name" VARCHAR(255) NOT NULL,\n    "pet_type" VARCHAR(16) NOT NULL /* CAT: Cat\\nDOG: Dog\\nLIZARD: Lizard\\nHAMSTER: Hamster\\nBIRD: Bird\\nOTHER: Other */,\n    "picture" VARCHAR(1024) NOT NULL,\n    "picture2" VARCHAR(1024),\n    "picture3" VARCHAR(1024),\n    "picture4" VARCHAR(1024),\n    "picture5" VARCHAR(1024),\n    "notes" TEXT NOT NULL,\n    "status" VARCHAR(16) NOT NULL DEFAULT \'at_home\' /* AT_HOME: at_home\\nLOST: lost\\nFOUND: found */,\n    "owner_id" INT NOT NULL REFERENCES "user" ("id") ON DELETE CASCADE\n);\nCREATE TABLE IF NOT EXISTS "location" (\n    "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,\n    "latitude" REAL NOT NULL,\n    "longitude" REAL NOT NULL,\n    "timestamp" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n    "pet_id" INT NOT NULL REFERENCES "pet" ("id") ON DELETE CASCADE\n);') completed
+2026-01-18 20:27:24,602 - tortoise.db_client - DEBUG - client.py:153 - SELECT "recovery_bounty","first_name","phone","last_name","id","hash","email","password","full_address" FROM "user" WHERE "email"=? LIMIT ?: ['pablo@nomades.com.ar', 2]
+2026-01-18 20:27:24,602 - aiosqlite - DEBUG - core.py:104 - executing functools.partial(<bound method Connection._execute_fetchall of <Connection(Thread-1, started 128320279873216)>>, 'SELECT "recovery_bounty","first_name","phone","last_name","id","hash","email","password","full_address" FROM "user" WHERE "email"=? LIMIT ?', ['pablo@nomades.com.ar', 2])
+2026-01-18 20:27:24,603 - aiosqlite - DEBUG - core.py:106 - operation functools.partial(<bound method Connection._execute_fetchall of <Connection(Thread-1, started 128320279873216)>>, 'SELECT "recovery_bounty","first_name","phone","last_name","id","hash","email","password","full_address" FROM "user" WHERE "email"=? LIMIT ?', ['pablo@nomades.com.ar', 2]) completed
+2026-01-18 20:27:24,603 - passlib.handlers.bcrypt - WARNING - bcrypt.py:622 - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "/home/pablushka/projects/petto/backend/.venv/lib/python3.13/site-packages/passlib/handlers/bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2026-01-18 20:27:24,605 - passlib.handlers.bcrypt - DEBUG - bcrypt.py:625 - detected 'bcrypt' backend, version '<unknown>'
+2026-01-18 20:27:24,605 - passlib.handlers.bcrypt - DEBUG - bcrypt.py:406 - 'bcrypt' backend lacks $2$ support, enabling workaround
+2026-01-18 20:30:14,446 - aiosqlite - DEBUG - core.py:104 - executing functools.partial(<built-in method close of sqlite3.Connection object at 0x74b4e4e863e0>)
+2026-01-18 20:30:14,447 - aiosqlite - DEBUG - core.py:106 - operation functools.partial(<built-in method close of sqlite3.Connection object at 0x74b4e4e863e0>) completed
+2026-01-18 20:30:14,447 - tortoise.db_client - DEBUG - client.py:98 - Closed connection <Connection(Thread-1, started 128320279873216)> with params: filename=db.sqlite3 journal_mode=WAL journal_size_limit=16384 foreign_keys=ON
+2026-01-18 20:30:14,448 - tortoise - INFO - __init__.py:171 - Tortoise-ORM shutdown

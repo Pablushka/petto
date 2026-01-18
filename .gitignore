@@ -4,3 +4,5 @@ backend/db.sqlite3
 **node_modules/
 # Keep directory tracked (has own .gitignore to ignore contents)
 !backend/static/uploads/
+/.venv/**
+/venv/**
