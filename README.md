@@ -1,179 +1,193 @@
-# Petto
+# Petto 🐾
 
-Petto is a Progressive Web Application designed to help reunite lost pets with their owners.
+**Petto** is a Progressive Web Application (PWA) designed to help reunite lost pets with their owners. It provides a comprehensive platform for pet management, QR code generation, and location tracking to ensure the safety and quick recovery of your beloved companions.
 
-## Features
+## ✨ Features
 
-### Authentication & User Management
-- **User Registration** - Create new accounts with email validation
-- **Login/Logout** - Secure JWT-based authentication with access and refresh tokens
-- **Password Recovery** - Request password reset tokens via email
-- **Protected Routes** - Automatic token refresh and redirect for unauthorized access
-- **Rate Limiting** - Protection against brute force attacks on auth endpoints
+### 👤 User Authentication
+- **Login, Logout, Register** - Secure user account management
+- **Password Recovery** - Easy password reset functionality
+- **JWT-based Authentication** - Access tokens (short-lived) and refresh tokens (long-lived)
+- **OAuth2 Support** - Third-party authentication options
 
-### Pet Management
-- **Pet Collection** - Create, read, update, and delete pets
-- **Multi-Image Upload** - Upload up to 5 images per pet with cover image selection
-- **Image Reordering** - Arrange images before submission
+### 🐕 Pet Management
+- **Create a Collection of Pets** - Manage all your pets in one place
+- **CRUD Operations** - Add, Edit, Read, and Remove pets
+- **Multi-Image Upload** - Upload up to 5 images per pet (first image is the cover)
+- **Image Reordering** - Reorder images before submission
 - **Pet Status Tracking** - Track pet status: `at_home`, `lost`, or `found`
-- **Pet Types** - Support for: Cat, Dog, Bird, Lizard, Hamster, and Other
+- **Pet Types** - Support for Cat, Dog, Lizard, Hamster, Bird, and Other
 
-### Lost Pet Features
-- **QR Code Generation** - Generate unique QR codes for pet tags (square or circular)
-- **Lost Pet Flyers** - Create print-ready A4 flyers with pet info and QR code
-- **Location Tracking** - Record QR code scans with location data when pets are found
-- **Scan History** - View all scan events for a specific pet
+### 📱 QR Code Generation
+- **Generate Pet QR Codes** - Create unique QR codes for each pet
+- **Multiple Formats** - Square or circle canvas options
+- **Print-Ready** - Perfect for pet medals and tags
+- **Scannable Links** - Generate shareable QR links for pet profiles
 
-### Internationalization
-- **Multi-language Support** - English, Spanish, and Japanese via Paraglide i18n
-- **Reactive Locale Switching** - Messages update automatically on language change
+### 📄 Lost Pet Materials
+- **Generate Pet Flyers** - Create print-ready flyers for lost pets
+- **A4 Posters** - Generate full-size posters with pet information
+- **Custom Content** - Include pet picture, description, contact info, and QR code
 
-## Technologies
+### 📍 Location Tracking
+- **QR Scan Recording** - Track when and where pet QR codes are scanned
+- **Scan History** - View all scans for each pet
+- **Location Data** - Help locate lost pets through scan information
 
-- **Backend:** Python 3.13+, FastAPI, SQLite (upgradable to MySQL/PostgreSQL), Tortoise ORM, Uvicorn
-- **Frontend:** SvelteKit 5, TypeScript, Tailwind CSS v4, Paraglide i18n, Prisma ORM
-- **Testing:** Vitest (unit), Playwright (E2E)
-- **Package Management:** pnpm (frontend), uv (backend)
-- **Security:** JWT tokens, HTTP-only cookies, CORS, rate limiting, security headers
+## 🏗️ Architecture
 
-## Monorepo Structure
-
-Petto uses pnpm workspaces for monorepo management:
+Petto is organized as a **monorepo** using pnpm workspaces:
 
 ```
 petto/
-├── backend/              # FastAPI backend
-│   ├── routers/         # API endpoints (users, pets, qrcode, etc.)
-│   ├── models.py        # Database models
-│   ├── schemas/         # Pydantic request/response schemas
-│   ├── middleware/      # Security, rate limiting
-│   └── utils/           # Auth helpers
+├── backend/          # FastAPI backend (Python)
 ├── apps/
-│   └── frontend/        # SvelteKit frontend
-│       ├── src/
-│       │   ├── routes/  # Pages and layouts
-│       │   ├── lib/     # Components, utilities, stores
-│       │   └── paraglide/ # i18n messages
-│       └── static/      # Static assets
-└── packages/
-    └── shared/          # Shared libraries (optional)
+│   └── frontend/     # SvelteKit frontend (TypeScript)
+└── packages/         # (Optional) Shared libraries
 ```
 
-## Quick Start
+Workspace configuration: see `pnpm-workspace.yaml`
+
+## 🛠️ Technology Stack
+
+### Backend
+- **Runtime:** Python 3.8+
+- **Framework:** FastAPI
+- **Database:** SQLite (development) - scalable to MySQL/PostgreSQL
+- **Authentication:** JWT tokens with refresh mechanism
+- **API Documentation:** Auto-generated with Swagger/OpenAPI
+- **Image Upload:** Multi-format support (JPEG, PNG, WebP, GIF) - max 5MB
+
+### Frontend
+- **Framework:** SvelteKit 5
+- **Language:** TypeScript
+- **Styling:** Tailwind CSS
+- **ORM:** Prisma
+- **i18n:** Paraglide (multi-language support)
+- **State Management:** Svelte stores
+- **Testing:** Vitest (unit) + Playwright (E2E)
+
+## 🚀 Quick Start
 
 ### Prerequisites
+- **Python 3.8+** (for backend)
+- **Node.js 16+** (for frontend)
+- **pnpm** (recommended) or npm/yarn
 
-- **Python:** 3.13+ (managed via uv)
-- **Node.js:** 18+ (for pnpm and SvelteKit)
-- **pnpm:** 10+ (package manager)
-- **uv:** Python package manager (install: `curl -LsSf https://astral.sh/uv/install.sh | sh`)
+### Backend Setup
 
-### Installation & Setup
-
-1. **Clone the repository:**
+1. Navigate to the backend directory:
    ```bash
    git clone <repository-url>
    cd petto
    ```
 
-2. **Install frontend dependencies:**
+2. Create and activate a virtual environment:
    ```bash
-   pnpm install
+   python3 -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
 
-3. **Install backend dependencies:**
+3. Install dependencies:
    ```bash
    cd backend
    uv sync
    cd ..
    ```
 
-### Running the Application
+4. Start the FastAPI server:
+   ```bash
+   uvicorn main:app --reload
+   ```
 
-#### Development Mode (Recommended)
+   - API available at: `http://127.0.0.1:8000`
+   - API docs: `http://127.0.0.1:8000/docs`
+   - Health check: `GET /_health`
 
-Run both frontend and backend concurrently:
+### Frontend Setup
 
-```bash
-pnpm dev:all
-```
+1. Navigate to the frontend directory:
+   ```bash
+   cd apps/frontend
+   ```
 
-This starts:
-- **Frontend:** http://localhost:5173
-- **Backend:** http://127.0.0.1:8000
+2. Install dependencies:
+   ```bash
+   pnpm install
+   # or npm install / yarn install
+   ```
 
-#### Individual Services
+3. Start the development server:
+   ```bash
+   pnpm run dev
+   ```
 
-**Frontend only:**
-```bash
-pnpm dev:frontend
-# or
-cd apps/frontend && pnpm dev
-```
+   - App available at: `http://localhost:5173`
 
-**Backend only:**
-```bash
-pnpm dev:backend
-# or
-cd backend && uv run uvicorn main:app --reload
-```
+### Monorepo Commands
 
-### Production Build
-
-**Build frontend:**
-```bash
-pnpm build
-```
-
-**Preview production build:**
-```bash
-pnpm preview
-```
-
-### Testing
-
-**Run all tests:**
-```bash
-pnpm test
-```
-
-**Frontend tests:**
-```bash
-cd apps/frontend
-pnpm test:unit      # Vitest unit tests
-pnpm test:e2e       # Playwright E2E tests
-```
-
-**Linting:**
-```bash
-pnpm lint           # Lint all packages
-```
-
-## API Documentation
-
-### Base URL
-
-- Development: `http://127.0.0.1:8000`
-- Production: Configure via environment variables
-
-### Interactive API Docs
-
-- Swagger UI: `http://127.0.0.1:8000/docs`
-- ReDoc: `http://127.0.0.1:8000/redoc`
-
-### Health Check
+From the root directory:
 
 ```bash
-# Check if backend is running
-curl http://127.0.0.1:8000/_health
-# Response: {"status": "ok"}
+# Install all dependencies
+pnpm install
+
+# Run backend
+cd backend && uvicorn main:app --reload
+
+# Run frontend (in another terminal)
+cd apps/frontend && pnpm run dev
 ```
 
-## Authentication & Authorization
+## 📁 Project Structure
 
-Petto implements JWT-based authentication with access tokens (short-lived) and refresh tokens (long-lived).
+### Backend Structure
+```
+backend/
+├── main.py           # FastAPI application entry point
+├── routers/          # API route modules
+│   ├── users.py
+│   ├── pets.py
+│   ├── qrcode.py
+│   ├── banners.py
+│   └── pet_location.py
+├── models.py         # Database models
+├── database.py       # Database configuration
+└── requirements.txt  # Python dependencies
+```
 
-### Authentication Flow
+### Frontend Structure
+```
+apps/frontend/
+├── src/
+│   ├── routes/                      # SvelteKit routes
+│   ├── lib/
+│   │   ├── components/              # Reusable components
+│   │   ├── stores/                  # Svelte stores (session, etc.)
+│   │   ├── utils/                   # Helper functions (api.ts, pet.ts)
+│   │   └── paraglide/messages/      # i18n message files
+│   └── app.css                      # Tailwind CSS entry
+├── package.json
+└── svelte.config.js
+```
+
+## 🔐 Authentication & Authorization
+
+This project implements JWT-based authentication with access tokens (short-lived) and refresh tokens (long-lived), plus route protection in the frontend.
+
+### Backend (FastAPI)
+- `POST /api/login` - Issues `access_token` and `refresh_token`
+- `GET /api/users/me` - Returns authenticated user (requires `Authorization: Bearer <access_token>`)
+- `POST /api/token/refresh` - Exchanges valid `refresh_token` for new `access_token`
+
+### Frontend (SvelteKit 5)
+- **API Helper** (`src/lib/utils/api.ts`) - Adds `Authorization` header when `requireAuth: true`, automatically refreshes on 401
+- **Layout** (`routes/+layout.ts`) - Queries `api/users/me` during load; protected pages redirect to `/login` with `returnUrl`
+- **SSR Guard** (`src/lib/utils/protect-route.ts`) - Validates session in `+page.ts` and redirects if missing
+- **Client Guard** (`src/lib/components/ProtectedRoute.svelte`) - Ensures user authentication when rendering protected content
+- **Session Store** (`src/lib/stores/session.ts`) - Stores current user; tokens stored in `localStorage`
+
+### Authentication Flow (Mermaid)
 
 ```mermaid
 sequenceDiagram
@@ -213,952 +227,169 @@ sequenceDiagram
          FE-->>U: Redirect to /login
       end
    end
+
+   Note over U,FE: Inicio de sesión
+   U->>FE: Envía credenciales
+   FE->>BE: POST /api/login { email, password }
+   alt Credenciales válidas
+      BE-->>FE: access_token + refresh_token
+      FE->>LS: Guarda tokens
+      FE-->>U: Redirige a returnUrl o home
+   else Inválidas
+      BE-->>FE: 401 Unauthorized
+      FE-->>U: Muestra error
+   end
+
+   Note over U,FE: Cierre de sesión
+   U->>FE: Click en logout
+   FE->>LS: Elimina access_token y refresh_token
+   FE-->>U: Redirige a /login
 ```
 
-### API Endpoints
+### Best Practices
+- Use `fetchFn` from SvelteKit `load` when available for SSR consistency
+- All authenticated calls should use the helper (`requireAuth: true`) for automatic token refresh
+- Protected pages combine: `+layout.ts` (session hydration), `protect-route.ts` (SSR), and `ProtectedRoute.svelte` (client)
+- On refresh failure, tokens are cleared and user is redirected to `/login?returnUrl=...`
 
-#### User Registration
+## 🗄️ Pet API Data Models
 
-```bash
-# Register new user
-curl -X POST http://127.0.0.1:8000/api/register \
-  -H "Content-Type: application/json" \
-  -d '{
-    "first_name": "John",
-    "last_name": "Doe",
-    "email": "john@example.com",
-    "phone": "1234567890",
-    "full_address": "123 Main St, City",
-    "recovery_bounty": 50.0,
-    "password": "SecurePassword123!"
-  }'
+The Pet endpoints use **explicit Pydantic schemas** for clearer versioning, validation control, and security.
 
-# Response: 200 OK
-{
-  "id": 1,
-  "first_name": "John",
-  "last_name": "Doe",
-  "email": "john@example.com",
-  "phone": "1234567890",
-  "full_address": "123 Main St, City",
-  "recovery_bounty": 50.0
-}
+### Schema Overview
+
+| Schema | Purpose | Fields |
+|--------|---------|--------|
+| `PetBase` | Shared core fields | `name`, `pet_type`, `picture`, `notes`, `status` (default `at_home`) |
+| `PetCreate` | Creation payload (client → server) | Inherits `PetBase` + `owner_id` (accepted but ignored in favor of authenticated user) |
+| `PetUpdate` | Update payload (partial) | All fields optional (`name`, `pet_type`, `picture`, `notes`, `status`, `owner_id`) |
+| `PetOut` | Response model | `id`, `owner_id`, plus all `PetBase` fields + `pictures[]` (ordered list; element 0 is cover) |
+
+**Security Rule:** The backend **always overrides** `owner_id` with the authenticated user on create/update.
+
+### Multi-Image Model Mapping
+
+Database maintains legacy `picture` plus optional `picture2`..`picture5` columns for a maximum of 5 images.
+
+API serializes these as:
+```javascript
+PetOut.pictures = [picture, picture2, picture3, picture4, picture5].filter(Boolean)
 ```
 
-#### User Login
+Frontend uses `getPetCover(pet)` helper from `src/lib/utils/pet.ts` for consistent cover image handling.
 
-```bash
-# Login with email and password
-curl -X POST http://127.0.0.1:8000/api/login \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "john@example.com",
-    "password": "SecurePassword123!"
-  }'
-
-# Response: 200 OK
-{
-  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "token_type": "bearer"
-}
-```
-
-#### Token Refresh
-
-```bash
-# Refresh expired access token
-curl -X POST http://127.0.0.1:8000/api/token/refresh \
-  -H "Content-Type: application/json" \
-  -d '{
-    "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-  }'
-
-# Response: 200 OK
-{
-  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-}
-```
-
-#### Get Current User
-
-```bash
-# Get authenticated user details
-curl -X GET http://127.0.0.1:8000/api/users/me \
-  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-
-# Response: 200 OK
-{
-  "id": 1,
-  "first_name": "John",
-  "last_name": "Doe",
-  "email": "john@example.com",
-  "phone": "1234567890"
-}
-```
-
-#### Password Recovery
-
-```bash
-# Request password recovery token
-curl -X POST http://127.0.0.1:8000/api/password-recovery \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "john@example.com"
-  }'
-
-# Response: 200 OK
-{
-  "message": "Recovery email sent (stub)",
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-}
-
-# Reset password with token
-curl -X POST http://127.0.0.1:8000/api/password-reset \
-  -H "Content-Type: application/json" \
-  -d '{
-    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-    "new_password": "NewSecurePassword123!"
-  }'
-
-# Response: 200 OK
-{
-  "message": "Password reset successful"
-}
-```
-
-### Pet Management Endpoints
-
-#### Create Pet
-
-```bash
-# Create new pet (requires authentication)
-curl -X POST http://127.0.0.1:8000/api/pets/ \
-  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "Max",
-    "pet_type": "Dog",
-    "picture": "https://example.com/max.jpg",
-    "pictures": [
-      "https://example.com/max.jpg",
-      "https://example.com/max2.jpg"
-    ],
-    "notes": "Friendly golden retriever, loves treats",
-    "status": "at_home"
-  }'
-
-# Response: 200 OK
-{
-  "id": 1,
-  "owner_id": 1,
-  "name": "Max",
-  "pet_type": "Dog",
-  "picture": "https://example.com/max.jpg",
-  "pictures": [
-    "https://example.com/max.jpg",
-    "https://example.com/max2.jpg"
-  ],
-  "notes": "Friendly golden retriever, loves treats",
-  "status": "at_home"
-}
-```
-
-#### List User's Pets
-
-```bash
-# Get all pets for authenticated user
-curl -X GET http://127.0.0.1:8000/api/pets/ \
-  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
-
-# Response: 200 OK
-[
-  {
-    "id": 1,
-    "owner_id": 1,
-    "name": "Max",
-    "pet_type": "Dog",
-    "picture": "https://example.com/max.jpg",
-    "pictures": ["https://example.com/max.jpg", "..."],
-    "notes": "Friendly golden retriever",
-    "status": "at_home"
-  }
-]
-```
-
-#### Get Pet by ID
-
-```bash
-# Get specific pet details
-curl -X GET http://127.0.0.1:8000/api/pets/1 \
-  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
-
-# Response: 200 OK
-{
-  "id": 1,
-  "owner_id": 1,
-  "name": "Max",
-  "pet_type": "Dog",
-  "status": "at_home",
-  ...
-}
-```
-
-#### Update Pet
-
-```bash
-# Update pet information
-curl -X PUT http://127.0.0.1:8000/api/pets/1 \
-  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "Max Updated",
-    "status": "lost",
-    "notes": "Lost near Central Park on Jan 15"
-  }'
-
-# Response: 200 OK
-{
-  "id": 1,
-  "name": "Max Updated",
-  "status": "lost",
-  ...
-}
-```
-
-#### Delete Pet
-
-```bash
-# Delete a pet
-curl -X DELETE http://127.0.0.1:8000/api/pets/1 \
-  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
-
-# Response: 200 OK
-{
-  "message": "Pet deleted successfully"
-}
-```
-
-### QR Code & Location Endpoints
-
-#### Generate QR Code
-
-```bash
-# Generate QR code for pet
-curl -X GET http://127.0.0.1:8000/api/qrcode/1 \
-  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
-
-# Returns PNG image
-```
-
-#### Record QR Scan
-
-```bash
-# Record when someone scans the pet's QR code
-curl -X POST http://127.0.0.1:8000/api/pet-location/scan \
-  -H "Content-Type: application/json" \
-  -d '{
-    "pet_id": 1,
-    "latitude": 40.7128,
-    "longitude": -74.0060,
-    "notes": "Found near subway station"
-  }'
-
-# Response: 200 OK
-{
-  "id": 1,
-  "pet_id": 1,
-  "latitude": 40.7128,
-  "longitude": -74.0060,
-  "timestamp": "2026-01-18T10:30:00",
-  "notes": "Found near subway station"
-}
-```
-
-#### Get Pet QR Link
-
-```bash
-# Get shareable QR link for pet
-curl -X GET http://127.0.0.1:8000/api/pet-location/pet/1/qr-link \
-  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
-
-# Response: 200 OK
-{
-  "qr_link": "https://petto.app/scan/abc123xyz"
-}
-```
-
-#### Get Scan History
-
-```bash
-# Get all scan events for a pet
-curl -X GET http://127.0.0.1:8000/api/pet-location/pet/1/scans \
-  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
-
-# Response: 200 OK
-[
-  {
-    "id": 1,
-    "pet_id": 1,
-    "latitude": 40.7128,
-    "longitude": -74.0060,
-    "timestamp": "2026-01-18T10:30:00",
-    "notes": "Found near subway station"
-  }
-]
-```
-
-### Flyer Generation
-
-```bash
-# Generate lost pet flyer (HTML/PDF ready)
-curl -X GET http://127.0.0.1:8000/api/flyers/1 \
-  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
-
-# Returns HTML document ready for printing
-```
-
-## Frontend Integration
-
-### API Helper Functions
-
-The frontend uses centralized API utilities in `src/lib/utils/api.ts`:
-
+### Enum Values
 ```typescript
-import { get, post, put, del } from '$lib/utils/api';
-
-// Login
-const { access_token, refresh_token } = await post('/api/login', {
-  body: { email: 'user@example.com', password: 'password' }
-});
-
-// Get current user (auto-adds Authorization header)
-const user = await get('/api/users/me', { requireAuth: true });
-
-// Create pet
-const newPet = await post('/api/pets/', {
-  body: { name: 'Max', pet_type: 'Dog', status: 'at_home' },
-  requireAuth: true
-});
-
-// Update pet
-const updated = await put('/api/pets/1', {
-  body: { status: 'lost' },
-  requireAuth: true
-});
-
-// Delete pet
-await del('/api/pets/1', { requireAuth: true });
+PetType   = Cat | Dog | Lizard | Hamster | Bird | Other
+PetStatus = at_home | lost | found
 ```
 
-### Error Handling
+### Migration Note
 
-```typescript
-import { isNotFound, isUnauthorized, ApiError } from '$lib/utils/api';
+Previously used `pydantic_model_creator(Pet, ...)` for auto-generation. Replaced with explicit classes to:
+- Enforce ownership rules explicitly
+- Support partial updates cleanly
+- Avoid accidental field exposure
+- Provide stable documentation for external consumers
 
-try {
-  const pet = await get('/api/pets/999', { requireAuth: true });
-} catch (error) {
-  if (isNotFound(error)) {
-    console.error('Pet not found');
-  } else if (isUnauthorized(error)) {
-    console.error('Not authenticated');
-    goto('/login');
-  } else if (error instanceof ApiError) {
-    console.error(`API Error ${error.status}: ${error.message}`);
-  }
-}
-```
+## 🧪 Development Workflows
 
-### Automatic Token Refresh
-
-The `apiRequest()` function automatically:
-1. Adds `Authorization: Bearer <token>` header for authenticated requests
-2. Detects 401 errors and attempts token refresh
-3. Retries the original request with new tokens
-4. Redirects to login if refresh fails
-
-### Protected Routes
-
-Use the `ProtectedRoute` component or `protect-route` utility:
-
-```svelte
-<script>
-  import ProtectedRoute from '$lib/components/ProtectedRoute.svelte';
-</script>
-
-<ProtectedRoute>
-  <!-- Only renders if user is authenticated -->
-  <h1>My Pets</h1>
-  <!-- Pet list here -->
-</ProtectedRoute>
-```
-
-## Data Models & Schemas
-
-### Pet Data Model
-
-The Pet API uses **explicit Pydantic schemas** for type safety and validation:
-
-| Schema | Purpose | Key Fields |
-|--------|---------|------------|
-| `PetBase` | Shared core fields | `name`, `pet_type`, `picture`, `notes`, `status` |
-| `PetCreate` | Create payload | Inherits `PetBase` + optional `owner_id` (ignored, uses auth user) |
-| `PetUpdate` | Update payload (partial) | All fields optional |
-| `PetOut` | Response model | `id`, `owner_id`, + `PetBase` fields + `pictures[]` array |
-
-#### Pet Types & Status
-
-```typescript
-// Pet Types (enum)
-type PetType = 'Cat' | 'Dog' | 'Bird' | 'Lizard' | 'Hamster' | 'Other';
-
-// Pet Status (enum)
-type PetStatus = 'at_home' | 'lost' | 'found';
-```
-
-#### Multi-Image Support
-
-The backend stores up to 5 images per pet:
-- `picture` (required) - Cover image (also `pictures[0]`)
-- `picture2` through `picture5` (optional) - Additional images
-
-The API normalizes these into a single `pictures[]` array:
-
-```json
-{
-  "id": 1,
-  "name": "Max",
-  "picture": "https://example.com/max.jpg",
-  "pictures": [
-    "https://example.com/max.jpg",    // Cover (picture)
-    "https://example.com/max2.jpg",   // picture2
-    "https://example.com/max3.jpg"    // picture3
-  ]
-}
-```
-
-**Frontend helpers:**
-- `getPetCover(pet)` - Returns cover image URL with fallback
-
-#### Security: Owner Enforcement
-
-**Critical:** The backend **always overrides** `owner_id` with the authenticated user's ID. Users can only access/modify their own pets.
-
-### User Data Model
-
-```typescript
-interface User {
-  id: number;
-  first_name: string;
-  last_name: string;
-  email: string;
-  phone: string;
-  full_address: string;
-  recovery_bounty: number;  // Reward amount for finding lost pet
-  password: string;         // Hashed (never returned in API)
-}
-```
-
-### Location/Scan Data Model
-
-```typescript
-interface PetScan {
-  id: number;
-  pet_id: number;
-  latitude: number;
-  longitude: number;
-  timestamp: string;        // ISO 8601 datetime
-  notes?: string;
-}
-```
-
-## Backend Architecture
-
-### Project Structure
-
-```
-backend/
-├── main.py                 # FastAPI app, CORS, middleware
-├── models.py              # Tortoise ORM models
-├── database.py            # DB configuration
-├── config.py              # Environment settings
-├── routers/               # API endpoints
-│   ├── users.py          # Auth, registration, password recovery
-│   ├── pets.py           # Pet CRUD operations
-│   ├── qrcode.py         # QR code generation
-│   ├── banners.py        # Banner image generation
-│   ├── flyers.py         # Lost pet flyer generation
-│   ├── pet_location.py   # Scan tracking, location
-│   ├── upload.py         # File uploads
-│   └── static.py         # Static file serving
-├── schemas/               # Pydantic request/response models
-│   ├── users.py
-│   ├── pets.py
-│   └── location.py
-├── middleware/            # Security & rate limiting
-│   ├── security.py       # Security headers
-│   └── rate_limit.py     # Rate limiting config
-├── utils/
-│   └── auth.py           # JWT utilities, password hashing
-└── static/
-    ├── templates/        # HTML templates
-    └── uploads/          # User-uploaded files
-```
-
-### Middleware & Security
-
-**Security Headers:**
-- Content Security Policy (CSP)
-- X-Frame-Options: DENY
-- X-Content-Type-Options: nosniff
-- Strict-Transport-Security (HSTS)
-
-**CORS Configuration:**
-- Development: `http://localhost:5173`, `http://127.0.0.1:5173`
-- Production: `https://petto.app`, `https://www.petto.app`
-- Credentials: Enabled for cookie-based auth
-
-**Rate Limiting:**
-- Login: 5 requests per minute
-- Registration: 3 requests per minute
-- General API: 100 requests per minute
-- Configurable via `middleware/rate_limit.py`
-
-### Database
-
-**Default:** SQLite (`db.sqlite3`)
-- Fast development setup
-- Zero configuration
-- Single-file database
-
-**Production Recommendations:**
-- PostgreSQL (scalable, robust)
-- MySQL (widely supported)
-
-**Configure via `backend/config.py`:**
-```python
-DATABASE_URL = "sqlite://db.sqlite3"
-# or
-DATABASE_URL = "postgres://user:password@host:port/dbname"
-```
-
-### Environment Configuration
-
-Create `backend/.env`:
-
-```env
-# Database
-DATABASE_URL=sqlite://db.sqlite3
-
-# JWT Secrets (CHANGE IN PRODUCTION!)
-SECRET_KEY=your-secret-key-here-min-32-chars
-REFRESH_SECRET_KEY=your-refresh-secret-key-here
-
-# CORS
-CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
-ENVIRONMENT=development
-
-# Optional: Rate limiting
-RATE_LIMIT_ENABLED=true
-```
-
-## Frontend Architecture
-
-### Project Structure
-
-```
-apps/frontend/
-├── src/
-│   ├── routes/                  # SvelteKit pages
-│   │   ├── +layout.svelte      # Root layout
-│   │   ├── +layout.ts          # Load user session
-│   │   ├── +page.svelte        # Homepage
-│   │   ├── login/              # Login page
-│   │   ├── pets/               # Pet management
-│   │   ├── flyers/             # Flyer generator
-│   │   └── forgot-password/    # Password recovery
-│   ├── lib/
-│   │   ├── components/         # Reusable UI components
-│   │   │   ├── Button.svelte
-│   │   │   ├── Modal.svelte
-│   │   │   ├── Alert.svelte
-│   │   │   ├── ProtectedRoute.svelte
-│   │   │   └── ...
-│   │   ├── utils/
-│   │   │   ├── api.ts          # API helpers (get, post, put, del)
-│   │   │   ├── auth.ts         # Token management
-│   │   │   └── pet.ts          # Pet utility functions
-│   │   ├── stores/
-│   │   │   └── session.ts      # User session store
-│   │   ├── types/              # TypeScript definitions
-│   │   └── paraglide/          # i18n messages
-│   ├── app.css                 # Tailwind CSS entry
-│   └── app.html                # HTML template
-├── static/
-│   ├── flyers_templates/       # Flyer HTML/CSS templates
-│   └── robots.txt
-├── svelte.config.js            # SvelteKit config
-├── vite.config.ts              # Vite config
-├── tailwind.config.js          # Tailwind config (if any)
-├── playwright.config.ts        # E2E test config
-└── vitest-setup-client.ts      # Vitest config
-```
-
-### Key Frontend Concepts
-
-#### Svelte 5 Runes (MANDATORY)
-
-**DO NOT use Svelte 4 lifecycle functions!**
-
-✅ **Correct (Svelte 5):**
-```svelte
-<script lang="ts">
-  let count = $state(0);
-  
-  $effect(() => {
-    console.log('Count changed:', count);
-  });
-  
-  const doubled = $derived(count * 2);
-</script>
-```
-
-❌ **Incorrect (Svelte 4 - BANNED):**
-```svelte
-<script lang="ts">
-  import { onMount } from 'svelte';  // ❌ NO!
-  
-  onMount(() => {  // ❌ NO!
-    // ...
-  });
-</script>
-```
-
-#### Tailwind CSS v4
-
-Use CSS-first approach with `@import "tailwindcss"` in `app.css`:
-
-```css
-@import "tailwindcss";
-
-/* Custom styles */
-.btn {
-  @apply px-4 py-2 rounded bg-blue-500 text-white;
-}
-```
-
-#### Internationalization (Paraglide)
-
-**Messages are functions, not strings!**
-
-```typescript
-// ❌ Wrong
-import { m } from '$lib/paraglide/messages';
-const text = m.button_cancel;  // Error!
-
-// ✅ Correct
-import { m } from '$lib/paraglide/messages';
-const text = m.button_cancel();  // Function call
-```
-
-**Locale switching:**
-```typescript
-import { setLocale } from '$lib/paraglide/runtime';
-
-setLocale('es');  // Switch to Spanish
-setLocale('en');  // Switch to English
-setLocale('jp');  // Switch to Japanese
-```
-
-### Frontend Development Workflow
-
+### Frontend Testing
 ```bash
-# Start dev server
-pnpm dev
+# Unit tests (Vitest)
+pnpm run test:unit
 
-# Type checking
-pnpm check
-
-# Watch mode for type checking
-pnpm check:watch
+# E2E tests (Playwright)
+pnpm run test:e2e
 
 # Linting
-pnpm lint
+pnpm run lint
 
-# Format code
-pnpm format
-
-# Run unit tests
-pnpm test:unit
-
-# Run E2E tests
-pnpm test:e2e
-
-# Check for Svelte 4 lifecycle usage
-pnpm lint:svelte-runes
+# Formatting
+pnpm run format
 ```
 
-## Testing
+### Building for Production
 
-### Unit Tests (Vitest)
-
-Located in `src/**/*.test.ts`:
-
-```typescript
-import { describe, it, expect } from 'vitest';
-import { render } from 'vitest-browser-svelte';
-import Button from './Button.svelte';
-
-describe('Button', () => {
-  it('renders with text', async () => {
-    const { getByText } = render(Button, { 
-      props: { text: 'Click me' } 
-    });
-    
-    await expect.element(getByText('Click me')).toBeVisible();
-  });
-});
-```
-
-**Run tests:**
-```bash
-pnpm test:unit
-# or specific file
-pnpm test:unit src/lib/components/Button.test.ts
-```
-
-### E2E Tests (Playwright)
-
-Located in `src/**/*.spec.ts`:
-
-```typescript
-import { test, expect } from '@playwright/test';
-
-test('login page loads', async ({ page }) => {
-  await page.goto('/login');
-  await expect(page.getByRole('heading', { name: 'Login' })).toBeVisible();
-});
-```
-
-**Run tests:**
-```bash
-pnpm test:e2e
-# or specific file
-pnpm test:e2e src/routes/login/page.spec.ts
-```
-
-## Common Development Tasks
-
-### Adding a New API Endpoint
-
-1. **Define schema** in `backend/schemas/`:
-   ```python
-   # schemas/my_feature.py
-   from pydantic import BaseModel
-   
-   class MyFeatureCreate(BaseModel):
-       name: str
-       description: str
-   ```
-
-2. **Create router** in `backend/routers/`:
-   ```python
-   # routers/my_feature.py
-   from fastapi import APIRouter, Depends
-   from utils.auth import get_current_user
-   
-   router = APIRouter(prefix="/api", tags=["MyFeature"])
-   
-   @router.post("/my-feature/")
-   async def create_feature(
-       data: MyFeatureCreate,
-       current_user = Depends(get_current_user)
-   ):
-       # Implementation
-       return {"status": "created"}
-   ```
-
-3. **Register router** in `backend/main.py`:
-   ```python
-   from routers import my_feature
-   
-   app.include_router(my_feature.router)
-   ```
-
-### Creating a New Frontend Page
-
-1. **Create route folder:**
-   ```bash
-   mkdir -p apps/frontend/src/routes/my-page
-   ```
-
-2. **Add page component:**
-   ```svelte
-   <!-- apps/frontend/src/routes/my-page/+page.svelte -->
-   <script lang="ts">
-     import { m } from '$lib/paraglide/messages';
-   </script>
-
-   <h1>{m.my_page_title()}</h1>
-   ```
-
-3. **Add i18n messages** (if needed):
-   ```json
-   // messages/en.json
-   {
-     "my_page_title": "My Page"
-   }
-   ```
-
-### Adding Protected Content
-
-```svelte
-<script lang="ts">
-  import ProtectedRoute from '$lib/components/ProtectedRoute.svelte';
-</script>
-
-<ProtectedRoute>
-  <!-- Only visible to authenticated users -->
-  <h1>Private Content</h1>
-</ProtectedRoute>
-```
-
-## Troubleshooting
-
-### Backend Issues
-
-**Database locked error:**
-```bash
-# Stop all running backend instances
-pkill -f uvicorn
-# Restart backend
-cd backend && uv run uvicorn main:app --reload
-```
-
-**Import errors:**
-```bash
-# Resync dependencies
-cd backend && uv sync
-```
-
-**Port already in use:**
-```bash
-# Kill process on port 8000
-lsof -ti:8000 | xargs kill -9
-```
-
-### Frontend Issues
-
-**Module not found:**
-```bash
-# Reinstall dependencies
-rm -rf node_modules pnpm-lock.yaml
-pnpm install
-```
-
-**Type errors:**
-```bash
-# Regenerate Svelte types
-pnpm check
-```
-
-**Tailwind styles not applying:**
-```bash
-# Clear Vite cache
-rm -rf apps/frontend/.svelte-kit apps/frontend/node_modules/.vite
-pnpm dev
-```
-
-## Deployment
-
-### Backend Deployment
-
-**Requirements:**
-- Python 3.13+
-- uv package manager
-- PostgreSQL (recommended for production)
-
-**Steps:**
-1. Set environment variables (`.env` or platform config)
-2. Update `DATABASE_URL` to production database
-3. Generate strong `SECRET_KEY` and `REFRESH_SECRET_KEY`
-4. Set `ENVIRONMENT=production`
-5. Configure `CORS_ORIGINS` to production domain
-6. Run: `uv run uvicorn main:app --host 0.0.0.0 --port 8000`
-
-**Example (Docker):**
-```dockerfile
-FROM python:3.13-slim
-WORKDIR /app
-COPY backend/ .
-RUN pip install uv && uv sync
-CMD ["uv", "run", "uvicorn", "main:app", "--host", "0.0.0.0"]
-```
-
-### Frontend Deployment
-
-**Build:**
+**Frontend:**
 ```bash
 cd apps/frontend
-pnpm build
+pnpm run build
+pnpm run preview  # Preview production build
 ```
 
-**Outputs:** `apps/frontend/build/` (adapter-dependent)
+**Backend:**
+- Configure production database (MySQL/PostgreSQL recommended)
+- Set environment variables for security
+- Use a production ASGI server (e.g., Gunicorn with Uvicorn workers)
 
-**Deploy to:**
-- Vercel (recommended for SvelteKit)
-- Netlify
-- Cloudflare Pages
-- Node.js server (adapter-node)
+## 🌐 i18n (Paraglide)
 
-**Environment variables:**
-```env
-VITE_BACKEND_URL=https://api.petto.app
-```
+- Messages are imported as named exports and called as functions: `m.button_cancel()`
+- Locale switching: `setLocale('en')` - messages update reactively
+- Message files: `apps/frontend/src/lib/paraglide/messages/`
 
-## Contributing
+## 📝 API Endpoints
 
-### Code Style
+### Pets
+- `POST /pets/` - Create a pet
+- `GET /pets/` - List pets
+- `GET /pets/{pet_id}` - Get pet by ID
+- `PUT /pets/{pet_id}` - Update pet
+- `DELETE /pets/{pet_id}` - Delete pet
 
-- **Backend:** Follow PEP 8, use `autopep8`
-- **Frontend:** Use Prettier, ESLint
-- **Commits:** Conventional commits format
+### Users
+- `POST /register` - Register user
+- `POST /login` - Login
+- `GET /users/me` - Get current user
+- `POST /password-recovery` - Request password recovery
+- `POST /password-reset` - Reset password
 
-### Before Submitting PR
+### QR Code
+- `GET /qrcode/{pet_id}` - Get QR code for pet
+- `POST /qrcode/scan/{scan_id}` - Scan QR code
 
-```bash
-# Run all checks
-pnpm lint
-pnpm test
-pnpm build
+### Pet Location
+- `POST /scan` - Record scan
+- `GET /pet/{pet_id}/qr-link` - Get QR link for pet
+- `GET /pet/{pet_id}/scans` - Get scans for pet
 
-# Backend checks
-cd backend
-uv run autopep8 .
-```
+### Banners
+- `GET /banners/{pet_id}` - Get banners for pet
 
-### Guidelines
+### Upload
+- `POST /upload` - Authenticated image upload (JPEG/PNG/WebP/GIF, max 5MB)
 
-1. ✅ Use Svelte 5 runes only (NO Svelte 4 lifecycle)
-2. ✅ Call Paraglide messages as functions
-3. ✅ Use centralized API helpers (`api.ts`)
-4. ✅ Enforce ownership rules server-side
-5. ✅ Add tests for new features
-6. ✅ Update README for significant changes
+Full API documentation available at `/docs` when server is running.
 
-## License
+## 🤝 Contributing
 
-[Specify your license here - e.g., MIT, Apache 2.0, etc.]
+Pull requests and suggestions are welcome! Please feel free to:
+- Report bugs
+- Suggest new features
+- Improve documentation
+- Submit code improvements
 
-## Support & Resources
+## 📄 License
 
-- **Documentation:** This README and `AGENTS.md`
-- **API Docs:** http://127.0.0.1:8000/docs (when backend is running)
-- **Issues:** [GitHub Issues]
-- **Discussions:** [GitHub Discussions]
+MIT License
 
----
+Copyright (c) 2026 Pablushka
 
-**Built with ❤️ for reuniting pets with their families**
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
