@@ -74,69 +74,96 @@ Workspace configuration: see `pnpm-workspace.yaml`
 - **Node.js 16+** (for frontend)
 - **pnpm** (recommended) or npm/yarn
 
-### Backend Setup
+### Installation
 
-1. Navigate to the backend directory:
+1. **Clone the repository:**
    ```bash
    git clone <repository-url>
    cd petto
    ```
 
-2. Create and activate a virtual environment:
+2. **Install frontend dependencies:**
    ```bash
-   python3 -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   pnpm install
    ```
 
-3. Install dependencies:
+3. **Install backend dependencies:**
    ```bash
    cd backend
    uv sync
    cd ..
    ```
 
-4. Start the FastAPI server:
-   ```bash
-   uvicorn main:app --reload
-   ```
+### Running the Application
 
-   - API available at: `http://127.0.0.1:8000`
-   - API docs: `http://127.0.0.1:8000/docs`
-   - Health check: `GET /_health`
-
-### Frontend Setup
-
-1. Navigate to the frontend directory:
-   ```bash
-   cd apps/frontend
-   ```
-
-2. Install dependencies:
-   ```bash
-   pnpm install
-   # or npm install / yarn install
-   ```
-
-3. Start the development server:
-   ```bash
-   pnpm run dev
-   ```
-
-   - App available at: `http://localhost:5173`
-
-### Monorepo Commands
-
-From the root directory:
+#### Option 1: Run Both Services Together (Recommended)
 
 ```bash
-# Install all dependencies
-pnpm install
+pnpm run dev:all
+```
 
-# Run backend
-cd backend && uvicorn main:app --reload
+This starts both frontend and backend concurrently:
+- **Frontend:** http://localhost:5173
+- **Backend API:** http://127.0.0.1:8000
+- **API Docs:** http://127.0.0.1:8000/docs
 
-# Run frontend (in another terminal)
-cd apps/frontend && pnpm run dev
+#### Option 2: Run Services Individually
+
+**Backend only:**
+```bash
+pnpm run dev:backend
+```
+
+- API available at: `http://127.0.0.1:8000`
+- API docs: `http://127.0.0.1:8000/docs`
+- Health check: `GET /_health`
+
+**Frontend only:**
+```bash
+pnpm run dev:frontend
+# or simply:
+pnpm dev
+```
+
+- App available at: `http://localhost:5173`
+
+### Other Commands
+
+```bash
+# Build frontend for production
+pnpm build
+
+# Preview production build
+pnpm preview
+
+# Run all tests
+pnpm test
+
+# Lint all packages
+pnpm lint
+```
+
+### Available npm Scripts
+
+From the root directory, you can use these commands:
+
+```bash
+# Development
+pnpm dev                # Run frontend only
+pnpm dev:frontend       # Run frontend only
+pnpm dev:backend        # Run backend only
+pnpm dev:all           # Run both frontend and backend concurrently
+
+# Build & Production
+pnpm build             # Build frontend for production
+pnpm preview           # Preview production build
+
+# Code Quality
+pnpm lint              # Lint all packages (frontend + backend)
+pnpm test              # Test all packages
+
+# Backend Installation
+pnpm install:backend   # Install backend dependencies via uv
 ```
 
 ## 📁 Project Structure
