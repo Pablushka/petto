@@ -6,6 +6,7 @@
 	import TextField from '$lib/components/TextField.svelte';
 	import Select from '$lib/components/SelectLang.svelte';
 	import Alert from '$lib/components/Alert.svelte';
+	import PetGallery from '$lib/components/PetGallery.svelte';
 	import { getMessage } from '$lib/utils/message-helper';
 	import { goto } from '$app/navigation';
 	import { get, post, put } from '$lib/utils/api';
@@ -37,6 +38,14 @@
 
 	// Unified gallery state (existing + newly added)
 	let gallery = $state<GalleryItem[]>([]);
+
+	// Compute visible gallery images for preview
+	const visibleGalleryImages = $derived(() => {
+		return gallery
+			.filter((g) => !g.removed)
+			.slice(0, MAX_IMAGES)
+			.map((g) => g.preview);
+	});
 
 	let status = $state<PetStatusEnum | ''>('');
 	const MAX_IMAGES = PET_MAX_IMAGES;
@@ -219,6 +228,18 @@
 							onError={handleGalleryError}
 						/>
 					</div>
+
+					<!-- Preview Section -->
+					{#if visibleGalleryImages().length > 0}
+						<div class="rounded-lg border border-gray-200 bg-gray-50 p-4">
+							<h3 class="mb-3 text-sm font-semibold text-gray-700">Preview</h3>
+							<PetGallery
+								images={visibleGalleryImages()}
+								petName={name || 'Pet'}
+								aspectRatio="video"
+							/>
+						</div>
+					{/if}
 
 					<div class="flex justify-end">
 						<button class="rounded bg-blue-600 px-4 py-2 text-white" disabled={saving} type="submit"
