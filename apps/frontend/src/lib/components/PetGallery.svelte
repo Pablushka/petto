@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { getMessage } from '$lib/utils/message-helper';
-
 	interface Props {
 		images: string[];
 		petName: string;

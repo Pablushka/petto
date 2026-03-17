@@ -18,7 +18,8 @@
 				credentials: 'include'
 			});
 			session.set(buildSession(user));
-		} catch (err) {
+		} catch (e) {
+			console.warn('fetchSession error', e);
 			session.set(null);
 			error = getMessage('network_error');
 		}

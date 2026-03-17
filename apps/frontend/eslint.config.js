@@ -36,6 +36,10 @@ export default ts.config(
 				svelteConfig
 			}
 		}
+	},
+	// Ignore generated Paraglide files
+	{
+		ignores: ['src/paraglide/**']
 	}
 );
 

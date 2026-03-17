@@ -28,7 +28,7 @@
 				loading = false;
 				return;
 			}
-			const tokens = await res.json();
+			await res.json();
 			// Best-effort: populate session after successful login
 			try {
 				const user = await get<UserOutput>('api/users/me', {

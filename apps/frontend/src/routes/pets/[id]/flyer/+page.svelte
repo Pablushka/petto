@@ -1,33 +1,31 @@
 <script lang="ts">
-	import { page } from '$app/stores';
-	import { goto } from '$app/navigation';
 	import PageHeader from '$lib/components/PageHeader.svelte';
 	import Button from '$lib/components/Button.svelte';
 	import FlyerGenerator from '$lib/components/FlyerGenerator.svelte';
 	import { getMessage } from '$lib/utils/message-helper';
+	import type { PetOut } from '$lib/types/api/pet';
+	import type { UserOutput } from '$lib/types/api/user';
 
 	export let data: {
-		pet: any;
-		owner: any;
+		pet: PetOut;
+		owner: UserOutput | Record<string, unknown>;
 		flyerHtml: string;
 	};
 
-	$: pet = data.pet;
-
-	function goBack() {
-		goto(`/pets/${data.pet.id}`);
-	}
+	const pet: PetOut = data.pet;
 </script>
 
-<div class="flyer-page">
-	<div class="container mx-auto px-4 py-8">
-		<div class="mb-6 flex items-center justify-between">
-			<PageHeader title="{getMessage('print_flyer')} - {data.pet.name}" />
-			<Button onclick={goBack} type="secondary">&larr; {getMessage('back_to_pet')}</Button>
+<div class="space-y-6">
+	<div class="flex items-center justify-between">
+		<PageHeader title={`${getMessage('print_flyer')} - ${data.pet.name}`} />
+		<div class="flex gap-2">
+			<a href={`/pets/${data.pet.id}`} class="inline-block">
+				<Button type="secondary">&larr; {getMessage('back_to_pet')}</Button>
+			</a>
 		</div>
+	</div>
 
-		<div class="rounded-lg bg-white p-6 shadow">
-			<FlyerGenerator {pet} flyerHtml={data.flyerHtml} />
-		</div>
+	<div class="rounded-lg bg-white p-6 shadow">
+		<FlyerGenerator {pet} flyerHtml={data.flyerHtml} />
 	</div>
 </div>
