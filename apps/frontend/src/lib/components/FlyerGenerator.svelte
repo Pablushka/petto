@@ -8,7 +8,7 @@
 </script>
 
 <div class="flyer-generator">
-	<div class="grid grid-cols-3 gap-2 items-start">
+	<div class="grid grid-cols-1 gap-2 items-start md:grid-cols-3 lg:grid-cols-4">
 		<FlyerThumb flyerHtml={flyerHtml} petId={pet.id}></FlyerThumb>
 		<FlyerThumb flyerHtml={flyerHtml} petId={pet.id}></FlyerThumb>
 		<FlyerThumb flyerHtml={flyerHtml} petId={pet.id}></FlyerThumb>
