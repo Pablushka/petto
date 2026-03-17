@@ -43,7 +43,7 @@
 
 <div
 	class="flyer-preview-wrapper"
-	style={`--wall-url: url(${wall}); --scale: 0.3;`}
+	style={`--wall-url: url(${wall}); --preview_scale: 0.26; --wrapper_scale: 0.3;`}
 >
     <div class="flyer-preview">
         {#if mounted}
@@ -56,17 +56,15 @@
 
 <style>
 	.flyer-preview-wrapper {
-		display: flex;
-		justify-content: center;
-		align-items: flex-start;
+		position: relative;
 		background: #f3f4f6;
 		background-image: var(--wall-url);
         background-size: cover;
         background-position: center;
 		background-repeat: no-repeat;
-		border-radius: 20px;
-		width: calc(210mm * var(--scale));
-		height: calc(297mm * var(--scale));
+		border-radius: 10px;
+		/* width: calc(210mm * var(--wrapper_scale)); */
+		height: calc(297mm * var(--wrapper_scale));
 		overflow: hidden;
 	}
 
@@ -74,15 +72,18 @@
 	.flyer-preview {
 		width: 210mm; /* A4 width */
 		height: 297mm;
-		position: relative;
+		top: 0;
+		left: 0;
 		overflow: hidden;
 		border-radius: 4px;
 		box-shadow:
 			0 10px 25px -5px rgba(0, 0, 0, 0.2),
 			0 8px 10px -6px rgba(0, 0, 0, 0.15);
 		background: white;
-		transform: scale(var(--scale));
-		transform-origin: top left;
+		transform: scale(var(--preview_scale));
+		transform-origin: top;
+        justify-self: center;
+        margin-top: 1.5rem;
 	}
 </style>
 

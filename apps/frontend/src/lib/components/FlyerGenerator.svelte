@@ -23,7 +23,7 @@
 		</Button>
 	</div>
 
-	<div class="grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-4 items-start">
+	<div class="grid grid-cols-3 gap-2 items-start">
 		<FlyerThumb flyerHtml={flyerHtml}></FlyerThumb>
 		<FlyerThumb flyerHtml={flyerHtml}></FlyerThumb>
 		<FlyerThumb flyerHtml={flyerHtml}></FlyerThumb>
