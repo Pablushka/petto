@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="es">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Flyer Critico - {{ pet_name }}</title>
+		<style>
+			* {
+				margin: 0;
+				padding: 0;
+				box-sizing: border-box;
+			}
+
+			@page {
+				size: A4 portrait;
+				margin: 0;
+			}
+
+			body {
+				font-family: Arial, sans-serif;
+				width: 210mm;
+				height: 297mm;
+				margin: 0 auto;
+				background: white;
+				display: flex;
+				flex-direction: column;
+			}
+
+			.flyer-content {
+				flex: 1;
+				padding: 10mm 12mm 6mm;
+				display: flex;
+				flex-direction: column;
+				gap: 5mm;
+				overflow: hidden;
+			}
+
+			.top-banner {
+				display: flex;
+				align-items: stretch;
+				justify-content: space-between;
+				gap: 6mm;
+			}
+
+			.urgent-box {
+				flex: 1;
+				background: #d11f2d;
+				color: #fff;
+				border-radius: 8px;
+				padding: 6mm 8mm;
+				text-transform: uppercase;
+				font-weight: 900;
+				letter-spacing: 2px;
+				font-size: 62pt;
+				line-height: 1.05;
+                text-align: center;
+			}
+
+			.qr-box {
+				width: 45mm;
+				background: #111827;
+				border-radius: 8px;
+				padding: 4mm;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+				gap: 5mm;
+				color: #fff;
+				font-size: 10pt;
+				text-transform: uppercase;
+                font-weight: 900;
+                letter-spacing: 4pt;
+			}
+
+			.qr-box img {
+				width: 36mm;
+				height: 36mm;
+				border-radius: 6px;
+				background: #fff;
+				padding: 2mm;
+			}
+
+			.pet-name {
+				text-align: center;
+				font-size: 36pt;
+				font-weight: 900;
+				letter-spacing: 1px;
+				color: #1f2937;
+				text-transform: uppercase;
+			}
+
+			.main-image {
+				width: 100%;
+				height: 120mm;
+				border: 3px solid #111827;
+				border-radius: 8px;
+				overflow: hidden;
+				background: #f3f4f6;
+			}
+
+			.main-image img {
+				width: 100%;
+				height: 100%;
+				object-fit: cover;
+			}
+
+			.tags {
+				display: grid;
+				grid-template-columns: repeat(2, 1fr);
+				gap: 3mm;
+			}
+
+			.tag {
+				border-radius: 6px;
+				padding: 2mm 3mm;
+				font-size: 14pt;
+				font-weight: 800;
+				text-transform: uppercase;
+				text-align: center;
+			}
+
+			.tag.red {
+				background: #dc2626;
+				color: #fff;
+			}
+
+			.tag.yellow {
+				background: #facc15;
+				color: #1f2937;
+			}
+
+			.tag.green {
+				background: #10b981;
+				color: #064e3b;
+			}
+
+			.tag.gray {
+				background: #e5e7eb;
+				color: #111827;
+			}
+
+			.description {
+				background: #f9fafb;
+				border: 2px solid #e5e7eb;
+				border-radius: 8px;
+				padding: 3mm 4mm;
+				font-size: 12pt;
+				line-height: 1.4;
+				color: #1f2937;
+			}
+
+			.contact {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				gap: 4mm;
+				border: 3px solid #dc2626;
+				border-radius: 8px;
+				padding: 3mm;
+				font-size: 18pt;
+				font-weight: 800;
+				text-transform: uppercase;
+				color: #111827;
+				text-align: center;
+			}
+
+			.contact strong {
+				font-size: 22pt;
+				color: #111827;
+			}
+
+			.bottom-callout {
+				text-align: center;
+				font-size: 16pt;
+				font-weight: 900;
+				color: #dc2626;
+				text-transform: uppercase;
+				letter-spacing: 1px;
+			}
+
+			@media print {
+				body {
+					width: 210mm;
+					height: 297mm;
+				}
+
+				@page {
+					margin: 0;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<div class="flyer-content">
+			<div class="top-banner">
+				<div class="urgent-box ai-style-change-1">SE BUSCA<br>URGENTE</div>
+				<div class="qr-box">
+					<div>Contacto</div>
+					<img src="{{ qr_code_url }}" alt="QR Code" />
+				</div>
+			</div>
+
+			<div class="pet-name">{{ pet_name }}</div>
+
+			<div class="main-image">
+				<img src="{{ pet_picture }}" alt="{{ pet_name }}" />
+			</div>
+
+			<div class="tags">
+				<div class="tag red">{{ pet_breed or "Caracteristica 1" }}</div>
+				<div class="tag yellow">{{ pet_size or "Caracteristica 2" }}</div>
+				<div class="tag green">{{ pet_color or "Caracteristica 3" }}</div>
+				<div class="tag gray">{{ pet_condition or "Caracteristica 4" }}</div>
+			</div>
+
+			<div class="description">
+				{{ pet_description or "Si lo viste o tienes informacion, comunicate de inmediato." }}
+			</div>
+
+			<div class="contact">
+				Si lo viste, llama al <strong>{{ owner_phone }}</strong>
+			</div>
+
+			<div class="bottom-callout">
+				Si no lo viste, por favor compartilo en tus redes
+			</div>
+		</div>
+	</body>
+</html>

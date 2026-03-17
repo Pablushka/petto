@@ -99,7 +99,7 @@ async def generate_flyer_html(
     import json
     print("Template Data:", json.dumps(template_data, indent=2))
 
-    return templates.TemplateResponse("lost_pet_flyer.html", {
+    return templates.TemplateResponse("critical_flyer.html", {
         "request": request,
         **template_data
     })
@@ -169,7 +169,7 @@ async def generate_flyer_pdf(
 
     # Get PDF generator and create PDF
     pdf_generator = get_pdf_generator()
-    
+
     try:
         pdf_bytes = await pdf_generator.generate_flyer_pdf(
             pet_data=template_data,
@@ -178,20 +178,20 @@ async def generate_flyer_pdf(
             color_mode=color_mode,
             quality=quality
         )
-        
+
         # Return PDF as streaming response
         filename = f"lost_pet_flyer_{pet.name}_{pet.id}.pdf"
         headers = {
             "Content-Disposition": f"attachment; filename={filename}",
             "Content-Type": "application/pdf"
         }
-        
+
         return StreamingResponse(
             BytesIO(pdf_bytes),
             media_type="application/pdf",
             headers=headers
         )
-        
+
     except Exception as e:
         raise HTTPException(
             status_code=500,
