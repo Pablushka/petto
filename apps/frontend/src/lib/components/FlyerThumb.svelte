@@ -104,6 +104,13 @@
 		opacity: 1;
 	}
 
+    /* Always show print button on touch devices */
+	@media (hover: none), (pointer: coarse) {
+		.flyer-print-button {
+			opacity: 1;
+		}
+	}
+
 	/* Flyer preview container - simulates A4 paper */
 	.flyer-preview {
 		width: 210mm; /* A4 width */
