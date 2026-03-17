@@ -5,6 +5,7 @@
 	import { getMessage } from '$lib/utils/message-helper';
 	import type { PetOut } from '$lib/types/api/pet';
 	import type { UserOutput } from '$lib/types/api/user';
+	import { resolve } from '$app/paths';
 
 	export let data: {
 		pet: PetOut;
@@ -19,7 +20,7 @@
 	<div class="flex items-center justify-between">
 		<PageHeader title={`${getMessage('print_flyer')} - ${data.pet.name}`} />
 		<div class="flex gap-2">
-			<a href={`/pets/${data.pet.id}`} class="inline-block">
+			<a href={resolve(`/pets/${data.pet.id}`)} class="inline-block" data-sveltekit-preload-data="hover">
 				<Button type="secondary">&larr; {getMessage('back_to_pet')}</Button>
 			</a>
 		</div>
