@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Old West Flyer - {{ pet_name }}</title>
+
+    <style>
+      @font-face {
+        font-family: "Ewert";
+        src: url("/static/flyers_templates/fonts/Ewert/Ewert-Regular.ttf")
+          format("truetype");
+        font-weight: 400;
+        font-style: normal;
+      }
+      @font-face {
+        font-family: "Alatsi";
+        src: url("/static/flyers_templates/fonts/Alatsi/Alatsi-Regular.ttf")
+          format("truetype");
+        font-weight: 400;
+        font-style: normal;
+      }
+      @font-face {
+        font-family: "Gravitas_One";
+        src: url("/static/flyers_templates/fonts/Gravitas_One/Gravitas_One-Regular.ttf")
+          format("truetype");
+        font-weight: 400;
+        font-style: normal;
+      }
+      @font-face {
+        font-family: "Sancreek";
+        src: url("/static/flyers_templates/fonts/Sancreek/Sancreek-Regular.ttf")
+          format("truetype");
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      @page {
+        size: A4 portrait;
+        margin: 0;
+      }
+
+      body {
+        font-family: "Ewert", serif;
+        width: 210mm;
+        height: 297mm;
+        margin: 0 auto;
+        background: #e4c48f;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .flyer {
+        flex: 1;
+        padding: 5mm;
+        display: flex;
+        flex-direction: column;
+        background: linear-gradient(180deg, #eacb98 0%, #d6ad73 100%);
+        /* border: 4px solid #2a2015; */
+      }
+
+      .top-border,
+      .bottom-border {
+        height: 10mm;
+        background: repeating-linear-gradient(
+          90deg,
+          #2a2015,
+          #2a2015 2mm,
+          #eacb98 2mm,
+          #eacb98 6mm
+        );
+      }
+
+      .title {
+        text-align: center;
+        font-size: 96pt;
+        font-weight: normal;
+        letter-spacing: 10px;
+        color: #1f140d;
+        text-transform: uppercase;
+        text-shadow: 2px 1px 4px #080704;
+      }
+
+      .subtitle {
+        text-align: center;
+        font-family: "Sancreek", sans-serif;
+        font-size: 18pt;
+        font-weight: 700;
+        letter-spacing: 4px;
+        color: #1f140d;
+        text-transform: uppercase;
+        border: solid 3px black;
+        border-radius: 10px;
+      }
+
+      .main-row {
+        display: grid;
+        grid-template-columns: 1.2fr 1fr;
+        gap: 6mm;
+        align-items: stretch;
+      }
+
+      .photo-frame {
+        border: 4px solid #1f140d;
+        background: #f7e6c5;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: 100% 100%;
+        padding: 3mm;
+        height: 110mm;
+      }
+
+      .photo-frame img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border: 2px solid #1f140d;
+      }
+
+      .right-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 4mm;
+        height: 10cm;
+      }
+
+      .right-panel span {
+        font-family: "Sancreek", sans-serif;
+      }
+
+      .panel-block {
+        border: 3px solid #1f140d;
+        background: #f7e6c5;
+        padding: 2.5mm;
+        text-transform: uppercase;
+        font-weight: 800;
+        font-size: 16pt;
+        color: #1f140d;
+        text-align: center;
+        border-radius: 10px;
+      }
+
+      .panel-block strong {
+        display: block;
+        font-size: 22pt;
+        letter-spacing: 2px;
+      }
+
+      .name-banner {
+        text-align: center;
+        border: 4px solid #1f140d;
+        background: #1f140d;
+        color: #f7e6c5;
+        padding: 4mm;
+        font-size: 28pt;
+        font-weight: 900;
+        letter-spacing: 4px;
+        text-transform: uppercase;
+        margin-top: 5mm;
+        margin-bottom: 5mm;
+        border-radius: 10px;
+      }
+
+      .details-row {
+        font-family: "Sancreek", sans-serif;
+        /* font-size: 12pt; */
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1mm;
+        font-size: 12pt;
+        font-weight: 700;
+        color: #1f140d;
+        text-transform: uppercase;
+        align-content: center;
+        justify-content: center;
+      }
+
+      .details-row div {
+        border: 2px solid #1f140d;
+        background: #f7e6c5;
+        /* padding: 3mm; */
+        text-align: center;
+        border-radius: 5px;
+      }
+
+      .description {
+        font-family: "Sancreek", sans-serif;
+        border: 2px solid #1f140d;
+        background: #f7e6c5;
+        margin: 3mm;
+        padding: 1mm;
+        font-size: 12pt;
+        line-height: 1.4;
+        color: #1f140d;
+        border-radius: 3mm;
+      }
+
+      .footer {
+        display: flex;
+        flex-direction: row;
+        /* grid-template-columns: 1fr 1fr; */
+        gap: 6mm;
+        justify-content: center;
+      }
+
+      .reward,
+      .contact {
+        text-align: center;
+        text-transform: uppercase;
+        font-weight: 900;
+        color: #1f140d;
+      }
+
+      .reward strong,
+      .contact strong {
+        display: block;
+        font-size: 20pt;
+      }
+
+      .qr {
+        width: 40mm;
+        height: 40mm;
+        border-radius: 3mm;
+      }
+
+      .card {
+        display: flex;
+        flex-direction: column;
+
+        background: var(--background);
+        width: 20rem;
+        height: 30rem;
+        border: 1px solid var(--border);
+        position: relative;
+        padding: 1rem;
+      }
+
+      @media print {
+        body {
+          width: 210mm;
+          height: 297mm;
+        }
+
+        @page {
+          margin: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="flyer">
+      <div class="subtitle">SE PERDIÓ "{{ pet_name }}"</div>
+      <div class="title">buscado</div>
+
+      <div class="main-row">
+        <div class="photo-frame">
+          <img src="{{ pet_picture }}" alt="{{ pet_name }}" />
+        </div>
+        <div class="right-panel">
+          <div class="panel-block">
+            <strong>{{ pet_breed or "Unknown Breed" }}</strong>
+            <span>Breed</span>
+          </div>
+          <div class="panel-block">
+            <strong>{{ pet_gender or "Unknown" }}</strong>
+            <span>Gender</span>
+          </div>
+          <div class="panel-block">
+            <strong>{{ pet_last_seen_date or "-" }}</strong>
+            <span>Last Seen Date</span>
+          </div>
+          <div class="panel-block">
+            <strong>{{ pet_last_seen_geo or "-" }}</strong>
+            <span>Last Seen Location</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="name-banner">
+        Recompensa {{ reward_amount or "$1.000.000" }}
+      </div>
+
+      <div class="details-row">
+        <div>{{ pet_distinctive1 or "Distinctive 1" }}</div>
+        <div>{{ pet_distinctive2 or "Distinctive 2" }}</div>
+        <div>{{ pet_distinctive3 or "Distinctive 3" }}</div>
+        <div>{{ pet_distinctive4 or "Distinctive 4" }}</div>
+      </div>
+
+      <div class="description">
+        {{ pet_description or "If you have any information, please contact
+        immediately." }}
+      </div>
+
+      <div class="footer">
+        <div class="">
+          <img src="/static/flyers_templates/svg/vtel.svg" alt="" />
+        </div>
+        <div class="contact">Un telefono aca</div>
+        <div class="contact">
+          <img src="{{ qr_code_url }}" alt="QR code" class="qr" />
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

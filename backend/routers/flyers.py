@@ -4,25 +4,40 @@ from fastapi.templating import Jinja2Templates
 from models import Pet, User
 from utils.auth import get_current_user
 from services.pdf_generator import get_pdf_generator
-import os
-import asyncio
+from pathlib import Path
 from io import BytesIO
 
 router = APIRouter(prefix="/api", tags=["Flyers"])
 
-# Get the directory where this file is located
-current_dir = os.path.dirname(os.path.abspath(__file__))
-templates_dir = os.path.join(
-    current_dir, "..", "..", "apps", "frontend", "static", "flyers_templates")
+templates_dir = Path(__file__).resolve().parent.parent / \
+    "static" / "flyers_templates"
+
+
+def list_available_templates() -> list[str]:
+    return sorted(
+        template_file.stem
+        for template_file in templates_dir.glob("*.html")
+        if template_file.is_file()
+    )
+
 
 # Initialize templates
-templates = Jinja2Templates(directory=templates_dir)
+templates = Jinja2Templates(directory=str(templates_dir))
+
+
+@router.get("/flyers/templates")
+async def get_flyer_templates(
+    current_user: User = Depends(get_current_user)
+):
+    """List available flyer templates from backend static storage."""
+    return {"templates": list_available_templates()}
 
 
 @router.get("/flyers/{pet_id}", response_class=HTMLResponse)
 async def generate_flyer_html(
     request: Request,
     pet_id: int,
+    template: str = "old_west",
     print_mode: str = "color",
     current_user: User = Depends(get_current_user)
 ):
@@ -32,6 +47,9 @@ async def generate_flyer_html(
     pet = await Pet.get_or_none(id=pet_id).prefetch_related("owner")
     if not pet:
         raise HTTPException(status_code=404, detail="Pet not found")
+
+    if template not in list_available_templates():
+        raise HTTPException(status_code=404, detail="Template not found")
 
     # Check if user owns the pet or is admin
     if pet.owner.id != current_user.id:
@@ -55,12 +73,15 @@ async def generate_flyer_html(
     template_data = {
         "pet_name": pet.name,
         "pet_type": pet.pet_type,
-        "pet_age": "",  # These would come from additional fields if added to model
-        "pet_breed": "",
-        "pet_color": "",
-        "pet_gender": "",
-        "pet_last_seen": "",
-        "pet_location": "",
+        "pet_age": "",
+        "pet_breed": pet.breed or "",
+        "pet_gender": pet.gender or "",
+        "pet_last_seen_date": pet.last_seen_date.isoformat() if pet.last_seen_date else "",
+        "pet_last_seen_geo": pet.last_seen_geo or "",
+        "pet_distinctive1": pet.distinctive1 or "",
+        "pet_distinctive2": pet.distinctive2 or "",
+        "pet_distinctive3": pet.distinctive3 or "",
+        "pet_distinctive4": pet.distinctive4 or "",
         "pet_description": pet.notes or "",
         "pet_picture": resolve_image_url(pet.picture) if pet.picture else "",
         "pet_picture2": resolve_image_url(pet.picture2) if pet.picture2 else "",
@@ -78,28 +99,7 @@ async def generate_flyer_html(
         "pet_id": pet.id
     }
 
-    # # 1. Datos de la mascota (pueden venir de una BD, formulario, etc.)
-
-    # # 2. Cargar template Jinja2
-    # env = Environment(loader=FileSystemLoader("templates"))
-    # template = env.get_template("lost_pet_flyer.html")
-
-    # # 3. Renderizar HTML con los datos
-    # html_content = template.render(**template_data)
-
-    # # 4. Generar PDF con WeasyPrint
-    # HTML(string=html_content, base_url=".").write_pdf(
-    #     "lost_pet_flyer.pdf",
-    #     stylesheets=[CSS("style.css")]
-    # )
-
-    # print("✅ PDF generado: lost_pet_flyer.pdf")
-
-    # print template data as JSON for debugging
-    import json
-    print("Template Data:", json.dumps(template_data, indent=2))
-
-    return templates.TemplateResponse("critical_flyer.html", {
+    return templates.TemplateResponse(f"{template}.html", {
         "request": request,
         **template_data
     })
@@ -144,12 +144,15 @@ async def generate_flyer_pdf(
     template_data = {
         "pet_name": pet.name,
         "pet_type": pet.pet_type,
-        "pet_age": "",  # These would come from additional fields if added to model
-        "pet_breed": "",
-        "pet_color": "",
-        "pet_gender": "",
-        "pet_last_seen": "",
-        "pet_location": "",
+        "pet_age": "",
+        "pet_breed": pet.breed or "",
+        "pet_gender": pet.gender or "",
+        "pet_last_seen_date": pet.last_seen_date.isoformat() if pet.last_seen_date else "",
+        "pet_last_seen_geo": pet.last_seen_geo or "",
+        "pet_distinctive1": pet.distinctive1 or "",
+        "pet_distinctive2": pet.distinctive2 or "",
+        "pet_distinctive3": pet.distinctive3 or "",
+        "pet_distinctive4": pet.distinctive4 or "",
         "pet_description": pet.notes or "",
         "pet_picture": resolve_image_url(pet.picture) if pet.picture else "",
         "pet_picture2": resolve_image_url(pet.picture2) if pet.picture2 else "",

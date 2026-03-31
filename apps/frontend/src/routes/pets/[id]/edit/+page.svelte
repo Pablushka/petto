@@ -32,6 +32,14 @@
 	// Form fields (same shape as add page)
 	let name = $state('');
 	let petType = $state<PetTypeEnum | ''>('');
+	let breed = $state('');
+	let gender = $state('');
+	let lastSeenDate = $state('');
+	let lastSeenGeo = $state('');
+	let distinctive1 = $state('');
+	let distinctive2 = $state('');
+	let distinctive3 = $state('');
+	let distinctive4 = $state('');
 	let notes = $state('');
 	// Legacy single-image vars (no longer used but kept to preserve existing behavior)
 	let _imagePreview = $state<string | null>(null); // deprecated (kept as fallback)
@@ -77,6 +85,14 @@
 				// Map backend fields to form fields
 				name = data.name || '';
 				petType = (data.pet_type as PetTypeEnum) || '';
+				breed = data.breed || '';
+				gender = data.gender || '';
+				lastSeenDate = data.last_seen_date || '';
+				lastSeenGeo = data.last_seen_geo || '';
+				distinctive1 = data.distinctive1 || '';
+				distinctive2 = data.distinctive2 || '';
+				distinctive3 = data.distinctive3 || '';
+				distinctive4 = data.distinctive4 || '';
 				notes = data.notes || '';
 				status = (data.status as PetStatusEnum) || 'at_home';
 				// Build gallery from existing pictures (relative URLs). Preserve order.
@@ -138,6 +154,14 @@
 				owner_id: Number($session.user.id),
 				name,
 				pet_type: (petType || 'Other') as PetTypeEnum,
+				breed: breed || undefined,
+				gender: gender || undefined,
+				last_seen_date: lastSeenDate || undefined,
+				last_seen_geo: lastSeenGeo || undefined,
+				distinctive1: distinctive1 || undefined,
+				distinctive2: distinctive2 || undefined,
+				distinctive3: distinctive3 || undefined,
+				distinctive4: distinctive4 || undefined,
 				notes,
 				status: (status || 'at_home') as PetStatusEnum,
 				picture: combined[0],
@@ -192,11 +216,53 @@
 						/>
 
 						<Select
-							label="Pet Type"
+							label={getMessage('pet_species')}
 							name="petType"
 							bind:selected={petType}
 							items={petTypeOptions}
 							required
+						/>
+
+						<TextField label={getMessage('pet_breed')} name="breed" bind:value={breed} />
+
+						<TextField label={getMessage('pet_gender')} name="gender" bind:value={gender} />
+					</div>
+
+					<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+						<TextField
+							label={getMessage('pet_date')}
+							name="last_seen_date"
+							type="date"
+							bind:value={lastSeenDate}
+						/>
+
+						<TextField
+							label={getMessage('pet_location')}
+							name="last_seen_geo"
+							bind:value={lastSeenGeo}
+						/>
+					</div>
+
+					<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+						<TextField
+							label={getMessage('pet_distinctive1')}
+							name="distinctive1"
+							bind:value={distinctive1}
+						/>
+						<TextField
+							label={getMessage('pet_distinctive2')}
+							name="distinctive2"
+							bind:value={distinctive2}
+						/>
+						<TextField
+							label={getMessage('pet_distinctive3')}
+							name="distinctive3"
+							bind:value={distinctive3}
+						/>
+						<TextField
+							label={getMessage('pet_distinctive4')}
+							name="distinctive4"
+							bind:value={distinctive4}
 						/>
 					</div>
 

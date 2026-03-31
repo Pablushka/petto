@@ -81,6 +81,39 @@
 				border: 2px solid #e5e7eb;
 			}
 
+			.details {
+				margin-bottom: 6mm;
+				padding: 4mm;
+				border-radius: 6px;
+				border: 2px dashed #d1d5db;
+				background: #ffffff;
+				font-size: 12pt;
+				color: #1f2937;
+				display: grid;
+				grid-template-columns: repeat(2, 1fr);
+				gap: 2mm 6mm;
+			}
+
+			.details span {
+				font-weight: bold;
+			}
+
+			.distinctives {
+				margin-bottom: 6mm;
+				padding: 4mm;
+				border-radius: 6px;
+				border: 2px solid #e5e7eb;
+				background: #f9fafb;
+				font-size: 12pt;
+				color: #374151;
+			}
+
+			.distinctives h3 {
+				font-size: 14pt;
+				margin-bottom: 2mm;
+				color: #1f2937;
+			}
+
 			.description h3 {
 				font-size: 16pt;
 				margin-bottom: 2mm;
@@ -245,6 +278,25 @@
 				<h3>Description:</h3>
 				<p>{{ pet_description or "No description available." }}</p>
 			</div>
+
+			<div class="details">
+				<div><span>Breed:</span> {{ pet_breed or "-" }}</div>
+				<div><span>Gender:</span> {{ pet_gender or "-" }}</div>
+				<div><span>Last seen date:</span> {{ pet_last_seen_date or "-" }}</div>
+				<div><span>Last seen location:</span> {{ pet_last_seen_geo or "-" }}</div>
+			</div>
+
+			{% if pet_distinctive1 or pet_distinctive2 or pet_distinctive3 or pet_distinctive4 %}
+			<div class="distinctives">
+				<h3>Distinctives:</h3>
+				<ul>
+					{% if pet_distinctive1 %}<li>{{ pet_distinctive1 }}</li>{% endif %}
+					{% if pet_distinctive2 %}<li>{{ pet_distinctive2 }}</li>{% endif %}
+					{% if pet_distinctive3 %}<li>{{ pet_distinctive3 }}</li>{% endif %}
+					{% if pet_distinctive4 %}<li>{{ pet_distinctive4 }}</li>{% endif %}
+				</ul>
+			</div>
+			{% endif %}
 
 			{% if pet_picture2 or pet_picture3 or pet_picture4 or pet_picture5 %}
 			<div class="optional-images">

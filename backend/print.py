@@ -7,7 +7,7 @@ from datetime import datetime
 def generar_pdf():
     # Configurar Jinja2
     env = Environment(loader=FileSystemLoader(
-        '/home/pablushka/projects/petto/apps/frontend/static/flyers_templates/'))
+        '/home/pablushka/projects/petto/backend/static/flyers_templates/'))
     template = env.get_template(
         'lost_pet_flyer.html')
 

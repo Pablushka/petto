@@ -3,7 +3,11 @@
 	import wall from '$lib/assets/wall.jpg';
 	import { BACKEND_URL } from '$lib/config';
 
-	let { flyerHtml = '', petId }: { flyerHtml?: string; petId?: number } = $props();
+	let {
+		flyerHtml = '',
+		petId,
+		templateName = ''
+	}: { flyerHtml?: string; petId?: number; templateName?: string } = $props();
 
 	const mounted = $derived(browser);
 
@@ -40,7 +44,14 @@
 	}
 
 	const sanitizedDoc = $derived(browser ? sanitizeHtml(flyerHtml) : '');
-	const printUrl = $derived(petId ? `${BACKEND_URL}api/flyers/${petId}` : '');
+	const printUrl = $derived.by(() => {
+		if (!petId) return '';
+		const url = new URL(`api/flyers/${petId}`, BACKEND_URL);
+		if (templateName) {
+			url.searchParams.set('template', templateName);
+		}
+		return url.toString();
+	});
 </script>
 
 <div
@@ -52,14 +63,21 @@
 			type="button"
 			class="flyer-print-button"
 			onclick={() => window.open(printUrl, '_blank')}
-			aria-label="Print flyer"
+			aria-label={`Print ${templateName || 'flyer'}`}
 		>
 			🖨️
 		</button>
 	{/if}
+	{#if templateName}
+		<div class="flyer-template-name">{templateName.replaceAll('_', ' ')}</div>
+	{/if}
     <div class="flyer-preview">
         {#if mounted}
-            <iframe title="Flyer Preview" srcdoc={sanitizedDoc} class="h-[29.7cm] w-[21cm]"></iframe>
+            <iframe
+				title={`Flyer Preview ${templateName}`}
+				srcdoc={sanitizedDoc}
+				class="h-[29.7cm] w-[21cm]"
+			></iframe>
         {:else}
             <div class="h-[29.7cm] w-[21cm] bg-gray-100"></div>
         {/if}
@@ -100,6 +118,20 @@
 		z-index: 2;
 	}
 
+	.flyer-template-name {
+		position: absolute;
+		top: 0.5rem;
+		left: 0.5rem;
+		padding: 0.2rem 0.5rem;
+		border-radius: 999px;
+		background: rgba(255, 255, 255, 0.92);
+		box-shadow: 0 6px 16px rgba(0, 0, 0, 0.14);
+		font-size: 0.75rem;
+		line-height: 1;
+		text-transform: capitalize;
+		z-index: 2;
+	}
+
 	.flyer-preview-wrapper:hover .flyer-print-button {
 		opacity: 1;
 	}
@@ -127,6 +159,6 @@
 		transform-origin: top;
         justify-self: center;
         margin-top: 1.5rem;
+		box-shadow: 19px 20px 30px 0px rgba(26, 26, 26, 0.486);
 	}
 </style>
-

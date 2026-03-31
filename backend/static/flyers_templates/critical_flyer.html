@@ -111,13 +111,32 @@
 				gap: 3mm;
 			}
 
+			.traits {
+				display: grid;
+				grid-template-columns: repeat(2, 1fr);
+				gap: 2mm 6mm;
+				font-size: 12pt;
+				font-weight: 700;
+				color: #111827;
+			}
+
+			.traits span {
+				font-weight: 900;
+				text-transform: uppercase;
+				margin-right: 2mm;
+			}
+
 			.tag {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				text-align: center;
 				border-radius: 6px;
 				padding: 2mm 3mm;
 				font-size: 14pt;
 				font-weight: 800;
 				text-transform: uppercase;
-				text-align: center;
+                height: 14mm;
 			}
 
 			.tag.red {
@@ -150,6 +169,17 @@
 				color: #1f2937;
 			}
 
+			.last-seen {
+				border: 2px dashed #dc2626;
+				border-radius: 8px;
+				padding: 3mm 4mm;
+				font-size: 12pt;
+				font-weight: 700;
+				color: #111827;
+				text-transform: uppercase;
+				letter-spacing: 1px;
+			}
+
 			.contact {
 				display: flex;
 				align-items: center;
@@ -176,7 +206,7 @@
 				font-weight: 900;
 				color: #dc2626;
 				text-transform: uppercase;
-				letter-spacing: 1px;
+				letter-spacing: 0;
 			}
 
 			@media print {
@@ -208,22 +238,36 @@
 			</div>
 
 			<div class="tags">
-				<div class="tag red">{{ pet_breed or "Caracteristica 1" }}</div>
-				<div class="tag yellow">{{ pet_size or "Caracteristica 2" }}</div>
-				<div class="tag green">{{ pet_color or "Caracteristica 3" }}</div>
-				<div class="tag gray">{{ pet_condition or "Caracteristica 4" }}</div>
+				<div class="tag red">{{ pet_distinctive1 or "Caracteristica 1" }}</div>
+				<div class="tag yellow">{{ pet_distinctive2 or "Caracteristica 2" }}</div>
+				<div class="tag green">{{ pet_distinctive3 or "Caracteristica 3" }}</div>
+				<div class="tag gray">{{ pet_distinctive4 or "Caracteristica 4" }}</div>
+			</div>
+
+			<div class="traits">
+				<div><span>Raza:</span>{{ pet_breed or "-" }}</div>
+				<div><span>Genero:</span>{{ pet_gender or "-" }}</div>
 			</div>
 
 			<div class="description">
 				{{ pet_description or "Si lo viste o tienes informacion, comunicate de inmediato." }}
 			</div>
 
+			{% if pet_last_seen_date or pet_last_seen_geo %}
+			<div class="last-seen">
+				Visto por ultima vez:
+				{% if pet_last_seen_date %} {{ pet_last_seen_date }}{% endif %}
+				{% if pet_last_seen_geo %} - {{ pet_last_seen_geo }}{% endif %}
+			</div>
+			{% endif %}
+
 			<div class="contact">
 				Si lo viste, llama al <strong>{{ owner_phone }}</strong>
 			</div>
 
 			<div class="bottom-callout">
-				Si no lo viste, por favor compartilo en tus redes
+			    🙏 Si no lo viste, por favor compartilo en tus redes 🙏
+                
 			</div>
 		</div>
 	</body>

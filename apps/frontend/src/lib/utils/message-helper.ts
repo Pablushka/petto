@@ -31,6 +31,11 @@ export type MessageKey =
 	| 'pet_breed'
 	| 'pet_gender'
 	| 'pet_age'
+	| 'pet_distinctive1'
+	| 'pet_distinctive2'
+	| 'pet_distinctive3'
+	| 'pet_distinctive4'
+	| 'pet_distinctives'
 	| 'pet_description'
 	| 'pet_contact'
 	| 'pet_location'
@@ -122,6 +127,11 @@ const fallbackMessages: Record<MessageKey, string> = {
 	pet_breed: 'Breed',
 	pet_gender: 'Gender',
 	pet_age: 'Age',
+	pet_distinctive1: 'Distinctive 1',
+	pet_distinctive2: 'Distinctive 2',
+	pet_distinctive3: 'Distinctive 3',
+	pet_distinctive4: 'Distinctive 4',
+	pet_distinctives: 'Distinctives',
 	pet_description: 'Description',
 	pet_contact: 'Contact',
 	pet_location: 'Location',

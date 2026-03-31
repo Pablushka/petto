@@ -44,11 +44,11 @@ class PetType(str, Enum):
     BIRD = "Bird"
     OTHER = "Other"
 
+
 class PetStatus(str, Enum):
     AT_HOME = "at_home"
     LOST = "lost"
     FOUND = "found"
-    
 
 
 class Pet(models.Model):
@@ -56,6 +56,14 @@ class Pet(models.Model):
     owner = fields.ForeignKeyField("models.User", related_name="pets")
     name = fields.CharField(max_length=255)
     pet_type = fields.CharEnumField(PetType, max_length=16)
+    breed = fields.CharField(max_length=100, null=True, default=None)
+    last_seen_date = fields.DateField(null=True, default=None)
+    last_seen_geo = fields.CharField(max_length=255, null=True, default=None)
+    gender = fields.CharField(max_length=32, null=True, default=None)
+    distinctive1 = fields.CharField(max_length=100, null=True, default=None)
+    distinctive2 = fields.CharField(max_length=100, null=True, default=None)
+    distinctive3 = fields.CharField(max_length=100, null=True, default=None)
+    distinctive4 = fields.CharField(max_length=100, null=True, default=None)
     picture = fields.CharField(max_length=1024)
     # Optional extra pictures (up to 5 total including primary)
     picture2 = fields.CharField(max_length=1024, null=True, default=None)
@@ -63,7 +71,8 @@ class Pet(models.Model):
     picture4 = fields.CharField(max_length=1024, null=True, default=None)
     picture5 = fields.CharField(max_length=1024, null=True, default=None)
     notes = fields.TextField()
-    status = fields.CharEnumField(PetStatus, max_length=16, default=PetStatus.AT_HOME)
+    status = fields.CharEnumField(
+        PetStatus, max_length=16, default=PetStatus.AT_HOME)
 
     def __str__(self):
         return self.name

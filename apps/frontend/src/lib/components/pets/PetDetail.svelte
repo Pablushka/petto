@@ -86,20 +86,68 @@
 				<h2 class="mb-3 text-lg font-semibold text-gray-800">{getMessage('pet_details_title')}</h2>
 				<ul class="space-y-2">
 					<li class="flex">
-						<span class="w-32 font-medium">Type</span>
+						<span class="w-32 font-medium">{getMessage('pet_species')}</span>
 						<span>{pet.pet_type}</span>
 					</li>
+					{#if pet.breed}
+						<li class="flex">
+							<span class="w-32 font-medium">{getMessage('pet_breed')}</span>
+							<span>{pet.breed}</span>
+						</li>
+					{/if}
+					{#if pet.gender}
+						<li class="flex">
+							<span class="w-32 font-medium">{getMessage('pet_gender')}</span>
+							<span>{pet.gender}</span>
+						</li>
+					{/if}
 					<li class="flex">
 						<span class="w-32 font-medium">ID</span>
 						<span>{pet.id}</span>
 					</li>
+					{#if pet.last_seen_date}
+						<li class="flex">
+							<span class="w-32 font-medium">{getMessage('pet_date')}</span>
+							<span>{pet.last_seen_date}</span>
+						</li>
+					{/if}
+					{#if pet.last_seen_geo}
+						<li class="flex">
+							<span class="w-32 font-medium">{getMessage('pet_location')}</span>
+							<span>{pet.last_seen_geo}</span>
+						</li>
+					{/if}
 				</ul>
 			</div>
 
 			{#if pet.notes}
 				<div class="mt-6">
-					<h2 class="mb-2 text-lg font-semibold text-gray-800">Notes</h2>
+					<h2 class="mb-2 text-lg font-semibold text-gray-800">
+						{getMessage('pet_description')}
+					</h2>
 					<p class="whitespace-pre-line text-gray-700">{pet.notes}</p>
+				</div>
+			{/if}
+
+			{#if pet.distinctive1 || pet.distinctive2 || pet.distinctive3 || pet.distinctive4}
+				<div class="mt-6">
+					<h2 class="mb-2 text-lg font-semibold text-gray-800">
+						{getMessage('pet_distinctives')}
+					</h2>
+					<ul class="space-y-1 text-gray-700">
+						{#if pet.distinctive1}
+							<li>{pet.distinctive1}</li>
+						{/if}
+						{#if pet.distinctive2}
+							<li>{pet.distinctive2}</li>
+						{/if}
+						{#if pet.distinctive3}
+							<li>{pet.distinctive3}</li>
+						{/if}
+						{#if pet.distinctive4}
+							<li>{pet.distinctive4}</li>
+						{/if}
+					</ul>
 				</div>
 			{/if}
 

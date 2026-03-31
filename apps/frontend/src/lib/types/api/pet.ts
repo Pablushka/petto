@@ -9,6 +9,14 @@ export interface PetCreate {
 	owner_id?: number;
 	name: string;
 	pet_type: PetType;
+	breed?: string;
+	last_seen_date?: string;
+	last_seen_geo?: string;
+	gender?: string;
+	distinctive1?: string;
+	distinctive2?: string;
+	distinctive3?: string;
+	distinctive4?: string;
 	picture: string; // kept for backward compatibility (cover image)
 	pictures?: string[]; // optional array (first element is cover)
 	notes: string;
@@ -21,6 +29,14 @@ export interface PetOut {
 	owner_id: number; // Pydantic flattens FK to id by default in our usage
 	name: string;
 	pet_type: PetType;
+	breed?: string;
+	last_seen_date?: string;
+	last_seen_geo?: string;
+	gender?: string;
+	distinctive1?: string;
+	distinctive2?: string;
+	distinctive3?: string;
+	distinctive4?: string;
 	picture: string;
 	pictures?: string[];
 	notes: string;
@@ -32,6 +48,14 @@ export interface PetUpdate {
 	owner_id?: number;
 	name: string;
 	pet_type: PetType;
+	breed?: string;
+	last_seen_date?: string;
+	last_seen_geo?: string;
+	gender?: string;
+	distinctive1?: string;
+	distinctive2?: string;
+	distinctive3?: string;
+	distinctive4?: string;
 	picture?: string;
 	pictures?: string[];
 	notes: string;

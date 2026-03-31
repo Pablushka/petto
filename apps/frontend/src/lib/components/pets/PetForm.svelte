@@ -21,6 +21,14 @@
 	// Form state (match backend Pet model)
 	let name = $state('');
 	let petType: PetTypeEnum | '' = $state(''); // maps to backend pet_type
+	let breed = $state('');
+	let gender = $state('');
+	let lastSeenDate = $state('');
+	let lastSeenGeo = $state('');
+	let distinctive1 = $state('');
+	let distinctive2 = $state('');
+	let distinctive3 = $state('');
+	let distinctive4 = $state('');
 	let notes = $state('');
 	// Multiple images (up to 5)
 	let images: File[] = $state([]);
@@ -126,6 +134,14 @@
 				owner_id: Number($session.user.id),
 				name,
 				pet_type: (petType || 'Other') as PetTypeEnum,
+				breed: breed || undefined,
+				gender: gender || undefined,
+				last_seen_date: lastSeenDate || undefined,
+				last_seen_geo: lastSeenGeo || undefined,
+				distinctive1: distinctive1 || undefined,
+				distinctive2: distinctive2 || undefined,
+				distinctive3: distinctive3 || undefined,
+				distinctive4: distinctive4 || undefined,
 				picture: uploaded[0],
 				pictures: uploaded,
 				notes,
@@ -155,6 +171,14 @@
 	function resetForm() {
 		name = '';
 		petType = '';
+		breed = '';
+		gender = '';
+		lastSeenDate = '';
+		lastSeenGeo = '';
+		distinctive1 = '';
+		distinctive2 = '';
+		distinctive3 = '';
+		distinctive4 = '';
 		notes = '';
 		images = [];
 		previews = [];
@@ -189,6 +213,48 @@
 				bind:selected={petType}
 				items={petTypeOptions}
 				required
+			/>
+
+			<TextField label={getMessage('pet_breed')} name="breed" bind:value={breed} />
+
+			<TextField label={getMessage('pet_gender')} name="gender" bind:value={gender} />
+		</div>
+
+		<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+			<TextField
+				label={getMessage('pet_date')}
+				name="last_seen_date"
+				type="date"
+				bind:value={lastSeenDate}
+			/>
+
+			<TextField
+				label={getMessage('pet_location')}
+				name="last_seen_geo"
+				bind:value={lastSeenGeo}
+			/>
+		</div>
+
+		<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+			<TextField
+				label={getMessage('pet_distinctive1')}
+				name="distinctive1"
+				bind:value={distinctive1}
+			/>
+			<TextField
+				label={getMessage('pet_distinctive2')}
+				name="distinctive2"
+				bind:value={distinctive2}
+			/>
+			<TextField
+				label={getMessage('pet_distinctive3')}
+				name="distinctive3"
+				bind:value={distinctive3}
+			/>
+			<TextField
+				label={getMessage('pet_distinctive4')}
+				name="distinctive4"
+				bind:value={distinctive4}
 			/>
 		</div>
 

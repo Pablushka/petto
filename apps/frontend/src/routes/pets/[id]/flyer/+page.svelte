@@ -7,10 +7,15 @@
 	import type { UserOutput } from '$lib/types/api/user';
 	import { resolve } from '$app/paths';
 
+	type FlyerTemplatePreview = {
+		name: string;
+		html: string;
+	};
+
 	export let data: {
 		pet: PetOut;
 		owner: UserOutput | Record<string, unknown>;
-		flyerHtml: string;
+		flyerTemplates: FlyerTemplatePreview[];
 	};
 
 	const pet: PetOut = data.pet;
@@ -27,6 +32,6 @@
 	</div>
 
 	<div class="rounded-lg bg-white p-6 shadow">
-		<FlyerGenerator {pet} flyerHtml={data.flyerHtml} />
+		<FlyerGenerator {pet} flyerTemplates={data.flyerTemplates} />
 	</div>
 </div>
