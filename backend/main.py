@@ -1,7 +1,8 @@
 
 import os
-from fastapi import FastAPI, Request, Response
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from tortoise.contrib.fastapi import register_tortoise
 from routers import static, users, pets, qrcode, banners, pet_location, upload, flyers
 from config import settings
@@ -10,6 +11,7 @@ from middleware.rate_limit import limiter, rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi import Limiter
 from logging_config import app_logger
+from pathlib import Path
 
 
 app = FastAPI(
@@ -39,6 +41,9 @@ if settings.environment == "production":
         "https://petto.app",
         "https://www.petto.app"
     ]
+# elif "null" not in allowed_origins:
+#     # about:srcdoc previews can emit Origin: null for nested font requests in dev.
+#     allowed_origins.append("null")
 
 # Security headers middleware
 app.add_middleware(SecurityHeadersMiddleware)
@@ -57,6 +62,10 @@ app.add_middleware(
         "Origin"
     ]
 )
+
+# Serve backend static assets (including flyer templates, fonts and svg files)
+static_dir = Path(__file__).resolve().parent / "static"
+app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
 
 app.include_router(static.router)
 app.include_router(users.router)

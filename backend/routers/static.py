@@ -1,9 +1,7 @@
 
 from fastapi import APIRouter, Request, HTTPException
 from fastapi.responses import HTMLResponse, FileResponse
-from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-import os
 import mimetypes
 from pathlib import Path
 
@@ -13,7 +11,6 @@ router = APIRouter()
 base_dir = Path(__file__).resolve().parent.parent / 'static'
 uploads_dir = base_dir / 'uploads'
 static_dir = base_dir
-router.mount('/static', StaticFiles(directory=str(static_dir)), name='static')
 
 # Set up Jinja2 templates (e.g., /templates/index.html)
 templates_dir = base_dir / 'templates'
