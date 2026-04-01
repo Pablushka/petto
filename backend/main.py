@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from tortoise.contrib.fastapi import register_tortoise
-from routers import static, users, pets, qrcode, banners, pet_location, upload, flyers
+from routers import users, pets, qrcode, banners, pet_location, upload, flyers
 from config import settings
 from middleware.security import SecurityHeadersMiddleware
 from middleware.rate_limit import limiter, rate_limit_exceeded_handler
@@ -41,12 +41,12 @@ if settings.environment == "production":
         "https://petto.app",
         "https://www.petto.app"
     ]
-# elif "null" not in allowed_origins:
-#     # about:srcdoc previews can emit Origin: null for nested font requests in dev.
-#     allowed_origins.append("null")
+elif "null" not in allowed_origins:
+    # about:srcdoc previews can emit Origin: null for nested font requests in dev.
+    allowed_origins.append("null")
 
 # Security headers middleware
-app.add_middleware(SecurityHeadersMiddleware)
+# app.add_middleware(SecurityHeadersMiddleware)
 
 # Restrictive CORS configuration for security
 app.add_middleware(
@@ -65,9 +65,18 @@ app.add_middleware(
 
 # Serve backend static assets (including flyer templates, fonts and svg files)
 static_dir = Path(__file__).resolve().parent / "static"
-app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
+static_files_app = StaticFiles(directory=str(static_dir))
+static_files_with_cors = CORSMiddleware(
+    static_files_app,
+    # Static assets are public; wildcard CORS avoids iframe/srcdoc font edge cases in dev.
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["GET", "OPTIONS"],
+    allow_headers=["*"],
+)
+app.mount("/static", static_files_with_cors, name="static")
 
-app.include_router(static.router)
+# app.include_router(static.router)
 app.include_router(users.router)
 app.include_router(pets.router)
 app.include_router(qrcode.router)
